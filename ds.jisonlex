@@ -4,7 +4,7 @@ id                          [a-zA-Z][a-zA-Z0-9]*
 %%
 "//".*                      /* ignore comment */
 "null"                      return 'NUL';
-{digit}+                    return 'NATLITERAL';
+{digit}+                    return 'LITERAL';
 {id}                        return 'ID';
 "=="                        return 'EQUALITY';
 "="                         return 'ASSIGN';
