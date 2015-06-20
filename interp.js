@@ -1,25 +1,7 @@
-var ds = require('./parse')
-	, ast = require('./ast');
+var ast = require('./ast')
+	Env = require('./env');
 
 (function(interp){
-	
-	//
-	// Environment
-	//
-	function Env( outer ){
-		this.dict = {};
-		this.outer = outer; 
-	}
-
-	Env.prototype.lookup = function(id){
-		if (this.dict[id] != undefined) return this.dict[id];
-		if (this.outer != undefined) return this.outer.lookup(id);
-		throw new Error("Unbound identifier!");
-	}
-	
-	Env.prototype.set = function(id, val){
-		this.dict[id] = val;
-	}
 
 	//
 	// Interpreter
@@ -29,8 +11,7 @@ var ds = require('./parse')
 
 	interp.eval = function( sl ){
 		var env = new Env();
-		
-		return interpStmtList( s, env );
+		return interpStmtList( s, new Env() );
 	};
 
 	function interpStmtList( sl, env ){
@@ -42,13 +23,14 @@ var ds = require('./parse')
 	}
 
 	function interpStmt( s, env ){
+		
 		if ( s instanceof ast.FuncDefStmt){
 			return interpFuncDefStmt( s, env );
 		} else if ( s instanceof ast.AssignStmt ){
-			return interpAssignStmt( s, env );
 		} else if ( s instanceof ast.ReturnStmt ){
-			return interpReturnStmt( s, env );
-		} 
+		} else if ( s instanceof ast.IfStmt ){
+			
+		}
 
 		throw new Error("No clause for statement");
 	}

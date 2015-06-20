@@ -2,4 +2,4 @@ all:
 	jison parse.jison lex.jisonlex
 
 test: 
-	node test.js
+	node test_parse.js
