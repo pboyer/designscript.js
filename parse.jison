@@ -25,7 +25,12 @@ s
 	| vd
 	| ifs
 	| rs
-	| e 
+	| es 
+	;
+
+es
+	: e
+	{ $$ = new yy.ExprStmt( $1 ); }
 	;
 
 b 	: LBRACE sl RBRACE
@@ -63,33 +68,33 @@ al	: id COMMA al
 
 id
 	: ID
+	{ $$ = new yy.Id($1); }
 	;
 
 el 
 	: e COMMA el
-	{ $$ = new yy.ExpList($1, $3); }
+	{ $$ = new yy.ExprList($1, $3); }
 	| e
-	{ $$ = new yy.ExpList($1); }	
+	{ $$ = new yy.ExprList($1); }	
 	;
 
 e
 	: l
 	| id
-	{ $$ = new yy.Id($1); }
 	| e PLUS e 
-	{ $$ = new yy.BinOpExp($2 ,$1, $3); }
+	{ $$ = new yy.BinOpExpr($2 ,$1, $3); }
 	| e MINUS e
-	{ $$ = new yy.BinOpExp($2 ,$1, $3); }
+	{ $$ = new yy.BinOpExpr($2 ,$1, $3); }
 	| e TIMES e
-	{ $$ = new yy.BinOpExp($2, $1, $3); }
+	{ $$ = new yy.BinOpExpr($2, $1, $3); }
 	| e EQUALITY e
-	{ $$ = new yy.BinOpExp($2, $1, $3); }
+	{ $$ = new yy.BinOpExpr($2, $1, $3); }
 	| e GREATER e
-	{ $$ = new yy.BinOpExp($2, $1, $3); }
+	{ $$ = new yy.BinOpExpr($2, $1, $3); }
 	| e OR e
-	{ $$ = new yy.BinOpExp($2, $1, $3); }
-	| id LPAREN e RPAREN
-	{ $$ = new yy.ApplyExp($1, $3); }
+	{ $$ = new yy.BinOpExpr($2, $1, $3); }
+	| id LPAREN el RPAREN
+	{ $$ = new yy.ApplyExpr($1, $3); }
 	| LPAREN e RPAREN
 	{ $$ = $2; }
 	;

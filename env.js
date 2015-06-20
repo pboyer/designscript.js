@@ -1,4 +1,4 @@
-(function(interp){
+(function(exports){
 	
 	//
 	// Environment
@@ -7,6 +7,8 @@
 		this.dict = {};
 		this.outer = outer; 
 	}
+
+	exports.Env = Env;
 
 	Env.prototype.lookup = function(id){
 		if (this.dict[id] != undefined) return this.dict[id];

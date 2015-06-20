@@ -1,6 +1,7 @@
 (function(ast){
+
 	//
-	// Literals
+	// Identifiers
 	//
 	ast.Id = function (id){
 		this.id = id;
@@ -10,7 +11,10 @@
 		this.id = id;
 		this.il = il;
 	}
-
+	
+	//
+	// Literals
+	//
 	ast.IntLit = function(v){
 		this.v = v;
 	}
@@ -18,23 +22,21 @@
 	//
 	// Expressions
 	//
-	ast.BinOpExp = function(op, lhs, rhs){
+	ast.BinOpExpr = function(op, lhs, rhs){
 		this.op = op;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
 
-	ast.ApplyExp = function(id, e){
-		this.id = id;
-		this.e = e;
-	}
-
-	ast.ExpList = function(e, el){
-		this.e = e;
+	ast.ApplyExpr = function(fid, el){
+		this.fid = fid;
 		this.el = el;
 	}
 
-	
+	ast.ExprList = function(e, el){
+		this.e = e;
+		this.el = el;
+	}
 
 	//
 	// Statements
@@ -62,6 +64,10 @@
 	}
 
 	ast.ReturnStmt = function(e){
+		this.e = e;
+	}
+
+	ast.ExprStmt = function(e){
 		this.e = e;
 	}
 
