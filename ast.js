@@ -19,6 +19,10 @@
 		this.v = v;
 	}
 
+	ast.BoolLit = function(v){
+		this.v = v;
+	}
+
 	//
 	// Expressions
 	//

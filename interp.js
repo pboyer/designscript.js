@@ -21,6 +21,7 @@ var ast = require('./ast')
 		var globals = builtins();
 
 		interpFuncDefStmts( sl, globals ); 				
+
 		interpStmtList( sl, globals );
 	}
 	
@@ -141,7 +142,7 @@ var ast = require('./ast')
 			return apply( fd, env, args ); 
 		}
 
-		env.set(s.id, f);
+		env.set(fd.id.id, f);
 	}
 
 	function apply( fd, env, args ){	

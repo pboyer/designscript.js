@@ -43,7 +43,7 @@ rs 	: RETURN e
 	;
 
 fd
-	: FUNC id LPAREN al RPAREN LBRACE sl RBRACE
+	: DEF id LPAREN al RPAREN LBRACE sl RBRACE
 	{ $$ = new yy.FuncDefStmt( $2, $4, $7); }
 	;
 

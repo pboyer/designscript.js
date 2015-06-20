@@ -5,9 +5,11 @@ id                          [a-zA-Z][a-zA-Z0-9]*
 "//".*                      /* ignore comment */
 "if"                        return 'IF';
 "else"                      return 'ELSE';
-"func"			    return 'FUNC';
+"def"			    return 'DEF';
 "var"			    return 'VAR';
 "null"                      return 'NUL';
+"true"                      return 'TRUE';
+"false"                     return 'FALSE';
 "return"                    return 'RETURN';
 {digit}+                    return 'LITERAL';
 {id}                        return 'ID';
