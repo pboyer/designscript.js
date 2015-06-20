@@ -27,7 +27,6 @@ var ast = require('./ast')
 	exports.Interpreter = Interpreter;
 
 	Interpreter.prototype.eval = function( sl ){
-		console.log( this.exts );
 		var globals = builtins( this.exts );
 
 		interpFuncDefStmts( sl, globals ); 				
@@ -66,10 +65,28 @@ var ast = require('./ast')
 			return interpId(e, env);
 		} else if ( e instanceof ast.IntLit ){
 			return interpIntLit( e );	
+		} else if ( e instanceof ast.FloatLit ){
+			return interpFloatLit( e );
+		} else if ( e instanceof ast.BoolLit ){
+			return interpBoolLit( e );
+		} else if ( e instanceof ast.StringLit ){
+			return interpStringLit( e );
 		}
 
 		throw new Error("Unknown expression type");
 	}
+
+	function interpStringLit( e ){
+		return e.v;
+	}
+
+	function interpBoolLit( e ){
+		return e.v === "true"; 
+	}
+
+	function interpFloatLit( e ){
+		return parseFloat( e.v );
+	}	
 
 	function interpIntLit( e ){
 		return parseInt( e.v ); 
@@ -101,7 +118,7 @@ var ast = require('./ast')
 			return interpIfStmt( s, env );	
 		} else if ( s instanceof ast.ExprStmt ){
 			return interpExprStmt( s, env );
-		}
+		} 
 
 		throw new Error("No clause for statement");
 	}

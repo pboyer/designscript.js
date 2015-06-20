@@ -1,3 +1,4 @@
+add bools
 add strings
 add floats
 add typed ids

@@ -33,3 +33,10 @@ function eval(p){
 	var r = eval('def foo(a,b){ return bar(a,b); }; def bar(a,b){ return a + b; }; debug( foo(1, 2));');
 	assert.equal( 3, r[0] );
 })();
+
+(function(){
+	var r = eval('def intId(a : int){ return a; }; debug( intId(2) );');
+	assert.equal( 2, r[0] );
+})();
+
+

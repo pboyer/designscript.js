@@ -8,7 +8,7 @@
 		this.t = t;
 	}
 
-	ast.Type = function(id){
+	ast.Type = function(t){
 		this.t = t;
 	}
 	
@@ -21,6 +21,10 @@
 	// Literals
 	//
 	ast.IntLit = function(v){
+		this.v = v;
+	}
+	
+	ast.FloatLit = function(v){
 		this.v = v;
 	}
 

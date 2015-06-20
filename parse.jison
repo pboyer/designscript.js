@@ -73,10 +73,14 @@ id
 
 tid
 	: id
-	| id COLON t
+	| ID COLON t
 	{ $$ = new yy.Id( $1, $3 ); }
 	;
 
+t
+	: ID
+	{ $$ = new yy.Type( $1 ); }
+	;
 
 el 
 	: e COMMA el
@@ -107,7 +111,13 @@ e
 	;
 
 l 	
-	: LITERAL
-	{ $$ = new yy.IntLit( $1 ); }	
+	: INT
+	{ $$ = new yy.IntLit( $1 ); }
+	| TRUE
+	{ $$ = new yy.BoolLit( $1 ); }
+	| FALSE
+	{ $$ = new yy.BoolLit( $1 ); }
+	| STRING
+	{ $$ = new yy.StringLit( $1 ); }
 	;
 

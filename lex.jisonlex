@@ -11,7 +11,7 @@ id                          [a-zA-Z][a-zA-Z0-9]*
 "true"                      return 'TRUE';
 "false"                     return 'FALSE';
 "return"                    return 'RETURN';
-{digit}+                    return 'LITERAL';
+{digit}+                    return 'INT';
 {id}                        return 'ID';
 "=="                        return 'EQUALITY';
 "="                         return 'ASSIGN';
