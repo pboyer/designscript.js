@@ -1,2 +1,5 @@
 all:
-	jison ds.jison ds.jisonlex
+	jison parse.jison lex.jisonlex
+
+test: 
+	node test.js

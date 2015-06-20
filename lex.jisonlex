@@ -3,7 +3,12 @@ id                          [a-zA-Z][a-zA-Z0-9]*
 
 %%
 "//".*                      /* ignore comment */
+"if"                        return 'IF';
+"else"                      return 'ELSE';
+"func"			    return 'FUNC';
+"var"			    return 'VAR';
 "null"                      return 'NUL';
+"return"                    return 'RETURN';
 {digit}+                    return 'LITERAL';
 {id}                        return 'ID';
 "=="                        return 'EQUALITY';
@@ -11,6 +16,7 @@ id                          [a-zA-Z][a-zA-Z0-9]*
 "+"                         return 'PLUS';
 "-"                         return 'MINUS';
 "*"                         return 'TIMES';
+","                         return 'COMMA';
 ">"                         return 'GREATER';
 "||"                        return 'OR';
 "!"                         return 'NOT';
