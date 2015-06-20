@@ -7,18 +7,28 @@ var ast = require('./ast')
 	// Interpreter
 	//
 	
-	function builtins(){
+	function builtins(exts){
 		var env = new Env();
+
+		if (exts){
+			for (var id in exts){
+				env.set( id, exts[id] );
+			}
+		}
+		
 		env.set("print", console.log);
 		return env;
 	}
 
-	function Interpreter(){};
+	function Interpreter(exts){
+		this.exts = exts;
+	};
 
 	exports.Interpreter = Interpreter;
 
 	Interpreter.prototype.eval = function( sl ){
-		var globals = builtins();
+		console.log( this.exts );
+		var globals = builtins( this.exts );
 
 		interpFuncDefStmts( sl, globals ); 				
 

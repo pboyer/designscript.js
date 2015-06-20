@@ -59,9 +59,9 @@ ifs
 	{ $$ = new yy.IfStmt( $3, $5, $7 ); }
 	;
 
-al	: id COMMA al
+al	: tid COMMA al
 	{ $$ = new yy.IdList( $1, $3 ); }
-	| id
+	| tid
 	{ $$ = new yy.IdList( $1 ); }
 	|
 	;
@@ -70,6 +70,13 @@ id
 	: ID
 	{ $$ = new yy.Id($1); }
 	;
+
+tid
+	: id
+	| id COLON t
+	{ $$ = new yy.Id( $1, $3 ); }
+	;
+
 
 el 
 	: e COMMA el

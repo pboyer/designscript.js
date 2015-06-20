@@ -3,10 +3,15 @@
 	//
 	// Identifiers
 	//
-	ast.Id = function (id){
+	ast.Id = function(id, t){
 		this.id = id;
+		this.t = t;
 	}
 
+	ast.Type = function(id){
+		this.t = t;
+	}
+	
 	ast.IdList = function(id, il){
 		this.id = id;
 		this.il = il;
@@ -20,6 +25,10 @@
 	}
 
 	ast.BoolLit = function(v){
+		this.v = v;
+	}
+
+	ast.Stringlit = function(v){
 		this.v = v;
 	}
 

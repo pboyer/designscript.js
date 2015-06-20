@@ -7,12 +7,29 @@ Parser.parser.yy = ast;
 
 function eval(p){
 	var pp = Parser.parse( p );
-	return (new Interpreter()).eval( pp );
+
+	// record the debug statements
+	var record = [];
+	var exts = {
+		"debug" : function(x){ record.push(x) }
+	};
+
+	(new Interpreter( exts )).eval( pp );
+	
+	return record;
 }
 
 (function(){
-	eval('var a = 4; print(a);');
-	eval('def foo(a,b){ return a + b; }; print( foo(1, 2) );');
-	eval('def foo(a,b){ return bar(a,b); }; def bar(a,b){ return a + b; }; print( foo(1, 2));');
+	var r = eval('var a = 4; debug(a);');
+	assert.equal( 4, r[0] ); 	
 })();
 
+(function(){
+	var r = eval('def foo(a,b){ return a + b; }; debug( foo(1, 2) );');
+	assert.equal( 3, r[0] );
+})();
+
+(function(){
+	var r = eval('def foo(a,b){ return bar(a,b); }; def bar(a,b){ return a + b; }; debug( foo(1, 2));');
+	assert.equal( 3, r[0] );
+})();

@@ -18,6 +18,7 @@ id                          [a-zA-Z][a-zA-Z0-9]*
 "+"                         return 'PLUS';
 "-"                         return 'MINUS';
 "*"                         return 'TIMES';
+":"                         return 'COLON';
 ","                         return 'COMMA';
 ">"                         return 'GREATER';
 "||"                        return 'OR';

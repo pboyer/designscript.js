@@ -1,1 +1,4 @@
-make sure function definitions are consistent
+add strings
+add floats
+add typed ids
+add optional types
