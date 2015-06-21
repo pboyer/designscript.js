@@ -160,7 +160,7 @@ var ast = require('./ast')
 	}
 
 	function interpAssignStmt( s, env ){
-		env.set( s.id.id, interpExpr( s.e ));
+		env.set( s.id.id, interpExpr( s.e, env ));
 	}
 
 	function interpFuncDefStmt( fd, env ){

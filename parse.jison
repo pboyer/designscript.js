@@ -25,21 +25,13 @@ s
 	| vd
 	| ifs
 	| rs
-	| es 
-	;
-
-es
-	: e
-	{ $$ = new yy.ExprStmt( $1 ); }
 	;
 
 b 	: LBRACE sl RBRACE
 	;
 
-rs 	: RETURN e
-	{ $$ = new yy.ReturnStmt( $2 ); }
-	| RETURN
-	{ $$ = new yy.ReturnStmt(); }
+rs 	: RETURN ASSIGN e
+	{ $$ = new yy.ReturnStmt( $3 ); }
 	;
 
 fd
@@ -48,8 +40,8 @@ fd
 	;
 
 vd	
-	: VAR id ASSIGN e
-	{ $$ = new yy.AssignStmt( $2, $4 ); }
+	: tid ASSIGN e
+	{ $$ = new yy.AssignStmt( $1, $3 ); }
 	;
 
 ifs
