@@ -43,7 +43,6 @@ vd
 	: tid ASSIGN e
 	{ $$ = new yy.AssignStmt( $1, $3 ); }
 	;
-
 ifs
 	: IF LPAREN e RPAREN b 
 	{ $$ = new yy.IfStmt( $3, $5 ); }
@@ -100,6 +99,8 @@ e
 	{ $$ = new yy.ApplyExpr($1, $3); }
 	| LPAREN e RPAREN
 	{ $$ = $2; }
+	| id LBRACKET e RBRACKET
+	{ $$ = new yy.ArrayIndexExpr( $1, $3 ); }	
 	;
 
 l 	
@@ -111,5 +112,7 @@ l
 	{ $$ = new yy.BoolLit( $1 ); }
 	| STRING
 	{ $$ = new yy.StringLit( $1 ); }
+	| LBRACE el RBRACE
+	{ $$ = new yy.ArrayLit( $2 ); }
 	;
 

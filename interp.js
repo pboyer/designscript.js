@@ -71,13 +71,27 @@ var ast = require('./ast')
 			return interpBoolLit( e );
 		} else if ( e instanceof ast.StringLit ){
 			return interpStringLit( e );
+		} else if ( e instanceof ast.ArrayLit ){
+			return interpArrayLit( e, env );
+		} else if ( e instanceof ast.ArrayIndexExpr ){
+			return interpArrayIndexExpr( e, env );
 		}
 
 		throw new Error("Unknown expression type");
 	}
 
+	function interpArrayIndexExpr( e, env ){
+		var array = interpExpr( e.a, env );
+		var index = interpExpr( e.i, env );
+		return array[index];
+	}
+
+	function interpArrayLit( e, env ){
+		return interpExprList( e.el, env );	
+	}
+
 	function interpStringLit( e ){
-		return e.v;
+		return e.v.slice(1, e.v.length-1);
 	}
 
 	function interpBoolLit( e ){
@@ -116,15 +130,9 @@ var ast = require('./ast')
 			return interpReturnStmt( s, env ); 	
 		} else if ( s instanceof ast.IfStmt ){
 			return interpIfStmt( s, env );	
-		} else if ( s instanceof ast.ExprStmt ){
-			return interpExprStmt( s, env );
-		} 
+		}
 
 		throw new Error("No clause for statement");
-	}
-
-	function interpExprStmt( s, env ){
-		interpExpr( s.e, env );	
 	}
 
 	function interpReturnStmt( s, env ){
@@ -184,5 +192,59 @@ var ast = require('./ast')
 		return interpStmtList( fd.sl, env );	
 	}
 
+	// built-in types - bool, int, float, var, T[]	
+
+	function replicate( fd ){
+
+		// replication guides are specific to a particular function invocation
+		//
+		// f( x<1>, y<2>)
+		// will do a cartesian product
+		//
+		// fix arg 1 and iterate through arg 2
+		// 
+		
+		// f( x<1>, y<1> )
+		// will do a shortest replication
+		// 
+		// iterate through arg1 and arg2 simultaneously
+		//
+
+		// f( x<1>, y<1>, z<2> );
+		//
+		// fix x and y, iterate through z
+		// then fix the next index of x and y, and iterate through z
+		// repeat
+		//
+		
+		// so, what are the steps to perform replication
+		//
+		// first, extract the expected types from each argument from the fd
+		//
+		// then, extract the repl guides for each supplied argument
+		//
+		// determine the actual types of the supplied arguments, you may need to
+		// promote a single item to an array
+		//
+		
+		// for each index type
+		//   fix the argument indices
+		//      for each index type 
+		//         fix the argument indices
+		
+		// 1,2,3
+		// a,b,c
+		// x,y,z
+		//
+		// case a: 1a 1b 1c 2a 2b 2c 3a 3b 3c
+		//
+		// case b: 1a 2b 3c
+		//
+		
+		// step 1: rep guide index -> [arg index]
+		// 
+		
+
+	}
 })(exports);
 

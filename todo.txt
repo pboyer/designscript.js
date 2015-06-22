@@ -1,5 +1,3 @@
-add bools
 add strings
 add floats
-add typed ids
-add optional types
+both have some strange parsing issues

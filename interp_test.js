@@ -44,3 +44,8 @@ function eval(p){
 	assert.equal( 25, r[0] );
 })();
 
+(function(){
+	var r = eval('a = {true, false, "Ok cool"}; t = debug( a[1 + 1] );');
+	assert.equal( "Ok cool", r[0] );
+})();
+

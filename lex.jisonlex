@@ -1,5 +1,6 @@
 digit                       [0-9]
 id                          [a-zA-Z][a-zA-Z0-9]*
+str                         [a-zA-Z0-9\s]*
 
 %%
 "//".*                      /* ignore comment */
@@ -13,6 +14,7 @@ id                          [a-zA-Z][a-zA-Z0-9]*
 "return"                    return 'RETURN';
 {digit}+                    return 'INT';
 {id}                        return 'ID';
+"\""{str}"\""                    return 'STRING';
 "=="                        return 'EQUALITY';
 "="                         return 'ASSIGN';
 "+"                         return 'PLUS';
@@ -20,7 +22,8 @@ id                          [a-zA-Z][a-zA-Z0-9]*
 "*"                         return 'TIMES';
 ":"                         return 'COLON';
 ","                         return 'COMMA';
-">"                         return 'GREATER';
+"<"                         return 'LCARET';
+">"                         return 'RCARET';
 "||"                        return 'OR';
 "!"                         return 'NOT';
 "."                         return 'DOT';
@@ -28,6 +31,8 @@ id                          [a-zA-Z][a-zA-Z0-9]*
 "}"                         return 'RBRACE';
 "("                         return 'LPAREN';
 ")"                         return 'RPAREN';
+"["                         return 'LBRACKET';
+"]"                         return 'RBRACKET';
 ";"                         return 'SEMICOLON';
 \s+                         /* skip whitespace */
 "."                         throw 'Illegal character';

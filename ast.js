@@ -16,7 +16,7 @@
 		this.id = id;
 		this.il = il;
 	}
-	
+
 	//
 	// Literals
 	//
@@ -32,9 +32,14 @@
 		this.v = v;
 	}
 
-	ast.Stringlit = function(v){
+	ast.StringLit = function(v){
 		this.v = v;
 	}
+	
+	ast.ArrayLit = function(el){
+		this.el = el;
+	}
+
 
 	//
 	// Expressions
@@ -48,6 +53,11 @@
 	ast.ApplyExpr = function(fid, el){
 		this.fid = fid;
 		this.el = el;
+	}
+
+	ast.ArrayIndexExpr = function(a, i){
+		this.a = a;
+		this.i = i;
 	}
 
 	ast.ExprList = function(e, el){
