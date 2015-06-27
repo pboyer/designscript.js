@@ -11,7 +11,7 @@ function eval(p){
 	// record the debug statements
 	var record = [];
 	var exts = {
-		"debug" : function(x){ record.push(x) }
+		"debug" : function(x){ record.push(x.v) }
 	};
 
 	(new Interpreter( exts )).eval( pp );
@@ -32,6 +32,12 @@ function eval(p){
 (function(){
 	var r = eval('def foo(a,b){ return = bar(a,b); }; def bar(a,b){ return = a + b; }; t = debug( foo(1, 2));');
 	assert.equal( 3, r[0] );
+})();
+
+
+(function(){
+	var r = eval('def firstElement(a : int[]){ return = a[0]; }; t = debug( firstElement({0,1,2}<1>) );');
+	assert.equal( 0, r[0] );
 })();
 
 (function(){

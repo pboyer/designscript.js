@@ -154,7 +154,22 @@ var ast = require('./ast')
 
 	function interpApplyExpr( e, env ){
 		var fd = env.lookup( e.fid.id );
-		return fd.apply( undefined, interpExprList( e.el, env ) );  
+		return fd.apply( undefined, interpFuncArgExprList( e.el, env ) );  
+	}
+
+	function FuncArg( v, rg ){
+		this.v = v;
+		this.rg = rg;
+	}
+
+	function interpFuncArgExprList( fal, env ){
+		// each argument has an expression and also a rep guide
+		var vs = [];
+		while ( fal != undefined ){
+			vs.push( new FuncArg( interpExpr(fal.fa.e, env), fal.fa.rg) );
+			fal = fal.fal;	
+		}
+		return vs; 
 	}
 
 	function interpExprList( el, env ){
@@ -174,6 +189,7 @@ var ast = require('./ast')
 	function interpFuncDefStmt( fd, env ){
 		function f(){
 			var args = Array.prototype.slice.call( arguments );
+
 			return apply( fd, env, args ); 
 		}
 
@@ -185,66 +201,46 @@ var ast = require('./ast')
 		var i = 0;
 
 		while( il != undefined ){
-			env.set( il.id.id, args[i++] );
+			env.set( il.id.id, args[i++].v );
 			il = il.il;
 		}
 
 		return interpStmtList( fd.sl, env );	
 	}
 
-	// built-in types - bool, int, float, var, T[]	
+	function replicate( applyNode ){
+	
+		// lift all arguments if any of the arguments is an array where the func is expecting a 
+		var ri = [[1,2]]; // the indices of the rep guides
+		var nrg = ri.length; // num rep guides, if none supplied, we have just one
+		var lrf = []; // the shortest array in the replication guide
+		var finalArgs = new Array( lrf[0] ); // a structured array representing the final arguments to apply to the function
+		var numFuncArgs = 1; // number of arguments to the function
+		var i, j, k, l;
 
-	function replicate( fd ){
+		// for every replication guide
+		for (i = 0; i < nrg; i++){
+			
+			// for every element in the argument array for this replication guide
+			for (j = 0; j < lrf[i]; j++){
 
-		// replication guides are specific to a particular function invocation
-		//
-		// f( x<1>, y<2>)
-		// will do a cartesian product
-		//
-		// fix arg 1 and iterate through arg 2
-		// 
-		
-		// f( x<1>, y<1> )
-		// will do a shortest replication
-		// 
-		// iterate through arg1 and arg2 simultaneously
-		//
+				// for every element already in the current argument array
+				for (k = 0; k < finalArgs.length; k++){
 
-		// f( x<1>, y<1>, z<2> );
-		//
-		// fix x and y, iterate through z
-		// then fix the next index of x and y, and iterate through z
-		// repeat
-		//
-		
-		// so, what are the steps to perform replication
-		//
-		// first, extract the expected types from each argument from the fd
-		//
-		// then, extract the repl guides for each supplied argument
-		//
-		// determine the actual types of the supplied arguments, you may need to
-		// promote a single item to an array
-		//
-		
-		// for each index type
-		//   fix the argument indices
-		//      for each index type 
-		//         fix the argument indices
-		
-		// 1,2,3
-		// a,b,c
-		// x,y,z
-		//
-		// case a: 1a 1b 1c 2a 2b 2c 3a 3b 3c
-		//
-		// case b: 1a 2b 3c
-		//
-		
-		// step 1: rep guide index -> [arg index]
-		// 
-		
+					// initialize the arguments for this invocation or obtain from finalArgs
+					targs = i === 0 ? new Array(numFuncArgs) : finalArgs[ k ];
 
+					// for every index in the replication guide
+					for (l = 0; l < ri[i]; l++){
+						targs[ ri[i][l] ] = args[l][j]; // one function argument		
+					}
+				}
+			}
+		}
+
+		return finalArgs.map(function(x){
+			return func.apply( null, x );
+		});
 	}
 })(exports);
 

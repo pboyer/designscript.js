@@ -50,9 +50,10 @@
 		this.rhs = rhs;
 	}
 
-	ast.ApplyExpr = function(fid, el){
+	ast.ApplyExpr = function(fid, el, rg){
 		this.fid = fid;
 		this.el = el;
+		this.rg = rg;
 	}
 
 	ast.ArrayIndexExpr = function(a, i){
@@ -96,6 +97,18 @@
 
 	ast.ExprStmt = function(e){
 		this.e = e;
+	}
+
+	// 
+	// Replication guides
+	//
+	ast.FuncArgExpr = function(e){
+		this.e = e;
+	}
+
+	ast.FuncArgExprList = function(fa, fal){
+		this.fa = fa;
+		this.fal = fal;
 	}
 
 })(exports);

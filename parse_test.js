@@ -15,6 +15,8 @@ ds.parser.yy = ast;
 	assert.ok( ds.parse('a = {1,2,3}; b = a[1 + 1];').sl.s.e instanceof ast.ArrayIndexExpr );
 	assert.ok( ds.parse('a = "ok";').s.e instanceof ast.StringLit );
 
+	assert.ok( ds.parse('a = foo(b<1>);').s.e instanceof ast.ApplyExpr );
+	assert.ok( ds.parse('a = foo(a<1>,b<2>);').s.e instanceof ast.ApplyExpr );
 
 	assert.throws( function(){ ds.parse('4;')} );
 })();

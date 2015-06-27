@@ -71,6 +71,8 @@ tid
 t
 	: ID
 	{ $$ = new yy.Type( $1 ); }
+	| ID LBRACKET RBRACKET
+	{ $$ = new yy.Type( $1 ); }
 	;
 
 el 
@@ -78,6 +80,20 @@ el
 	{ $$ = new yy.ExprList($1, $3); }
 	| e
 	{ $$ = new yy.ExprList($1); }	
+	;
+
+fal 
+	: fa COMMA fal
+	{ $$ = new yy.FuncArgExprList($1, $3); }
+	| fa
+	{ $$ = new yy.FuncArgExprList($1); }	
+	;
+
+fa
+	: e LCARET INT RCARET
+	{ $$ = new yy.FuncArgExpr( $1, parseInt( $3 ) ); }
+	| e 
+	{ $$ = new yy.FuncArgExpr( $1 ); }
 	;
 
 e
@@ -95,7 +111,7 @@ e
 	{ $$ = new yy.BinOpExpr($2, $1, $3); }
 	| e OR e
 	{ $$ = new yy.BinOpExpr($2, $1, $3); }
-	| id LPAREN el RPAREN
+	| id LPAREN fal RPAREN
 	{ $$ = new yy.ApplyExpr($1, $3); }
 	| LPAREN e RPAREN
 	{ $$ = $2; }
