@@ -16,7 +16,7 @@ var ast = require('./ast')
 			}
 		}
 		
-		env.set("print", console.log);
+		env.set("print", new TypedFuncDef( console.log ));
 		return env;
 	}
 
@@ -154,10 +154,10 @@ var ast = require('./ast')
 
 	function interpApplyExpr( e, env ){
 		var fd = env.lookup( e.fid.id );
-		return fd.apply( undefined, interpFuncArgExprList( e.el, env ) );  
+		return replicate( fd, interpFuncArgExprList( e.el, env ) );  
 	}
 
-	function FuncArg( v, rg ){
+	function ReplicatedFuncArg( v, rg ){
 		this.v = v;
 		this.rg = rg;
 	}
@@ -166,7 +166,7 @@ var ast = require('./ast')
 		// each argument has an expression and also a rep guide
 		var vs = [];
 		while ( fal != undefined ){
-			vs.push( new FuncArg( interpExpr(fal.fa.e, env), fal.fa.rg) );
+			vs.push( new ReplicatedFuncArg( interpExpr(fal.fa.e, env), fal.fa.rg) );
 			fal = fal.fal;	
 		}
 		return vs; 
@@ -186,37 +186,71 @@ var ast = require('./ast')
 		env.set( s.id.id, interpExpr( s.e, env ));
 	}
 
-	function interpFuncDefStmt( fd, env ){
+	function TypedFuncDef( f, al ){
+		this.f = f;
+		this.al = al || []; // the type identifiers for the func def
+	}
+
+	interp.TypedFuncDef = TypedFuncDef;
+
+	function interpFuncDefStmt( fds, env ){
+
+		// unpack the argument list 
+		var fal = fd.fal;
+		var val = [];
+		while (al != undefined){
+			val.push( al.fa );
+			fal = fal.fal;
+		}
+	
+		var fd; 
+
 		function f(){
 			var args = Array.prototype.slice.call( arguments );
-
 			return apply( fd, env, args ); 
 		}
 
-		env.set(fd.id.id, f);
+		fd = new TypedFuncDef(f, val); 
+
+		env.set(fds.id.id, fd);
 	}
 
 	function apply( fd, env, args ){	
-		var il = fd.il;
+		
+		// bind the arguments in the scope 
 		var i = 0;
-
-		while( il != undefined ){
-			env.set( il.id.id, args[i++].v );
-			il = il.il;
-		}
+		fd.fal.forEach(function(x){
+			env.set( x.id.id, args[i++] );
+		});
 
 		return interpStmtList( fd.sl, env );	
 	}
 
-	function replicate( applyNode ){
-	
-		// lift all arguments if any of the arguments is an array where the func is expecting a 
-		var ri = [[1,2]]; // the indices of the rep guides
+	function allTypesMatch(){
+		return true;
+	}
+
+	function replicate( fd, args ){
+
+		// form the indices of all arguments
+		var ri = (new Array(fd.al.length))
+			.map(function(){ return []; });
+
+		args.forEach(function(x,i){ if (x.rg === undefined) ri[0].push(i); else ri[i-1].push(i); })
+
+		// if all types match, simply execute
+		if (allTypesMatch(fd, args)){
+			return fd.f.apply(undefined, args.map(function(x){ return x.v; }));
+		}
+
 		var nrg = ri.length; // num rep guides, if none supplied, we have just one
 		var lrf = []; // the shortest array in the replication guide
 		var finalArgs = new Array( lrf[0] ); // a structured array representing the final arguments to apply to the function
 		var numFuncArgs = 1; // number of arguments to the function
 		var i, j, k, l;
+
+		// if all of the arguments match their expected types, execute
+		// otherwise, we must divide all of the non-matching fields and recurse
 
 		// for every replication guide
 		for (i = 0; i < nrg; i++){
@@ -239,7 +273,7 @@ var ast = require('./ast')
 		}
 
 		return finalArgs.map(function(x){
-			return func.apply( null, x );
+			return fd.f.apply( null, x );
 		});
 	}
 })(exports);

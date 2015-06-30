@@ -80,9 +80,9 @@
 		this.fsl = fsl;
 	}
 
-	ast.FuncDefStmt = function(id, il, sl){
+	ast.FuncDefStmt = function(id, fal, sl){
 		this.id = id;
-		this.il = il;
+		this.fal = fal;
 		this.sl = sl;
 	}
 	
@@ -102,8 +102,9 @@
 	// 
 	// Replication guides
 	//
-	ast.FuncArgExpr = function(e){
+	ast.FuncArgExpr = function(e, ri){
 		this.e = e;
+		this.ri = ri;
 	}
 
 	ast.FuncArgExprList = function(fa, fal){

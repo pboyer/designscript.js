@@ -1,6 +1,8 @@
 var Parser = require('./parse')
 	, assert = require('assert')
-	, Interpreter = require('./interp').Interpreter;
+	, Interpreter = require('./interp').Interpreter
+	, TypedFuncDef = require('./interp').TypedFuncDef
+	, FuncArgExpr = require('./ast').FuncArgExpr;
 
 var ast = require('./ast');
 Parser.parser.yy = ast;
@@ -11,7 +13,8 @@ function eval(p){
 	// record the debug statements
 	var record = [];
 	var exts = {
-		"debug" : function(x){ record.push(x.v) }
+		"debug" : new TypedFuncDef(function(x){ record.push(x.v) }, 
+					   [ new FuncArgExpr("x","var")]);
 	};
 
 	(new Interpreter( exts )).eval( pp );
