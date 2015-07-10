@@ -13,8 +13,7 @@ function eval(p){
 	// record the debug statements
 	var record = [];
 	var exts = {
-		"debug" : new TypedFuncDef(function(x){ record.push(x.v) }, 
-					   [ new FuncArgExpr("x","var")]);
+		"debug" : new TypedFuncDef(function(x){ record.push(x); })
 	};
 
 	(new Interpreter( exts )).eval( pp );

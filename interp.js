@@ -195,11 +195,12 @@ var ast = require('./ast')
 
 	function interpFuncDefStmt( fds, env ){
 
+		console.log( fds );
 		// unpack the argument list 
-		var fal = fd.fal;
+		var fal = fds.fal;
 		var val = [];
-		while (al != undefined){
-			val.push( al.fa );
+		while (fal != undefined){
+			val.push( fal.fa );
 			fal = fal.fal;
 		}
 	
@@ -216,10 +217,10 @@ var ast = require('./ast')
 	}
 
 	function apply( fd, env, args ){	
-		
+	
 		// bind the arguments in the scope 
 		var i = 0;
-		fd.fal.forEach(function(x){
+		fd.al.forEach(function(x){
 			env.set( x.id.id, args[i++] );
 		});
 
@@ -231,17 +232,17 @@ var ast = require('./ast')
 	}
 
 	function replicate( fd, args ){
+		// if all types match, simply execute
+		if (allTypesMatch(fd, args)){
+			return fd.f.apply(undefined, args.map(function(x){ return x.v; }));
+		}
+
 
 		// form the indices of all arguments
 		var ri = (new Array(fd.al.length))
 			.map(function(){ return []; });
 
 		args.forEach(function(x,i){ if (x.rg === undefined) ri[0].push(i); else ri[i-1].push(i); })
-
-		// if all types match, simply execute
-		if (allTypesMatch(fd, args)){
-			return fd.f.apply(undefined, args.map(function(x){ return x.v; }));
-		}
 
 		var nrg = ri.length; // num rep guides, if none supplied, we have just one
 		var lrf = []; // the shortest array in the replication guide
