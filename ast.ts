@@ -37,10 +37,18 @@ export class Type {
 //
 class Expr {}
 
-export class NumberLit implements Expr { 
-    v : Number;
+export class IntLit implements Expr { 
+    v : string;
     
-    constructor(v : Number){
+    constructor(v : string){
+        this.v = v;
+	}
+}
+
+export class FloatLit implements Expr { 
+    v : string;
+    
+    constructor(v : string){
         this.v = v;
 	}
 }

@@ -1,4 +1,5 @@
 all:
+	tsc
 	jison parse.jison lex.jisonlex
 
 test:
