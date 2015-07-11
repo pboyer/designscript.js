@@ -1,5 +1,3 @@
-
-
 //
 // Identifiers
 //
@@ -54,9 +52,9 @@ export class FloatLit implements Expr {
 }
 
 export class BoolLit implements Expr { 
-    v : boolean;
+    v : string;
     
-    constructor(v : boolean){
+    constructor(v : string){
         this.v = v;
 	}
 }

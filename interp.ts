@@ -76,37 +76,37 @@ function interpExpr( e : ast.Expr, env : enviro.Env ) : any {
     throw new Error("Unknown expression type");
 }
 
-function interpArrayIndexExpr( e, env ){
+function interpArrayIndexExpr( e : ast.ArrayIndexExpr, env : enviro.Env ) : any {
     var array = interpExpr( e.a, env );
     var index = interpExpr( e.i, env );
     return array[index];
 }
 
-function interpArrayLit( e, env ){
+function interpArrayLit( e : ast.ArrayLit , env : enviro.Env ) : any[] {
     return interpExprList( e.el, env );	
 }
 
-function interpStringLit( e ){
+function interpStringLit( e : ast.StringLit ) : string {
     return e.v.slice(1, e.v.length-1);
 }
 
-function interpBoolLit( e ){
+function interpBoolLit( e : ast.BoolLit ) : boolean {
     return e.v === "true"; 
 }
 
-function interpFloatLit( e ){
+function interpFloatLit( e : ast.FloatLit ) : Number {
     return parseFloat( e.v );
 }	
 
-function interpIntLit( e ){
+function interpIntLit( e : ast.IntLit ) : Number {
     return parseInt( e.v ); 
 }
 
-function interpId( e, env ){
+function interpId( e, env : enviro.Env ) : any {
     return env.lookup( e.id );
 }
 
-function interpBinOpExpr( e, env ){
+function interpBinOpExpr( e, env : enviro.Env ) : any {
     switch( e.op ){
         case "+":
             return interpExpr( e.lhs, env ) + interpExpr( e.rhs, env );
@@ -117,7 +117,7 @@ function interpBinOpExpr( e, env ){
     throw new Error( "Unknown binary operator type" );
 }
 
-function interpStmt( s, env ){
+function interpStmt( s, env : enviro.Env ) : any {
     if ( s instanceof ast.FuncDefStmt){
         return interpFuncDefStmt( s, env );
     } else if ( s instanceof ast.AssignStmt ) {
@@ -131,11 +131,11 @@ function interpStmt( s, env ){
     throw new Error("No clause for statement");
 }
 
-function interpReturnStmt( s, env ){
+function interpReturnStmt( s, env : enviro.Env ){
     return interpExpr( s.e, env );
 }
 
-function interpIfStmt( s, env ){
+function interpIfStmt( s, env : enviro.Env ){
     var test = interpExpr( s.test, env );
     if (test === true){
         return interpBlockStmt( s.tsl, env );  
@@ -144,11 +144,11 @@ function interpIfStmt( s, env ){
     }	
 }
 
-function interpBlockStmt( sl, env ){	
-    return interpStmtList( sl, new env.Env( env ) );
+function interpBlockStmt( sl, env : enviro.Env ) : any {	
+    return interpStmtList( sl, new enviro.Env( env ) );
 }
 
-function interpApplyExpr( e, env ){
+function interpApplyExpr( e, env : enviro.Env ) : any {
     var fd = env.lookup( e.fid.id );
     return replicate( fd, interpFuncArgExprList( e.el, env ) );  
 }
@@ -172,8 +172,8 @@ function interpFuncArgExprList( fal : ast.FuncArgExprList, env : enviro.Env ){
     }
     return vs; 
 }
-
-function interpExprList( el : ast.ExprList, env : enviro.Env ){
+ 
+function interpExprList( el : ast.ExprList, env : enviro.Env ) : any[] {
     var vs = [];
     while (el != undefined){
         vs.push( interpExpr( el.e, env ));
