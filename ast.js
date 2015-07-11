@@ -32,6 +32,7 @@ var Expr = (function () {
     }
     return Expr;
 })();
+exports.Expr = Expr;
 var IntLit = (function () {
     function IntLit(v) {
         this.v = v;
@@ -127,9 +128,9 @@ var IfStmt = (function () {
 })();
 exports.IfStmt = IfStmt;
 var FuncDefStmt = (function () {
-    function FuncDefStmt(id, fal, sl) {
+    function FuncDefStmt(id, il, sl) {
         this.id = id;
-        this.fal = fal;
+        this.il = il;
         this.sl = sl;
     }
     return FuncDefStmt;

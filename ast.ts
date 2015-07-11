@@ -35,7 +35,7 @@ export class Type {
 //
 // Expr 
 //
-class Expr {}
+export class Expr {}
 
 export class IntLit implements Expr { 
     v : string;
@@ -148,12 +148,12 @@ export class IfStmt implements Stmt {
 
 export class FuncDefStmt implements Stmt { 
     id : Id;
-    fal : IdList;
+    il : IdList;
     sl : StmtList;
     
-    constructor(id : Id, fal : IdList, sl : StmtList ){
+    constructor(id : Id, il : IdList, sl : StmtList ){
         this.id = id;
-        this.fal = fal;
+        this.il = il;
         this.sl = sl;
 	}
 }
