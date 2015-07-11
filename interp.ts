@@ -108,7 +108,7 @@ function interpId( e, env ){
 
 function interpBinOpExpr( e, env ){
     switch( e.op ){
-        case "+": 
+        case "+":
             return interpExpr( e.lhs, env ) + interpExpr( e.rhs, env );
         case "-":
             return interpExpr( e.lhs, env ) - interpExpr( e.rhs, env );
@@ -163,17 +163,17 @@ export class ReplicatedFuncArg {
     }
 }
 
-function interpFuncArgExprList( fal, env ){
+function interpFuncArgExprList( fal : ast.FuncArgExprList, env : enviro.Env ){
     // each argument has an expression and also a rep guide
     var vs = [];
     while ( fal != undefined ){
-        vs.push( new ReplicatedFuncArg( interpExpr(fal.fa.e, env), fal.fa.rg) );
+        vs.push( new ReplicatedFuncArg( interpExpr(fal.fa.e, env), fal.fa.ri) );
         fal = fal.fal;	
     }
     return vs; 
 }
 
-function interpExprList( el, env ){
+function interpExprList( el : ast.ExprList, env : enviro.Env ){
     var vs = [];
     while (el != undefined){
         vs.push( interpExpr( el.e, env ));
@@ -183,7 +183,7 @@ function interpExprList( el, env ){
     return vs;
 }
 
-function interpAssignStmt( s, env ){
+function interpAssignStmt( s : ast.AssignStmt, env : enviro.Env ){
     env.set( s.id.id, interpExpr( s.e, env ));
 }
 
@@ -197,7 +197,7 @@ export class TypedFuncDef {
     }
 }
 
-function interpFuncDefStmt( fds, env ){
+function interpFuncDefStmt( fds : ast.FuncDefStmt, env : enviro.Env ){
 
     // unpack the argument list 
     var il = fds.il;
@@ -211,7 +211,7 @@ function interpFuncDefStmt( fds, env ){
 
     function f(){
         var args = Array.prototype.slice.call( arguments );
-        return apply( fd, env, args ); 
+        return apply( fds, env, args ); 
     }
 
     fd = new TypedFuncDef(f, val); 
@@ -219,21 +219,21 @@ function interpFuncDefStmt( fds, env ){
     env.set(fds.id.id, fd);
 }
 
-function apply( fd, env, args ){	
+function apply( fd : ast.FuncDefStmt, env : enviro.Env, args : any[] ) : any {	
 
     // bind the arguments in the scope 
     var i = 0;
-    fd.al.forEach(function(x){
-        env.set( x.id.id, args[i++] );
-    });
+    var il = fd.il;
+    while( il != null){
+        env.set( il.id.id, args[i++] );
+        il = il.il;
+    };
 
     return interpStmtList( fd.sl, env );	
 }
 
 function replicate( fd : TypedFuncDef, args : any[] ) : any {
        
-    console.log( fd, args );
-
     // if all types match, simply execute
     return fd.f.apply(undefined, args.map(function(x){ return x.v; }));
 

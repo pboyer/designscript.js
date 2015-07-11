@@ -30,7 +30,7 @@ function eval(p){
 	var r = eval('def foo(a,b){ return = a + b; }; t = debug( foo(1, 2) );');
 	assert.equal( 3, r[0] );
 })();
-/*
+
 (function(){
 	var r = eval('def foo(a,b){ return = bar(a,b); }; def bar(a,b){ return = a + b; }; t = debug( foo(1, 2));');
 	assert.equal( 3, r[0] );
@@ -55,4 +55,4 @@ function eval(p){
 	var r = eval('a = {true, false, "Ok cool"}; t = debug( a[1 + 1] );');
 	assert.equal( "Ok cool", r[0] );
 })();
-*/
+
