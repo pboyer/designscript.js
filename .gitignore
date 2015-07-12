@@ -2,4 +2,5 @@
 parse.js
 ast.js
 env.js
+visitor.js
 interp.js

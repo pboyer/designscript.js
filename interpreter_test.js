@@ -1,7 +1,7 @@
-var Parser = require('./parse')
+var Parser = require('./parser')
 	, assert = require('assert')
-	, Interpreter = require('./interp').Interpreter
-	, TypedFuncDef = require('./interp').TypedFuncDef
+	, Interpreter = require('./interpreter').Interpreter
+	, TypedFuncDef = require('./interpreter').TypedFuncDef
 	, FuncArgExpr = require('./ast').FuncArgExpr;
 
 var ast = require('./ast');

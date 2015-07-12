@@ -67,16 +67,15 @@ export class Type {
     toString(){
         return this.t;
     }
-    
-    accept<T>(v : visitor.Visitor<T>) : T {
-        return v.visitType( this );
-    }
 }
 
 //
 // Expressions 
 //
-export class AssociativeNode {}
+
+export interface AssociativeNode {
+    accept<T>(v : visitor.Visitor<T>) : T;
+}
 
 export class IntNode implements AssociativeNode { 
     value : Number;

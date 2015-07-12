@@ -2,11 +2,11 @@
 // Environment
 //
 
-export class Env {
-    outer : Env;
+export class Environment {
+    outer : Environment;
     dict : { [ id : string ] : any; } = {};
 
-    constructor ( outer : Env = null){
+    constructor ( outer : Environment = null){
         this.outer = outer; 
     }
 

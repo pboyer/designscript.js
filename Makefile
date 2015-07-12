@@ -2,11 +2,11 @@ all : build
 
 build:
 	tsc
-	jison parse.jison lex.jisonlex
+	jison parser.jison lexer.jisonlex
 
 test: build
-	node ./interp_test.js 
-	node ./parse_test.js
+	node ./interpreter_test.js 
+	node ./parser_test.js
 
 clean:
-	rm ast.js parse.js interp.js env.js visitor.js
+	rm ast.js parser.js interpreter.js environment.js visitor.js

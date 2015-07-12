@@ -1,4 +1,4 @@
-var ds = require('./parse')
+var ds = require('./parser')
 	, assert = require('assert');
 
 var ast = require('./ast');
