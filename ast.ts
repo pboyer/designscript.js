@@ -10,6 +10,12 @@ export class IdList {
         this.id = id;
         this.il = il;
 	}
+
+    toString() {
+        return this.il == null ? 
+            this.id.toString() : 
+            this.id.toString() + ", " + this.il.toString();
+    }
 }
 
 export class Id { 
@@ -20,6 +26,12 @@ export class Id {
         this.id = id;
         this.t = t;
 	}
+
+    toString() {
+        return this.t == null ?
+            this.id :
+            this.id + " : " + this.t.toString();
+    }
 }
 
 export class Type { 
@@ -27,6 +39,10 @@ export class Type {
     
     constructor(t : string){
         this.t = t;
+    }
+
+    toString(){
+        return this.t;
     }
 }
 
@@ -41,6 +57,10 @@ export class IntLit implements Expr {
     constructor(v : string){
         this.v = v;
 	}
+
+    toString() {
+        return this.v;
+    }
 }
 
 export class FloatLit implements Expr { 
@@ -49,6 +69,10 @@ export class FloatLit implements Expr {
     constructor(v : string){
         this.v = v;
 	}
+
+    toString() {
+        return this.v;
+    }
 }
 
 export class BoolLit implements Expr { 
@@ -57,6 +81,10 @@ export class BoolLit implements Expr {
     constructor(v : string){
         this.v = v;
 	}
+
+    toString() {
+        return this.v;
+    }
 }
 
 export class StringLit implements Expr { 
@@ -65,6 +93,10 @@ export class StringLit implements Expr {
     constructor(v : string){
         this.v = v;
 	}
+
+    toString() {
+        return this.v;
+    }
 }
 
 export class ArrayLit implements Expr { 
@@ -73,6 +105,10 @@ export class ArrayLit implements Expr {
     constructor(el : ExprList){
         this.el = el;
 	}
+
+    toString(){
+        return "{ " + this.el.toString() + " }";
+    }
 }
 
 export class BinOpExpr implements Expr { 
@@ -85,16 +121,24 @@ export class BinOpExpr implements Expr {
         this.lhs = lhs;
         this.rhs = rhs;
 	}
+
+    toString() {
+        return this.lhs.toString() + " " + this.op + " " + this.rhs.toString();
+    }
 }
 
 export class ApplyExpr implements Expr { 
     fid : Id;
     el : FuncArgExprList;
     
-    constructor(fid, el){
+    constructor(fid : Id, el : FuncArgExprList ){
         this.fid = fid;
         this.el = el;
 	}
+
+    toString() {
+        return this.fid.toString() + "( " + this.el.toString() + " )";
+    }
 }
 
 export class ArrayIndexExpr implements Expr { 
@@ -104,7 +148,11 @@ export class ArrayIndexExpr implements Expr {
     constructor(a : Expr, i : Expr){
         this.a = a;
         this.i = i;
-	}
+    }
+
+    toString() {
+        return this.a.toString() + "[ " + this.i.toString() + " ]";
+    }
 }
 
 export class ExprList { 
@@ -115,63 +163,119 @@ export class ExprList {
         this.e = e;
         this.el = el;
 	}
+
+    toString() {
+        var s = this.e.toString();
+        var el = this.el;
+        while (el != null){
+            s = s + ", ";
+            s = s + el.e.toString();
+            el = el.el;
+        }
+        return s;
+    }
 }
 
 //
 // Statements
 //
-export class Stmt {}
 
-export class StmtList { 
+export class Stmt {
+    toString() {
+        return this.toLines("").join("\n");
+    }
+
+    toLines( indent : string ) : string[] {
+        return [];    
+    }
+}
+
+export class StmtList extends Stmt { 
     s : Stmt;
     sl : StmtList;
     
     constructor(s : Stmt, sl : StmtList){
+        super();
         this.s = s;
         this.sl = sl;
 	}
+
+    toLines( indent : string ){
+        var s = this.s.toLines( indent );
+        var sl = this.sl;
+        while (sl != null){
+            s = s.concat( sl.s.toLines( indent ) );
+            sl = sl.sl;
+        }
+        return s;
+    }
 }
 
-export class IfStmt implements Stmt { 
+export class IfStmt extends Stmt { 
     test : Expr;
     tsl : StmtList;
     fsl : StmtList;
 
-    constructor( test, tsl, fsl ){
+    constructor( test : Expr, tsl : StmtList, fsl : StmtList ){
+        super();
         this.test = test;
         this.tsl = tsl;
         this.fsl = fsl;
 	}
+
+    toLines( indent : string ) {
+        return [ indent + "if( " + this.test.toString() + " ){" ]
+            .concat( this.tsl.toLines( indent + "\t" ) )
+            .concat( [" } else { "] )
+            .concat( this.fsl.toLines( indent + "\t" ) );
+    }
 }
 
-export class FuncDefStmt implements Stmt { 
+export class FuncDefStmt extends Stmt { 
     id : Id;
     il : IdList;
     sl : StmtList;
     
     constructor(id : Id, il : IdList, sl : StmtList ){
+        super();
         this.id = id;
         this.il = il;
         this.sl = sl;
 	}
+
+    toLines( indent : string ) {
+        return [ indent + "def " + this.id.toString() + "( " + this.il.toString() + " ){" ]
+            .concat( this.sl.toLines( "\t" + indent ) )
+            .concat( [ indent + "}" ] );
+    }
 }
 
-export class AssignStmt implements Stmt { 
+export class AssignStmt extends Stmt { 
     id : Id;
     e : Expr;
 
-    constructor(id, e){
+    constructor(id : Id, e : Expr){
+        super();
         this.id = id;
         this.e = e;
 	}
+
+    toLines( indent ) {
+        return [ indent + this.id.toString() + " = " + this.e.toString() + ";" ];
+    }
 }
 
-export class ReturnStmt implements Stmt { 
+export class ReturnStmt extends Stmt { 
     e : Expr;
 
-    constructor(e){
+    constructor(e : Expr){
+        super();
         this.e = e;
 	}
+
+    toLines( indent ){
+        return [ indent + "return = " + this.e.toString() + ";" ];
+    }
 }
 
 // 
@@ -185,6 +289,17 @@ export class FuncArgExprList {
         this.fa = fa;
         this.fal = fal;
 	}
+
+    toString() {
+        var s = this.fa.toString();
+        var fal = this.fal;
+        while( fal != null ){
+            s += ", ";
+            s += fal.fa.toString();
+        }
+
+        return s;
+    }
 }
 
 export class FuncArgExpr implements Expr { 
@@ -195,5 +310,9 @@ export class FuncArgExpr implements Expr {
         this.e = e;
         this.ri = ri;
 	}
+
+    toString(){
+        return this.e.toString() + "<" + this.ri + ">";
+    }
 }
 

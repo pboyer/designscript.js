@@ -117,7 +117,7 @@ function interpBinOpExpr( e, env : enviro.Env ) : any {
     throw new Error( "Unknown binary operator type" );
 }
 
-function interpStmt( s, env : enviro.Env ) : any {
+function interpStmt( s : ast.Stmt, env : enviro.Env ) : any {
     if ( s instanceof ast.FuncDefStmt){
         return interpFuncDefStmt( s, env );
     } else if ( s instanceof ast.AssignStmt ) {
@@ -131,11 +131,11 @@ function interpStmt( s, env : enviro.Env ) : any {
     throw new Error("No clause for statement");
 }
 
-function interpReturnStmt( s, env : enviro.Env ){
+function interpReturnStmt( s : ast.ReturnStmt, env : enviro.Env ){
     return interpExpr( s.e, env );
 }
 
-function interpIfStmt( s, env : enviro.Env ){
+function interpIfStmt( s : ast.IfStmt, env : enviro.Env ){
     var test = interpExpr( s.test, env );
     if (test === true){
         return interpBlockStmt( s.tsl, env );  
@@ -144,11 +144,11 @@ function interpIfStmt( s, env : enviro.Env ){
     }	
 }
 
-function interpBlockStmt( sl, env : enviro.Env ) : any {	
+function interpBlockStmt( sl : ast.StmtList, env : enviro.Env ) : any {	
     return interpStmtList( sl, new enviro.Env( env ) );
 }
 
-function interpApplyExpr( e, env : enviro.Env ) : any {
+function interpApplyExpr( e : ast.ApplyExpr, env : enviro.Env ) : any {
     var fd = env.lookup( e.fid.id );
     return replicate( fd, interpFuncArgExprList( e.el, env ) );  
 }
