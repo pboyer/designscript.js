@@ -12,8 +12,8 @@ export class Interpreter {
     eval( sl : ast.StmtList ) : void {
         var globals = builtins( this.exts );
 
-        interpFuncDefStmts( sl, globals ); 				
-        interpStmtList( sl, globals );
+        evalFuncDefStmts( sl, globals ); 				
+        evalStmtList( sl, globals );
     }
 }
 
@@ -30,127 +30,127 @@ function builtins(exts : { [id : string] : any }) : enviro.Env {
     return e;
 }
 
-function interpFuncDefStmts( sl : ast.StmtList, env : enviro.Env ) : void {
+function evalFuncDefStmts( sl : ast.StmtList, env : enviro.Env ) : void {
     var r, s;
     while ( sl != undefined ){
         s = sl.s;
         sl = sl.sl;
         if ( s instanceof ast.FuncDefStmt ) 
-            interpFuncDefStmt( s, env );
+            evalFuncDefStmt( s, env );
     }
 }
 
-function interpStmtList( sl : ast.StmtList, env : enviro.Env ) : void {
+function evalStmtList( sl : ast.StmtList, env : enviro.Env ) : void {
     var r, s;
     while ( sl != undefined ){
         s = sl.s;
         sl = sl.sl;
         if ( !(s instanceof ast.FuncDefStmt)) 
-            r = interpStmt( s, env );
+            r = evalStmt( s, env );
     }
     
     return r;
 }
 
-function interpExpr( e : ast.Expr, env : enviro.Env ) : any {
-    if ( e instanceof ast.BinOpExpr ){
-        return interpBinOpExpr( e, env );
-    } else if ( e instanceof ast.ApplyExpr ){
-        return interpApplyExpr( e, env );
-    } else if ( e instanceof ast.Id ){
-        return interpId(e, env);
-    } else if ( e instanceof ast.IntLit ){
-        return interpIntLit( e );	
-    } else if ( e instanceof ast.FloatLit ){
-        return interpFloatLit( e );
-    } else if ( e instanceof ast.BoolLit ){
-        return interpBoolLit( e );
-    } else if ( e instanceof ast.StringLit ){
-        return interpStringLit( e );
-    } else if ( e instanceof ast.ArrayLit ){
-        return interpArrayLit( e, env );
-    } else if ( e instanceof ast.ArrayIndexExpr ){
-        return interpArrayIndexExpr( e, env );
+function evalExpr( e : ast.AssociativeNode, env : enviro.Env ) : any {
+    if ( e instanceof ast.BinaryExpressionNode ){
+        return evalBinaryExpressionNode( e, env );
+    } else if ( e instanceof ast.FunctionCallNode ){
+        return evalFunctionCallNode( e, env );
+    } else if ( e instanceof ast.IdentifierNode ){
+        return evalIdentifierNode(e, env);
+    } else if ( e instanceof ast.IntNode ){
+        return evalIntNode( e );	
+    } else if ( e instanceof ast.DoubleNode ){
+        return evalDoubleNode( e );
+    } else if ( e instanceof ast.BooleanNode ){
+        return evalBooleanNode( e );
+    } else if ( e instanceof ast.StringNode ){
+        return evalStringNode( e );
+    } else if ( e instanceof ast.ArrayNode ){
+        return evalArrayNode( e, env );
+    } else if ( e instanceof ast.ArrayIndexNode ){
+        return evalArrayIndexNode( e, env );
     }
 
     throw new Error("Unknown expression type");
 }
 
-function interpArrayIndexExpr( e : ast.ArrayIndexExpr, env : enviro.Env ) : any {
-    var array = interpExpr( e.a, env );
-    var index = interpExpr( e.i, env );
+function evalArrayIndexNode( e : ast.ArrayIndexNode, env : enviro.Env ) : any {
+    var array = evalExpr( e.a, env );
+    var index = evalExpr( e.i, env );
     return array[index];
 }
 
-function interpArrayLit( e : ast.ArrayLit , env : enviro.Env ) : any[] {
-    return interpExprList( e.el, env );	
+function evalArrayNode( e : ast.ArrayNode, env : enviro.Env ) : any[] {
+    return evalExprListNode( e.el, env );	
 }
 
-function interpStringLit( e : ast.StringLit ) : string {
-    return e.v.slice(1, e.v.length-1);
+function evalStringNode( e : ast.StringNode ) : string {
+    return e.value;
 }
 
-function interpBoolLit( e : ast.BoolLit ) : boolean {
-    return e.v === "true"; 
+function evalBooleanNode( e : ast.BooleanNode ) : boolean {
+    return e.value; 
 }
 
-function interpFloatLit( e : ast.FloatLit ) : Number {
-    return parseFloat( e.v );
+function evalDoubleNode( e : ast.DoubleNode ) : Number {
+    return e.value;
 }	
 
-function interpIntLit( e : ast.IntLit ) : Number {
-    return parseInt( e.v ); 
+function evalIntNode( e : ast.IntNode ) : Number {
+    return e.value; 
 }
 
-function interpId( e, env : enviro.Env ) : any {
+function evalIdentifierNode( e : ast.IdentifierNode, env : enviro.Env ) : any {
     return env.lookup( e.id );
 }
 
-function interpBinOpExpr( e, env : enviro.Env ) : any {
+function evalBinaryExpressionNode( e : ast.BinaryExpressionNode, env : enviro.Env ) : any {
     switch( e.op ){
         case "+":
-            return interpExpr( e.lhs, env ) + interpExpr( e.rhs, env );
+            return evalExpr( e.lhs, env ) + evalExpr( e.rhs, env );
         case "-":
-            return interpExpr( e.lhs, env ) - interpExpr( e.rhs, env );
+            return evalExpr( e.lhs, env ) - evalExpr( e.rhs, env );
     }
 
     throw new Error( "Unknown binary operator type" );
 }
 
-function interpStmt( s : ast.Stmt, env : enviro.Env ) : any {
+function evalStmt( s : ast.Stmt, env : enviro.Env ) : any {
     if ( s instanceof ast.FuncDefStmt){
-        return interpFuncDefStmt( s, env );
+        return evalFuncDefStmt( s, env );
     } else if ( s instanceof ast.AssignStmt ) {
-        return interpAssignStmt( s, env );
+        return evalAssignStmt( s, env );
     } else if ( s instanceof ast.ReturnStmt ){
-        return interpReturnStmt( s, env ); 	
-    } else if ( s instanceof ast.IfStmt ){
-        return interpIfStmt( s, env );	
+        return evalReturnStmt( s, env ); 	
+    } else if ( s instanceof ast.IfStatementNode ){
+        return evalIfStatementNode( s, env );	
     }
 
     throw new Error("No clause for statement");
 }
 
-function interpReturnStmt( s : ast.ReturnStmt, env : enviro.Env ){
-    return interpExpr( s.e, env );
+function evalReturnStmt( s : ast.ReturnStmt, env : enviro.Env ){
+    return evalExpr( s.e, env );
 }
 
-function interpIfStmt( s : ast.IfStmt, env : enviro.Env ){
-    var test = interpExpr( s.test, env );
+function evalIfStatementNode( s : ast.IfStatementNode, env : enviro.Env ){
+    var test = evalExpr( s.test, env );
     if (test === true){
-        return interpBlockStmt( s.tsl, env );  
+        return evalBlockStmt( s.tsl, env );  
     } else {	
-        return interpStmt( s.fsl, env );
+        return evalStmt( s.fsl, env );
     }	
 }
 
-function interpBlockStmt( sl : ast.StmtList, env : enviro.Env ) : any {	
-    return interpStmtList( sl, new enviro.Env( env ) );
+function evalBlockStmt( sl : ast.StmtList, env : enviro.Env ) : any {	
+    return evalStmtList( sl, new enviro.Env( env ) );
 }
 
-function interpApplyExpr( e : ast.ApplyExpr, env : enviro.Env ) : any {
+function evalFunctionCallNode( e : ast.FunctionCallNode, env : enviro.Env ) : any {
     var fd = env.lookup( e.fid.id );
-    return replicate( fd, interpFuncArgExprList( e.el, env ) );  
+    return replicate( fd, evalFuncArgExprListNode( e.el, env ) );  
 }
 
 export class ReplicatedFuncArg {
@@ -163,41 +163,41 @@ export class ReplicatedFuncArg {
     }
 }
 
-function interpFuncArgExprList( fal : ast.FuncArgExprList, env : enviro.Env ){
+function evalFuncArgExprListNode( fal : ast.FuncArgExprList, env : enviro.Env ){
     // each argument has an expression and also a rep guide
     var vs = [];
     while ( fal != undefined ){
-        vs.push( new ReplicatedFuncArg( interpExpr(fal.fa.e, env), fal.fa.ri) );
+        vs.push( new ReplicatedFuncArg( evalExpr(fal.fa.e, env), fal.fa.ri) );
         fal = fal.fal;	
     }
     return vs; 
 }
  
-function interpExprList( el : ast.ExprList, env : enviro.Env ) : any[] {
+function evalExprListNode( el : ast.ExprListNode, env : enviro.Env ) : any[] {
     var vs = [];
     while (el != undefined){
-        vs.push( interpExpr( el.e, env ));
+        vs.push( evalExpr( el.e, env ));
         el = el.el;
     }
 
     return vs;
 }
 
-function interpAssignStmt( s : ast.AssignStmt, env : enviro.Env ){
-    env.set( s.id.id, interpExpr( s.e, env ));
+function evalAssignStmt( s : ast.AssignStmt, env : enviro.Env ){
+    env.set( s.id.id, evalExpr( s.e, env ));
 }
 
 export class TypedFuncDef {
     f : (any) => any;
-    al : ast.Id[]; 
+    al : ast.IdentifierNode[]; 
     
-    constructor( f : (any) => any, al : ast.Id[] = []){
+    constructor( f : (any) => any, al : ast.IdentifierNode[] = []){
         this.f = f;
         this.al = al; // the type identifiers for the func def
     }
 }
 
-function interpFuncDefStmt( fds : ast.FuncDefStmt, env : enviro.Env ){
+function evalFuncDefStmt( fds : ast.FuncDefStmt, env : enviro.Env ){
 
     // unpack the argument list 
     var il = fds.il;
@@ -229,7 +229,7 @@ function apply( fd : ast.FuncDefStmt, env : enviro.Env, args : any[] ) : any {
         il = il.il;
     };
 
-    return interpStmtList( fd.sl, env );	
+    return evalStmtList( fd.sl, env );	
 }
 
 function replicate( fd : TypedFuncDef, args : any[] ) : any {

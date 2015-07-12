@@ -1,12 +1,12 @@
 //
-// Identifiers
+// IdentifierNode
 //
 
-export class IdList { 
-    id : Id;
-    il : IdList;
+export class IdentifierListNode { 
+    id : IdentifierNode;
+    il : IdentifierListNode;
     
-    constructor(id : Id, il : IdList){
+    constructor(id : IdentifierNode, il : IdentifierListNode){
         this.id = id;
         this.il = il;
 	}
@@ -18,19 +18,28 @@ export class IdList {
     }
 }
 
-export class Id { 
+export class IdentifierNode { 
     id : string;
+
+    constructor(id : string) {
+        this.id = id;
+	}
+
+    toString() {
+        return this.id;
+    }
+}
+
+export class TypedIdentifierNode extends IdentifierNode { 
     t : Type;
 
     constructor(id : string, t : Type) {
-        this.id = id;
+        super(id);
         this.t = t;
 	}
 
     toString() {
-        return this.t == null ?
-            this.id :
-            this.id + " : " + this.t.toString();
+        return this.id + " : " + this.t.toString();
     }
 }
 
@@ -47,62 +56,62 @@ export class Type {
 }
 
 //
-// Expr 
+// Expressions 
 //
-export class Expr {}
+export class AssociativeNode {}
 
-export class IntLit implements Expr { 
-    v : string;
+export class IntNode implements AssociativeNode { 
+    value : Number;
     
-    constructor(v : string){
-        this.v = v;
+    constructor(value : string){
+        this.value = parseInt(value);
 	}
 
     toString() {
-        return this.v;
+        return this.value;
     }
 }
 
-export class FloatLit implements Expr { 
-    v : string;
+export class DoubleNode implements AssociativeNode { 
+    value : Number;
     
-    constructor(v : string){
-        this.v = v;
+    constructor(value : string){
+        this.value = parseFloat(value);
 	}
 
     toString() {
-        return this.v;
+        return this.value;
     }
 }
 
-export class BoolLit implements Expr { 
-    v : string;
+export class BooleanNode implements AssociativeNode { 
+    value : boolean;
     
-    constructor(v : string){
-        this.v = v;
+    constructor(value : string){
+        this.value = value === "true";
 	}
 
     toString() {
-        return this.v;
+        return this.value;
     }
 }
 
-export class StringLit implements Expr { 
-    v : string;
+export class StringNode implements AssociativeNode { 
+    value : string;
     
-    constructor(v : string){
-        this.v = v;
+    constructor(value : string){
+        this.value = value.slice(1, value.length-1);
 	}
 
     toString() {
-        return this.v;
+        return this.value;
     }
 }
 
-export class ArrayLit implements Expr { 
-    el : ExprList;
+export class ArrayNode implements AssociativeNode { 
+    el : ExprListNode;
     
-    constructor(el : ExprList){
+    constructor(el : ExprListNode){
         this.el = el;
 	}
 
@@ -111,12 +120,12 @@ export class ArrayLit implements Expr {
     }
 }
 
-export class BinOpExpr implements Expr { 
+export class BinaryExpressionNode implements AssociativeNode { 
     op : string;
-    lhs : Expr;
-    rhs : Expr;
+    lhs : AssociativeNode;
+    rhs : AssociativeNode;
     
-    constructor(op : string, lhs : Expr, rhs : Expr){
+    constructor(op : string, lhs : AssociativeNode, rhs : AssociativeNode){
         this.op = op;
         this.lhs = lhs;
         this.rhs = rhs;
@@ -127,11 +136,11 @@ export class BinOpExpr implements Expr {
     }
 }
 
-export class ApplyExpr implements Expr { 
-    fid : Id;
+export class FunctionCallNode implements AssociativeNode { 
+    fid : IdentifierNode;
     el : FuncArgExprList;
     
-    constructor(fid : Id, el : FuncArgExprList ){
+    constructor(fid : IdentifierNode, el : FuncArgExprList ){
         this.fid = fid;
         this.el = el;
 	}
@@ -141,11 +150,11 @@ export class ApplyExpr implements Expr {
     }
 }
 
-export class ArrayIndexExpr implements Expr { 
-    a : Expr;
-    i : Expr;
+export class ArrayIndexNode implements AssociativeNode { 
+    a : AssociativeNode;
+    i : AssociativeNode;
     
-    constructor(a : Expr, i : Expr){
+    constructor(a : AssociativeNode, i : AssociativeNode){
         this.a = a;
         this.i = i;
     }
@@ -155,11 +164,11 @@ export class ArrayIndexExpr implements Expr {
     }
 }
 
-export class ExprList { 
-    e : Expr;
-    el : ExprList;
+export class ExprListNode { 
+    e : AssociativeNode;
+    el : ExprListNode;
 
-    constructor(e : Expr, el : ExprList ){
+    constructor(e : AssociativeNode, el : ExprListNode ){
         this.e = e;
         this.el = el;
 	}
@@ -211,12 +220,12 @@ export class StmtList extends Stmt {
     }
 }
 
-export class IfStmt extends Stmt { 
-    test : Expr;
+export class IfStatementNode extends Stmt { 
+    test : AssociativeNode;
     tsl : StmtList;
     fsl : StmtList;
 
-    constructor( test : Expr, tsl : StmtList, fsl : StmtList ){
+    constructor( test : AssociativeNode, tsl : StmtList, fsl : StmtList ){
         super();
         this.test = test;
         this.tsl = tsl;
@@ -232,11 +241,11 @@ export class IfStmt extends Stmt {
 }
 
 export class FuncDefStmt extends Stmt { 
-    id : Id;
-    il : IdList;
+    id : IdentifierNode;
+    il : IdentifierListNode;
     sl : StmtList;
     
-    constructor(id : Id, il : IdList, sl : StmtList ){
+    constructor(id : IdentifierNode, il : IdentifierListNode, sl : StmtList ){
         super();
         this.id = id;
         this.il = il;
@@ -251,10 +260,10 @@ export class FuncDefStmt extends Stmt {
 }
 
 export class AssignStmt extends Stmt { 
-    id : Id;
-    e : Expr;
+    id : IdentifierNode;
+    e : AssociativeNode;
 
-    constructor(id : Id, e : Expr){
+    constructor(id : IdentifierNode, e : AssociativeNode){
         super();
         this.id = id;
         this.e = e;
@@ -266,9 +275,9 @@ export class AssignStmt extends Stmt {
 }
 
 export class ReturnStmt extends Stmt { 
-    e : Expr;
+    e : AssociativeNode;
 
-    constructor(e : Expr){
+    constructor(e : AssociativeNode){
         super();
         this.e = e;
 	}
@@ -302,11 +311,11 @@ export class FuncArgExprList {
     }
 }
 
-export class FuncArgExpr implements Expr { 
-    e : Expr;
+export class FuncArgExpr implements AssociativeNode { 
+    e : AssociativeNode;
     ri : Number;
     
-    constructor(e : Expr, ri : Number){
+    constructor(e : AssociativeNode, ri : Number){
         this.e = e;
         this.ri = ri;
 	}
