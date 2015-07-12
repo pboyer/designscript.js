@@ -12,7 +12,7 @@ export class Interpreter {
     eval( sl : ast.StmtList ) : void {
         var globals = builtins( this.exts );
 
-        evalFuncDefStmts( sl, globals ); 				
+        evalFunctionDefinitionNodes( sl, globals ); 				
         evalStmtList( sl, globals );
     }
 }
@@ -30,13 +30,13 @@ function builtins(exts : { [id : string] : any }) : enviro.Env {
     return e;
 }
 
-function evalFuncDefStmts( sl : ast.StmtList, env : enviro.Env ) : void {
+function evalFunctionDefinitionNodes( sl : ast.StmtList, env : enviro.Env ) : void {
     var r, s;
     while ( sl != undefined ){
         s = sl.s;
         sl = sl.sl;
-        if ( s instanceof ast.FuncDefStmt ) 
-            evalFuncDefStmt( s, env );
+        if ( s instanceof ast.FunctionDefinitionNode ) 
+            evalFunctionDefinitionNode( s, env );
     }
 }
 
@@ -45,7 +45,7 @@ function evalStmtList( sl : ast.StmtList, env : enviro.Env ) : void {
     while ( sl != undefined ){
         s = sl.s;
         sl = sl.sl;
-        if ( !(s instanceof ast.FuncDefStmt)) 
+        if ( !(s instanceof ast.FunctionDefinitionNode)) 
             r = evalStmt( s, env );
     }
     
@@ -117,13 +117,13 @@ function evalBinaryExpressionNode( e : ast.BinaryExpressionNode, env : enviro.En
     throw new Error( "Unknown binary operator type" );
 }
 
-function evalStmt( s : ast.Stmt, env : enviro.Env ) : any {
-    if ( s instanceof ast.FuncDefStmt){
-        return evalFuncDefStmt( s, env );
-    } else if ( s instanceof ast.AssignStmt ) {
-        return evalAssignStmt( s, env );
-    } else if ( s instanceof ast.ReturnStmt ){
-        return evalReturnStmt( s, env ); 	
+function evalStmt( s : ast.StmtNode, env : enviro.Env ) : any {
+    if ( s instanceof ast.FunctionDefinitionNode){
+        return evalFunctionDefinitionNode( s, env );
+    } else if ( s instanceof ast.AssignmentNode ) {
+        return evalAssignmentNode( s, env );
+    } else if ( s instanceof ast.ReturnNode ){
+        return evalReturnNode( s, env ); 	
     } else if ( s instanceof ast.IfStatementNode ){
         return evalIfStatementNode( s, env );	
     }
@@ -131,7 +131,7 @@ function evalStmt( s : ast.Stmt, env : enviro.Env ) : any {
     throw new Error("No clause for statement");
 }
 
-function evalReturnStmt( s : ast.ReturnStmt, env : enviro.Env ){
+function evalReturnNode( s : ast.ReturnNode, env : enviro.Env ){
     return evalExpr( s.e, env );
 }
 
@@ -183,7 +183,7 @@ function evalExprListNode( el : ast.ExprListNode, env : enviro.Env ) : any[] {
     return vs;
 }
 
-function evalAssignStmt( s : ast.AssignStmt, env : enviro.Env ){
+function evalAssignmentNode( s : ast.AssignmentNode, env : enviro.Env ){
     env.set( s.id.id, evalExpr( s.e, env ));
 }
 
@@ -197,7 +197,7 @@ export class TypedFuncDef {
     }
 }
 
-function evalFuncDefStmt( fds : ast.FuncDefStmt, env : enviro.Env ){
+function evalFunctionDefinitionNode( fds : ast.FunctionDefinitionNode, env : enviro.Env ){
 
     // unpack the argument list 
     var il = fds.il;
@@ -219,7 +219,7 @@ function evalFuncDefStmt( fds : ast.FuncDefStmt, env : enviro.Env ){
     env.set(fds.id.id, fd);
 }
 
-function apply( fd : ast.FuncDefStmt, env : enviro.Env, args : any[] ) : any {	
+function apply( fd : ast.FunctionDefinitionNode, env : enviro.Env, args : any[] ) : any {	
 
     // bind the arguments in the scope 
     var i = 0;

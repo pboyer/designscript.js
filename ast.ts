@@ -1,3 +1,5 @@
+import visitor = require('./visitor');
+
 //
 // IdentifierNode
 //
@@ -16,6 +18,10 @@ export class IdentifierListNode {
             this.id.toString() : 
             this.id.toString() + ", " + this.il.toString();
     }
+    
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitIdentifierListNode( this );
+    }
 }
 
 export class IdentifierNode { 
@@ -27,6 +33,10 @@ export class IdentifierNode {
 
     toString() {
         return this.id;
+    }
+    
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitIdentifierNode( this );
     }
 }
 
@@ -41,6 +51,10 @@ export class TypedIdentifierNode extends IdentifierNode {
     toString() {
         return this.id + " : " + this.t.toString();
     }
+
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitTypedIdentifierNode( this );
+    }
 }
 
 export class Type { 
@@ -52,6 +66,10 @@ export class Type {
 
     toString(){
         return this.t;
+    }
+    
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitType( this );
     }
 }
 
@@ -70,6 +88,10 @@ export class IntNode implements AssociativeNode {
     toString() {
         return this.value;
     }
+    
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitIntNode( this );
+    }
 }
 
 export class DoubleNode implements AssociativeNode { 
@@ -81,6 +103,10 @@ export class DoubleNode implements AssociativeNode {
 
     toString() {
         return this.value;
+    }
+    
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitDoubleNode( this );
     }
 }
 
@@ -94,6 +120,10 @@ export class BooleanNode implements AssociativeNode {
     toString() {
         return this.value;
     }
+    
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitBooleanNode( this );
+    }
 }
 
 export class StringNode implements AssociativeNode { 
@@ -106,6 +136,10 @@ export class StringNode implements AssociativeNode {
     toString() {
         return this.value;
     }
+    
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitStringNode( this );
+    }
 }
 
 export class ArrayNode implements AssociativeNode { 
@@ -117,6 +151,10 @@ export class ArrayNode implements AssociativeNode {
 
     toString(){
         return "{ " + this.el.toString() + " }";
+    }
+    
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitArrayNode( this );
     }
 }
 
@@ -134,6 +172,10 @@ export class BinaryExpressionNode implements AssociativeNode {
     toString() {
         return this.lhs.toString() + " " + this.op + " " + this.rhs.toString();
     }
+    
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitBinaryExpressionNode( this );
+    }
 }
 
 export class FunctionCallNode implements AssociativeNode { 
@@ -148,6 +190,10 @@ export class FunctionCallNode implements AssociativeNode {
     toString() {
         return this.fid.toString() + "( " + this.el.toString() + " )";
     }
+    
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitFunctionCallNode( this );
+    }
 }
 
 export class ArrayIndexNode implements AssociativeNode { 
@@ -161,6 +207,10 @@ export class ArrayIndexNode implements AssociativeNode {
 
     toString() {
         return this.a.toString() + "[ " + this.i.toString() + " ]";
+    }
+    
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitArrayIndexNode( this );
     }
 }
 
@@ -182,6 +232,10 @@ export class ExprListNode {
             el = el.el;
         }
         return s;
+    } 
+    
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitExprListNode( this );
     }
 }
 
@@ -189,7 +243,7 @@ export class ExprListNode {
 // Statements
 //
 
-export class Stmt {
+export class StmtNode {
     toString() {
         return this.toLines("").join("\n");
     }
@@ -199,11 +253,11 @@ export class Stmt {
     }
 }
 
-export class StmtList extends Stmt { 
-    s : Stmt;
+export class StmtList extends StmtNode { 
+    s : StmtNode;
     sl : StmtList;
     
-    constructor(s : Stmt, sl : StmtList){
+    constructor(s : StmtNode, sl : StmtList){
         super();
         this.s = s;
         this.sl = sl;
@@ -218,9 +272,13 @@ export class StmtList extends Stmt {
         }
         return s;
     }
+
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitStmtList( this );
+    }
 }
 
-export class IfStatementNode extends Stmt { 
+export class IfStatementNode extends StmtNode { 
     test : AssociativeNode;
     tsl : StmtList;
     fsl : StmtList;
@@ -238,9 +296,13 @@ export class IfStatementNode extends Stmt {
             .concat( [" } else { "] )
             .concat( this.fsl.toLines( indent + "\t" ) );
     }
+    
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitIfStatementNode( this );
+    }
 }
 
-export class FuncDefStmt extends Stmt { 
+export class FunctionDefinitionNode extends StmtNode { 
     id : IdentifierNode;
     il : IdentifierListNode;
     sl : StmtList;
@@ -257,9 +319,13 @@ export class FuncDefStmt extends Stmt {
             .concat( this.sl.toLines( "\t" + indent ) )
             .concat( [ indent + "}" ] );
     }
+
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitFunctionDefinitionNode( this );
+    }
 }
 
-export class AssignStmt extends Stmt { 
+export class AssignmentNode extends StmtNode { 
     id : IdentifierNode;
     e : AssociativeNode;
 
@@ -272,9 +338,13 @@ export class AssignStmt extends Stmt {
     toLines( indent ) {
         return [ indent + this.id.toString() + " = " + this.e.toString() + ";" ];
     }
+
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitAssignmentNode( this );
+    }
 }
 
-export class ReturnStmt extends Stmt { 
+export class ReturnNode extends StmtNode { 
     e : AssociativeNode;
 
     constructor(e : AssociativeNode){
@@ -284,6 +354,10 @@ export class ReturnStmt extends Stmt {
 
     toLines( indent ){
         return [ indent + "return = " + this.e.toString() + ";" ];
+    }
+
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitReturnNode( this );
     }
 }
 
@@ -309,6 +383,10 @@ export class FuncArgExprList {
 
         return s;
     }
+
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitFuncArgExprList( this );
+    }
 }
 
 export class FuncArgExpr implements AssociativeNode { 
@@ -322,6 +400,10 @@ export class FuncArgExpr implements AssociativeNode {
 
     toString(){
         return this.e.toString() + "<" + this.ri + ">";
+    }
+
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitFuncArgExpr( this );
     }
 }
 

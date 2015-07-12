@@ -31,17 +31,17 @@ b 	: LBRACE sl RBRACE
 	;
 
 rs 	: RETURN ASSIGN e
-	{ $$ = new yy.ReturnStmt( $3 ); }
+	{ $$ = new yy.ReturnNode( $3 ); }
 	;
 
 fd
 	: DEF id LPAREN al RPAREN LBRACE sl RBRACE
-	{ $$ = new yy.FuncDefStmt( $2, $4, $7); }
+	{ $$ = new yy.FunctionDefinitionNode( $2, $4, $7); }
 	;
 
 vd	
 	: tid ASSIGN e
-	{ $$ = new yy.AssignStmt( $1, $3 ); }
+	{ $$ = new yy.AssignmentNode( $1, $3 ); }
 	;
 ifs
 	: IF LPAREN e RPAREN b 

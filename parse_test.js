@@ -5,8 +5,8 @@ var ast = require('./ast');
 ds.parser.yy = ast;
 
 (function(){
-	assert.ok( ds.parse('a = 4;').s instanceof ast.AssignStmt );	
-	assert.ok( ds.parse('def x(a, b){ return = 4; };').s instanceof ast.FuncDefStmt );
+	assert.ok( ds.parse('a = 4;').s instanceof ast.AssignmentNode );	
+	assert.ok( ds.parse('def x(a, b){ return = 4; };').s instanceof ast.FunctionDefinitionNode );
 	assert.ok( ds.parse('if (a) { return = b; };').s instanceof ast.IfStatementNode ); 
 	assert.ok( ds.parse('if (a) { return = b; } else {};').s instanceof ast.IfStatementNode ); 
 	assert.ok( ds.parse('if (a) { return = b; } else { a = stuff; };').s instanceof ast.IfStatementNode ); 

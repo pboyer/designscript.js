@@ -9,4 +9,4 @@ test: build
 	node ./parse_test.js
 
 clean:
-	rm ast.js parse.js interp.js env.js
+	rm ast.js parse.js interp.js env.js visitor.js
