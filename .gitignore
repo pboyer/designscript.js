@@ -1,6 +1,6 @@
 *.swp
-parse.js
+parser.js
 ast.js
-env.js
+environment.js
 visitor.js
-interp.js
+interpreter.js
