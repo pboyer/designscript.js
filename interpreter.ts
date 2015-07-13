@@ -127,6 +127,16 @@ export class Interpreter implements visitor.Visitor<any> {
                 return e.lhs.accept( this ) + e.rhs.accept( this );
             case "-":
                 return e.lhs.accept( this ) - e.rhs.accept( this );
+            case "*":
+                return e.lhs.accept( this ) * e.rhs.accept( this );
+            case "<":
+                return e.lhs.accept( this ) < e.rhs.accept( this );
+            case "||":
+                return e.lhs.accept( this ) || e.rhs.accept( this );
+            case "==":
+                return e.lhs.accept( this ) == e.rhs.accept( this );
+            case ">":
+                return e.lhs.accept( this ) > e.rhs.accept( this );
         }
 
         throw new Error( "Unknown binary operator type" );

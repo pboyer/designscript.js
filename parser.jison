@@ -10,7 +10,7 @@
 
 %right ASSIGN
 %left OR
-%nonassoc EQUALITY GREATER
+%nonassoc EQUALITY RCARET
 %left PLUS MINUS
 %left TIMES
 %right NOT
@@ -24,8 +24,8 @@ pgm
 	;
 
 sl
-	: s SEMICOLON sl
-	{ $$ = record( new yy.StmtList( $1, $3 ), @$); }
+	: s sl
+	{ $$ = record( new yy.StmtList( $1, $2 ), @$); }
 	|
 	;
 
@@ -41,7 +41,7 @@ b 	: LBRACE sl RBRACE
 	{ $$ = $2; }
     ;
 
-rs 	: RETURN ASSIGN e
+rs 	: RETURN ASSIGN e SEMICOLON
 	{ $$ = record( new yy.ReturnNode( $3 ), @$); }
 	;
 
@@ -51,7 +51,7 @@ fd
 	;
 
 vd	
-	: tid ASSIGN e
+	: tid ASSIGN e SEMICOLON
 	{ $$ = record( new yy.AssignmentNode( $1, $3 ), @$); }
     ;
 ifs
@@ -118,14 +118,14 @@ e
 	{ $$ = record( new yy.BinaryExpressionNode($2, $1, $3), @$); }
 	| e EQUALITY e
 	{ $$ = record( new yy.BinaryExpressionNode($2, $1, $3), @$); }
-	| e GREATER e
+	| e RCARET e
 	{ $$ = record( new yy.BinaryExpressionNode($2, $1, $3), @$); }
 	| e OR e
 	{ $$ = record( new yy.BinaryExpressionNode($2, $1, $3), @$); }
 	| id LPAREN fal RPAREN
 	{ $$ = record( new yy.FunctionCallNode($1, $3), @$); }
 	| LPAREN e RPAREN
-	{ $$ = record( $2, @$); }
+	{ $$ = $2; }
 	| id LBRACKET e RBRACKET
 	{ $$ = record( new yy.ArrayIndexNode( $1, $3 ), @$); }	
 	;

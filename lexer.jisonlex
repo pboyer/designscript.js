@@ -6,15 +6,15 @@ str                         [a-zA-Z0-9\s]*
 "//".*                      /* ignore comment */
 "if"                        return 'IF';
 "else"                      return 'ELSE';
-"def"			    return 'DEF';
-"var"			    return 'VAR';
+"def"			            return 'DEF';
+"var"			            return 'VAR';
 "null"                      return 'NUL';
 "true"                      return 'TRUE';
 "false"                     return 'FALSE';
 "return"                    return 'RETURN';
 {digit}+                    return 'INT';
 {id}                        return 'ID';
-"\""{str}"\""                    return 'STRING';
+"\""{str}"\""               return 'STRING';
 "=="                        return 'EQUALITY';
 "="                         return 'ASSIGN';
 "+"                         return 'PLUS';

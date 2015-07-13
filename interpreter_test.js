@@ -27,22 +27,37 @@ function eval(p){
 })();
 
 (function(){
-	var r = eval('def foo(a,b){ return = a + b; }; t = debug( foo(1, 2) );');
+	var r = eval('r = debug( 2 * 3 );');
+	assert.equal( 6, r[0] );
+})();
+
+(function(){
+	var r = eval('r = debug( true || false );');
+	assert.equal( true, r[0] );
+})();
+
+(function(){
+	var r = eval('r = debug( 5 > 4 );');
+	assert.equal( true, r[0] );
+})();
+
+(function(){
+	var r = eval('def foo(a,b){ return = a + b; } t = debug( foo(1, 2) );');
 	assert.equal( 3, r[0] );
 })();
 
 (function(){
-	var r = eval('def foo(a,b){ return = bar(a,b); }; def bar(a,b){ return = a + b; }; t = debug( foo(1, 2));');
+	var r = eval('def foo(a,b){ return = bar(a,b); } def bar(a,b){ return = a + b; } t = debug( foo(1, 2));');
 	assert.equal( 3, r[0] );
 })();
 
 (function(){
-	var r = eval('def firstElement(a : int[]){ return = a[0]; }; t = debug( firstElement({0,1,2}<1>) );');
+	var r = eval('def firstElement(a : int[]){ return = a[0]; } t = debug( firstElement({0,1,2}<1>) );');
 	assert.equal( 0, r[0] );
 })();
 
 (function(){
-	var r = eval('def intId(a : int){ return = a; }; t = debug( intId(2) );');
+	var r = eval('def intId(a : int){ return = a; } t = debug( intId(2) );');
 	assert.equal( 2, r[0] );
 })();
 

@@ -1,0 +1,5 @@
+def foo(a){
+    return = a * 2;
+}
+
+a = print( foo(2 + 2) );
