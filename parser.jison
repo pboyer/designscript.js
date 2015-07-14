@@ -35,7 +35,12 @@ s
 	| vd
 	| ifs
 	| rs
-	;
+    ;
+
+ns 
+    : e SEMICOLON
+    { $$ = $1; }
+    ;
 
 b 	: LBRACE sl RBRACE
 	{ $$ = $2; }
@@ -54,6 +59,7 @@ vd
 	: tid ASSIGN e SEMICOLON
 	{ $$ = record( new yy.AssignmentNode( $1, $3 ), @$); }
     ;
+
 ifs
 	: IF LPAREN e RPAREN b 
 	{ $$ = record( new yy.IfStatementNode( $3, $5 ), @$); }
