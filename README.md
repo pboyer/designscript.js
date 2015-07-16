@@ -1,19 +1,19 @@
-### Install:
+### Install
 
-Install node.js
+Install [node.js](http://www.nodejs.com)
 
 ```
 npm install -g jison
 npm install -g typescript
 ```
 
-### Build:
+### Build
 
 ```
 # make 
 ```
 
-### Test:
+### Test
 
 ```
 # make test
