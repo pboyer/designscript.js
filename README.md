@@ -1,4 +1,4 @@
-Install:
+### Install:
 
 Install node.js
 
@@ -7,13 +7,13 @@ npm install -g jison
 npm install -g typescript
 ```
 
-Build:
+### Build:
 
 ```
 # make 
 ```
 
-Test:
+### Test:
 
 ```
 # make test
