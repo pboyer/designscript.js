@@ -1,6 +1,6 @@
 ### Install
 
-Install [node.js](http://www.nodejs.com)
+Install [node.js](http://www.nodejs.org)
 
 ```
 npm install -g jison
