@@ -18,125 +18,129 @@
 
 %%
 
-pgm
-	: sl ENDOFFILE
+Program
+	: StatementList ENDOFFILE
 	{ return $1; }
 	;
 
-sl
-	: s sl
-	{ $$ = record( new yy.StmtList( $1, $2 ), @$); }
+StatementList
+	: Statement StatementList
+	{ $$ = record( new yy.StatementListNode( $1, $2 ), @$); }
 	|
 	;
 
-s 
-	: fd 
-	| b
-	| vd
-	| ifs
-	| rs
+Statement 
+	: FunctionDefinition 
+	| Block
+	| Assignment
+	| FunctionCall
+    | IfStatement
+	| ReturnStatement
     ;
 
-ns 
-    : e SEMICOLON
-    { $$ = $1; }
-    ;
-
-b 	: LBRACE sl RBRACE
+Block 	
+    : LBRACE StatementList RBRACE
 	{ $$ = $2; }
     ;
 
-rs 	: RETURN ASSIGN e SEMICOLON
+ReturnStatement
+    : RETURN ASSIGN Expression SEMICOLON
 	{ $$ = record( new yy.ReturnNode( $3 ), @$); }
 	;
 
-fd
-	: DEF id LPAREN al RPAREN LBRACE sl RBRACE
+FunctionDefinition
+	: DEF Identifier LPAREN al RPAREN LBRACE StatementList RBRACE
 	{ $$ = record( new yy.FunctionDefinitionNode( $2, $4, $7), @$); }
 	;
 
-vd	
-	: tid ASSIGN e SEMICOLON
+Assignment	
+	: tIdentifier ASSIGN Expression SEMICOLON
 	{ $$ = record( new yy.AssignmentNode( $1, $3 ), @$); }
     ;
 
-ifs
-	: IF LPAREN e RPAREN b 
+IfStatement
+	: IF LPAREN Expression RPAREN Block
 	{ $$ = record( new yy.IfStatementNode( $3, $5 ), @$); }
-	| IF LPAREN e RPAREN b ELSE s
+	| IF LPAREN Expression RPAREN Block ELSE Statement
 	{ $$ = record( new yy.IfStatementNode( $3, $5, $7 ), @$); }
 	;
 
-al	: tid COMMA al
+IdentifierList
+    : TypedIdentifier COMMA IdentifierList
 	{ $$ = record( new yy.IdentifierListNode( $1, $3 ), @$); }
-	| tid
+	| TypedIdentifier
 	{ $$ = record( new yy.IdentifierListNode( $1 ), @$); }
 	|
 	;
 
-id
+Identifier
 	: ID
 	{ $$ = record( new yy.IdentifierNode($1), @$); }
 	;
 
-tid
-	: id
-	| ID COLON t
+TypedIdentifier
+	: Identifier
+	| ID COLON Type
 	{ $$ = record( new yy.TypedIdentifierNode( $1, $3 ), @$); }
 	;
 
-t
+Type
 	: ID
 	{ $$ = record( new yy.Type( $1 ), @$); }
 	| ID LBRACKET RBRACKET
 	{ $$ = record( new yy.Type( $1 ), @$); }
 	;
 
-el 
-	: e COMMA el
-	{ $$ = record( new yy.ExprListNode($1, $3), @$); }
-	| e
-	{ $$ = record( new yy.ExprListNode($1), @$); }	
-	;
+ExpressionList 
+	: Expression COMMA ExpressionList
+	{ $$ = record( new yy.ExpressionListNode($1, $3), @$); }
+	| Expression
+	{ $$ = record( new yy.ExpressionListNode($1), @$); }	
+	|
+    ;
 
-fal 
-	: fa COMMA fal
-	{ $$ = record( new yy.FuncArgExprList($1, $3), @$); }
-	| fa
-	{ $$ = record( new yy.FuncArgExprList($1), @$); }	
-	;
-
-fa
-	: e LCARET INT RCARET
-	{ $$ = record( new yy.FuncArgExpr( $1, parseInt( $3 ) ), @$); }
-	| e 
-	{ $$ = record( new yy.FuncArgExpr( $1 ), @$); }
-	;
-
-e
-	: l
-	| id
-	| e PLUS e 
+Expression
+	: Literal
+	| Identifier
+    | FunctionCall
+    | Expression ReplicationGuideList
+	{ $$ = record( new yy.ReplicatedExpressionNode($1, $2), @$); }
+	| Expression PLUS Expression
 	{ $$ = record( new yy.BinaryExpressionNode($2 ,$1, $3), @$); }
-	| e MINUS e
+	| Expression MINUS Expression
 	{ $$ = record( new yy.BinaryExpressionNode($2 ,$1, $3), @$); }
-	| e TIMES e
+	| Expression TIMES Expression
 	{ $$ = record( new yy.BinaryExpressionNode($2, $1, $3), @$); }
-	| e EQUALITY e
+	| Expression EQUALITY Expression
 	{ $$ = record( new yy.BinaryExpressionNode($2, $1, $3), @$); }
-	| e RCARET e
+	| Expression RCARET Expression
 	{ $$ = record( new yy.BinaryExpressionNode($2, $1, $3), @$); }
-	| e OR e
+	| Expression OR Expression
 	{ $$ = record( new yy.BinaryExpressionNode($2, $1, $3), @$); }
-	| id LPAREN fal RPAREN
-	{ $$ = record( new yy.FunctionCallNode($1, $3), @$); }
-	| LPAREN e RPAREN
+	| LPAREN Expression RPAREN
 	{ $$ = $2; }
-	| id LBRACKET e RBRACKET
+	| Identifier LBRACKET Expression RBRACKET
 	{ $$ = record( new yy.ArrayIndexNode( $1, $3 ), @$); }	
 	;
 
-l 	
+ReplicationGuide
+    : LCARET Expression RCARET
+	{ $$ = record( new yy.ReplicatedGuide( $2 ), @$); }
+    ;
+
+ReplicationGuideList
+    : ReplicationGuide
+	{ $$ = record( new yy.ReplicationGuideListNode( $1 ), @$); }
+    | ReplicationGuide ReplicationGuideList
+	{ $$ = record( new yy.ReplicationGuideListNode( $1, $2 ), @$); }
+    ;
+
+FunctionCall
+    : Identifier LPAREN ExpressionList RPAREN
+	{ $$ = record( new yy.FunctionCallNode($1, $3), @$); }
+    ;
+
+Literal	
 	: INT
 	{ $$ = record( new yy.IntNode( $1 ), @$); }
 	| TRUE
@@ -145,7 +149,7 @@ l
 	{ $$ = record( new yy.BooleanNode( $1 ), @$); }
 	| STRING
 	{ $$ = record( new yy.StringNode( $1 ), @$); }
-	| LBRACE el RBRACE
+	| LBRACE ExpressionList RBRACE
 	{ $$ = record( new yy.ArrayNode( $2 ), @$); }
 	;
 

@@ -80,7 +80,7 @@ export class Type extends Node {
 }
 
 //
-// Expressions 
+// Expressionessions 
 //
 
 export interface AssociativeNode  {
@@ -156,9 +156,9 @@ export class StringNode extends Node implements AssociativeNode {
 }
 
 export class ArrayNode extends Node implements AssociativeNode { 
-    el : ExprListNode;
+    el : ExpressionListNode;
     
-    constructor(el : ExprListNode){
+    constructor(el : ExpressionListNode){
         super();
         this.el = el;
 	}
@@ -195,9 +195,9 @@ export class BinaryExpressionNode extends Node implements AssociativeNode {
 
 export class FunctionCallNode extends Node implements AssociativeNode { 
     fid : IdentifierNode;
-    el : FuncArgExprList;
+    el : ExpressionListNode;
     
-    constructor(fid : IdentifierNode, el : FuncArgExprList ){
+    constructor(fid : IdentifierNode, el : ExpressionListNode ){
         super();
         this.fid = fid;
         this.el = el;
@@ -231,11 +231,11 @@ export class ArrayIndexNode extends Node implements AssociativeNode {
     }
 }
 
-export class ExprListNode extends Node { 
+export class ExpressionListNode extends Node { 
     e : AssociativeNode;
-    el : ExprListNode;
+    el : ExpressionListNode;
 
-    constructor(e : AssociativeNode, el : ExprListNode ){
+    constructor(e : AssociativeNode, el : ExpressionListNode ){
         super();
         this.e = e;
         this.el = el;
@@ -253,7 +253,62 @@ export class ExprListNode extends Node {
     } 
     
     accept<T>(v : visitor.Visitor<T>) : T {
-        return v.visitExprListNode( this );
+        return v.visitExpressionListNode( this );
+    }
+}
+
+export class ArrayNameNode extends Node implements AssociativeNode { 
+    a : IdentifierNode;
+    ril : ReplicationGuideListNode;
+    
+    constructor(a : IdentifierNode, ril : ReplicationGuideListNode){
+        super();
+        this.a = a;
+        this.ril = ril;
+	}
+
+    toString(){
+        return this.a.toString() + this.ril.toString();
+    }
+
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitArrayNameNode( this );
+    }
+}
+
+export class ReplicationGuideNode extends Node implements AssociativeNode { 
+    i : AssociativeNode;
+    
+    constructor(i : AssociativeNode){
+        super();
+        this.i = i;
+	}
+
+    toString(){
+        return "<" + this.i.toString() + ">";
+    }
+
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitReplicationGuideNode( this );
+    }
+}
+
+export class ReplicationGuideListNode extends Node implements AssociativeNode { 
+    ri : ReplicationGuideNode;
+    ril : ReplicationGuideListNode;
+    
+    constructor(ri : ReplicationGuideNode, ril : ReplicationGuideListNode = null){
+        super();
+        this.ri = ri;
+	    this.ril = ril;
+    }
+
+    toString(){
+        return this.ri.toString() + this.ril.toString();
+    }
+
+    accept<T>(v : visitor.Visitor<T>) : T {
+        return v.visitReplicationGuideListNode( this );
     }
 }
 
@@ -261,7 +316,7 @@ export class ExprListNode extends Node {
 // Statements
 //
 
-export class StmtNode extends Node {
+export class StatementNode extends Node {
     toString() {
         return this.toLines("").join("\n");
     }
@@ -271,11 +326,11 @@ export class StmtNode extends Node {
     }
 }
 
-export class StmtList extends StmtNode { 
-    s : StmtNode;
-    sl : StmtList;
+export class StatementListNode extends StatementNode { 
+    s : StatementNode;
+    sl : StatementListNode;
     
-    constructor(s : StmtNode, sl : StmtList){
+    constructor(s : StatementNode, sl : StatementListNode){
         super();
         this.s = s;
         this.sl = sl;
@@ -292,16 +347,16 @@ export class StmtList extends StmtNode {
     }
 
     accept<T>(v : visitor.Visitor<T>) : T {
-        return v.visitStmtList( this );
+        return v.visitStatementListNode( this );
     }
 }
 
-export class IfStatementNode extends StmtNode { 
+export class IfStatementNode extends StatementNode { 
     test : AssociativeNode;
-    tsl : StmtList;
-    fsl : StmtList;
+    tsl : StatementListNode;
+    fsl : StatementListNode;
 
-    constructor( test : AssociativeNode, tsl : StmtList, fsl : StmtList ){
+    constructor( test : AssociativeNode, tsl : StatementListNode, fsl : StatementListNode ){
         super();
         this.test = test;
         this.tsl = tsl;
@@ -320,12 +375,12 @@ export class IfStatementNode extends StmtNode {
     }
 }
 
-export class FunctionDefinitionNode extends StmtNode { 
+export class FunctionDefinitionNode extends StatementNode { 
     id : IdentifierNode;
     il : IdentifierListNode;
-    sl : StmtList;
+    sl : StatementListNode;
     
-    constructor(id : IdentifierNode, il : IdentifierListNode, sl : StmtList ){
+    constructor(id : IdentifierNode, il : IdentifierListNode, sl : StatementListNode ){
         super();
         this.id = id;
         this.il = il;
@@ -343,7 +398,7 @@ export class FunctionDefinitionNode extends StmtNode {
     }
 }
 
-export class AssignmentNode extends StmtNode { 
+export class AssignmentNode extends StatementNode { 
     id : IdentifierNode;
     e : AssociativeNode;
 
@@ -362,7 +417,7 @@ export class AssignmentNode extends StmtNode {
     }
 }
 
-export class ReturnNode extends StmtNode { 
+export class ReturnNode extends StatementNode { 
     e : AssociativeNode;
 
     constructor(e : AssociativeNode){
@@ -376,54 +431,6 @@ export class ReturnNode extends StmtNode {
 
     accept<T>(v : visitor.Visitor<T>) : T {
         return v.visitReturnNode( this );
-    }
-}
-
-// 
-// Replication guides
-//
-export class FuncArgExprList extends Node { 
-    fa : FuncArgExpr;
-    fal : FuncArgExprList;
-    
-    constructor(fa : FuncArgExpr, fal : FuncArgExprList ){
-        super();
-        this.fa = fa;
-        this.fal = fal;
-	}
-
-    toString() {
-        var s = this.fa.toString();
-        var fal = this.fal;
-        while( fal != null ){
-            s += ", ";
-            s += fal.fa.toString();
-        }
-
-        return s;
-    }
-
-    accept<T>(v : visitor.Visitor<T>) : T {
-        return v.visitFuncArgExprList( this );
-    }
-}
-
-export class FuncArgExpr extends Node implements AssociativeNode { 
-    e : AssociativeNode;
-    ri : Number;
-    
-    constructor(e : AssociativeNode, ri : Number){
-        super();
-        this.e = e;
-        this.ri = ri;
-	}
-
-    toString(){
-        return this.e.toString() + "<" + this.ri + ">";
-    }
-
-    accept<T>(v : visitor.Visitor<T>) : T {
-        return v.visitFuncArgExpr( this );
     }
 }
 

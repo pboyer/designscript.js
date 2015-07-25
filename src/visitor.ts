@@ -13,13 +13,14 @@ export interface Visitor<T> {
     visitBinaryExpressionNode(node : ast.BinaryExpressionNode) : T;
     visitFunctionCallNode(node : ast.FunctionCallNode) : T;
     visitArrayIndexNode(node : ast.ArrayIndexNode) : T;
-    visitExprListNode(node : ast.ExprListNode) : T;
-    visitStmtList(node : ast.StmtList) : T;
+    visitExpressionListNode(node : ast.ExpressionListNode) : T;
+    visitStatementListNode(node : ast.StatementListNode) : T;
     visitIfStatementNode(node : ast.IfStatementNode) : T;
     visitFunctionDefinitionNode(node : ast.FunctionDefinitionNode) : T;
     visitAssignmentNode(node : ast.AssignmentNode) : T;
     visitReturnNode(node : ast.ReturnNode) : T;
-    visitFuncArgExprList(node : ast.FuncArgExprList) : T;
-    visitFuncArgExpr(node : ast.FuncArgExpr) : T;
+    visitArrayNameNode(node : ast.ArrayNameNode) : T;
+    visitReplicationGuideNode(node : ast.ReplicationGuideNode) : T;
+    visitReplicationGuideListNode(node : ast.ReplicationGuideListNode) : T;
 
 }
