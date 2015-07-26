@@ -257,22 +257,22 @@ export class ExpressionListNode extends Node {
     }
 }
 
-export class ArrayNameNode extends Node implements AssociativeNode { 
-    a : IdentifierNode;
+export class ReplicationExpressionNode extends Node implements AssociativeNode { 
+    e : AssociativeNode;
     ril : ReplicationGuideListNode;
     
-    constructor(a : IdentifierNode, ril : ReplicationGuideListNode){
+    constructor(e : IdentifierNode, ril : ReplicationGuideListNode){
         super();
-        this.a = a;
+        this.e = e;
         this.ril = ril;
 	}
 
     toString(){
-        return this.a.toString() + this.ril.toString();
+        return this.e.toString() + this.ril.toString();
     }
 
     accept<T>(v : visitor.Visitor<T>) : T {
-        return v.visitArrayNameNode( this );
+        return v.visitReplicationExpressionNode( this );
     }
 }
 

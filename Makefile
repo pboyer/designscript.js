@@ -9,8 +9,8 @@ release: build
 	browserify src/ds.js -o build/ds.js -s ds
 
 test: build
-	node src/interpreter_test.js 
 	node src/parser_test.js
+	node src/interpreter_test.js 
 
 clean:
 	rm -rf build

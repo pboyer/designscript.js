@@ -2,36 +2,36 @@ import enviro = require('./environment');
 import ast = require('./ast');
 import visitor = require('./visitor');
 
-export class TypedFuncDef {
+export class TypedFunctionDefinition {
     f : (any) => any;
-    al : ast.IdentifierNode[]; 
+    al : ast.TypedIdentifierNode[]; 
     
-    constructor( f : (any) => any, al : ast.IdentifierNode[] = []){
+    constructor( f : (any) => any, al : ast.TypedIdentifierNode[] = []){
         this.f = f;
         this.al = al; // the type identifiers for the func def
     }
 }
 
-export class ReplicatedFuncArg {
+export class ReplicatedFunctionArgument {
     v : any;
-    rg : Number;
+    rgl : ast.ReplicationGuideListNode;
 
-    constructor ( v : any, rg : Number ){
+    constructor ( v : any, rgl :  ast.ReplicationGuideListNode ){
         this.v = v;
-        this.rg = rg;
+        this.rgl = rgl;
     }
 }
 
 export class Interpreter implements visitor.Visitor<any> {
    
     env : enviro.Environment = new enviro.Environment();
-    extensions : { [id : string] : TypedFuncDef; };
+    extensions : { [id : string] : TypedFunctionDefinition; };
 
     constructor( extensions ){
         this.extensions = extensions;
     }
 
-    eval( sl : ast.StmtList ) : void {
+    eval( sl : ast.StatementListNode ) : void {
         this.env = this.builtins( this.extensions );
         
         this.evalFunctionDefinitionNodes( sl ); 				
@@ -47,11 +47,11 @@ export class Interpreter implements visitor.Visitor<any> {
             }
         }
         
-        e.set("print", new TypedFuncDef( console.log ));
+        e.set("print", new TypedFunctionDefinition( console.log ));
         return e;
     }
 
-    evalFunctionDefinitionNodes( sl : ast.StmtList ) : void {
+    evalFunctionDefinitionNodes( sl : ast.StatementListNode ) : void {
         var r, s;
         while ( sl != undefined ){
             s = sl.s;
@@ -71,7 +71,7 @@ export class Interpreter implements visitor.Visitor<any> {
         this.env = this.env.outer;
     }
 
-    visitStmtList( sl : ast.StmtList ) : void {
+    visitStatementListNode( sl : ast.StatementListNode ) : void {
         var r, s;
         while ( sl != undefined ){
             s = sl.s;
@@ -81,6 +81,14 @@ export class Interpreter implements visitor.Visitor<any> {
         }
         
         return r;
+    }
+
+    visitReplicationGuideListNode(r : ast.ReplicationGuideListNode ) : any {
+        throw new Error("visitReplicatedGuideListNode not implemented");
+    }
+
+    visitReplicationGuideNode(r : ast.ReplicationGuideNode ) : any {
+        throw new Error("visitReplicatedGuideNode not implemented");
     }
 
     visitArrayIndexNode( e : ast.ArrayIndexNode ) : any {
@@ -149,13 +157,13 @@ export class Interpreter implements visitor.Visitor<any> {
     visitIfStatementNode( s : ast.IfStatementNode ){
         var test = s.test.accept( this );
         if (test === true){
-            return this.evalBlockStmt( s.tsl );  
+            return this.evalBlockStatement( s.tsl );  
         } else {	
             return s.fsl.accept( this );
         }	
     }
 
-    evalBlockStmt( sl : ast.StmtList ) : any {	
+    evalBlockStatement( sl : ast.StatementListNode ) : any {	
         this.pushEnvironment();
         var r = sl.accept( this );
         this.popEnvironment();
@@ -167,29 +175,19 @@ export class Interpreter implements visitor.Visitor<any> {
         return this.replicate( fd, e.el.accept( this ) );  
     }
 
-    visitFuncArgExpr( fa : ast.FuncArgExpr ) : any {
-        return new ReplicatedFuncArg( fa.e.accept(this), fa.ri) 
+    visitReplicationExpressionNode( fa : ast.ReplicationExpressionNode ) : any {
+        return new ReplicatedFunctionArgument( fa.e.accept(this), fa.ril) 
     }
 
-    visitFuncArgExprList( fal : ast.FuncArgExprList ){
+    visitExpressionListNode( el : ast.ExpressionListNode ){
         var vs = [];
-        while ( fal != undefined ){
-            vs.push( fal.fa.accept( this ) );
-            fal = fal.fal;	
+        while ( el != undefined ){
+            vs.push( el.e.accept( this ) );
+            el = el.el;	
         }
         return vs; 
     }
-     
-    visitExprListNode( el : ast.ExprListNode ) : any {
-        var vs = [];
-        while (el != undefined){
-            vs.push( el.e.accept( this ));
-            el = el.el;
-        }
-
-        return vs;
-    }
-
+    
     visitAssignmentNode( s : ast.AssignmentNode ){
         this.env.set( s.id.id, s.e.accept( this ));
     }
@@ -213,7 +211,7 @@ export class Interpreter implements visitor.Visitor<any> {
             return interpreter.apply( fds, env, args ); 
         }
 
-        fd = new TypedFuncDef(f, val); 
+        fd = new TypedFunctionDefinition(f, val); 
 
         this.env.set(fds.id.id, fd);
     }
@@ -239,10 +237,12 @@ export class Interpreter implements visitor.Visitor<any> {
         return r;
     }
 
-    replicate( fd : TypedFuncDef, args : any[] ) : any {
-           
+    replicate( fd : TypedFunctionDefinition, args : any[] ) : any {
+
+        // we'll need to check for ReplicatedFunctionArgument here
+
         // if all types match, simply execute
-        return fd.f.apply(undefined, args.map(function(x){ return x.v; }));
+        return fd.f.apply(undefined, args.map(function(x){ return x; }));
 
         /*
          *

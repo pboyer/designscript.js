@@ -15,6 +15,7 @@
 %left TIMES
 %right NOT
 %left DOT
+%nonassoc LCARET
 
 %%
 
@@ -33,7 +34,7 @@ Statement
 	: FunctionDefinition 
 	| Block
 	| Assignment
-	| FunctionCall
+	| FunctionCall SEMICOLON
     | IfStatement
 	| ReturnStatement
     ;
@@ -49,12 +50,12 @@ ReturnStatement
 	;
 
 FunctionDefinition
-	: DEF Identifier LPAREN al RPAREN LBRACE StatementList RBRACE
+	: DEF Identifier LPAREN IdentifierList RPAREN LBRACE StatementList RBRACE
 	{ $$ = record( new yy.FunctionDefinitionNode( $2, $4, $7), @$); }
 	;
 
 Assignment	
-	: tIdentifier ASSIGN Expression SEMICOLON
+	: TypedIdentifier ASSIGN Expression SEMICOLON
 	{ $$ = record( new yy.AssignmentNode( $1, $3 ), @$); }
     ;
 
@@ -103,9 +104,17 @@ Expression
 	: Literal
 	| Identifier
     | FunctionCall
-    | Expression ReplicationGuideList
-	{ $$ = record( new yy.ReplicatedExpressionNode($1, $2), @$); }
-	| Expression PLUS Expression
+    | BinaryExpression
+    | Identifier ReplicationGuideList
+	{ $$ = record( new yy.ReplicationExpressionNode($1, $2), @$); }
+	| LPAREN Expression RPAREN
+	{ $$ = $2; }
+	| Identifier LBRACKET Expression RBRACKET
+	{ $$ = record( new yy.ArrayIndexNode( $1, $3 ), @$); }	
+	;
+
+BinaryExpression
+	: Expression PLUS Expression
 	{ $$ = record( new yy.BinaryExpressionNode($2 ,$1, $3), @$); }
 	| Expression MINUS Expression
 	{ $$ = record( new yy.BinaryExpressionNode($2 ,$1, $3), @$); }
@@ -117,15 +126,11 @@ Expression
 	{ $$ = record( new yy.BinaryExpressionNode($2, $1, $3), @$); }
 	| Expression OR Expression
 	{ $$ = record( new yy.BinaryExpressionNode($2, $1, $3), @$); }
-	| LPAREN Expression RPAREN
-	{ $$ = $2; }
-	| Identifier LBRACKET Expression RBRACKET
-	{ $$ = record( new yy.ArrayIndexNode( $1, $3 ), @$); }	
-	;
+    ;
 
 ReplicationGuide
     : LCARET Expression RCARET
-	{ $$ = record( new yy.ReplicatedGuide( $2 ), @$); }
+	{ $$ = record( new yy.ReplicationGuideNode( $2 ), @$); }
     ;
 
 ReplicationGuideList

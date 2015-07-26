@@ -19,7 +19,7 @@ export interface Visitor<T> {
     visitFunctionDefinitionNode(node : ast.FunctionDefinitionNode) : T;
     visitAssignmentNode(node : ast.AssignmentNode) : T;
     visitReturnNode(node : ast.ReturnNode) : T;
-    visitArrayNameNode(node : ast.ArrayNameNode) : T;
+    visitReplicationExpressionNode(node : ast.ReplicationExpressionNode) : T;
     visitReplicationGuideNode(node : ast.ReplicationGuideNode) : T;
     visitReplicationGuideListNode(node : ast.ReplicationGuideListNode) : T;
 

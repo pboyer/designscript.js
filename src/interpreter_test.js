@@ -1,8 +1,7 @@
 var Parser = require('./parser')
 	, assert = require('assert')
 	, Interpreter = require('./interpreter').Interpreter
-	, TypedFuncDef = require('./interpreter').TypedFuncDef
-	, FuncArgExpr = require('./ast').FuncArgExpr;
+	, TypedFunctionDefinition = require('./interpreter').TypedFunctionDefinition;
 
 var ast = require('./ast');
 Parser.parser.yy = ast;
@@ -10,10 +9,12 @@ Parser.parser.yy = ast;
 function eval(p){
 	var pp = Parser.parse( p );
 
-	// record the debug statements
+	// inject the debugger function
 	var record = [];
 	var exts = {
-		"debug" : new TypedFuncDef(function(x){ record.push(x); })
+		"debug" : new TypedFunctionDefinition(function(x){ 
+            record.push(x); 
+        })
 	};
 
 	(new Interpreter( exts )).eval( pp );
@@ -22,17 +23,17 @@ function eval(p){
 }
 
 (function(){
-	var r = eval('a = 4; t = debug( a );');
+	var r = eval('a = 4; debug( a );');
 	assert.equal( 4, r[0] ); 	
 })();
 
 (function(){
-	var r = eval('r = debug( 2 * 3 );');
+	var r = eval('debug( 2 * 3 );');
 	assert.equal( 6, r[0] );
 })();
 
 (function(){
-	var r = eval('r = debug( true || false );');
+	var r = eval('debug( true || false );');
 	assert.equal( true, r[0] );
 })();
 
@@ -52,7 +53,7 @@ function eval(p){
 })();
 
 (function(){
-	var r = eval('def firstElement(a : int[]){ return = a[0]; } t = debug( firstElement({0,1,2}<1>) );');
+	var r = eval('def firstElement(a : int[]){ return = a[0]; } t = debug( firstElement({0,1,2}) );');
 	assert.equal( 0, r[0] );
 })();
 
