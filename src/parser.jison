@@ -28,7 +28,8 @@ StatementList
 	: Statement StatementList
 	{ $$ = record( new yy.StatementListNode( $1, $2 ), @$); }
 	|
-	;
+	{ $$ = record( new yy.StatementListNode(), @$); }
+    ;
 
 Statement 
 	: FunctionDefinition 

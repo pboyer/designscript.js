@@ -1,9 +1,25 @@
 <!doctype html>
 <html>
     <head>
+        <link rel="stylesheet" href="lib/codemirror.css">
+        <link rel="stylesheet" href="lib/style.css">
+        
+        <script src="lib/codemirror.js"></script>
         <script src="../build/ds.js"></script>
-        <script>
-            ds.run("a = 3; b = 3 + a;");
-        </script>
+    
     </head>
+    
+    <body>
+        <textarea id="codeInput"></textarea>
+        <input id="run" type="button" value="Run">
+        <script>
+            var ta = document.getElementById('codeInput');
+            var cm = CodeMirror.fromTextArea( ta );
+            
+            var b = document.getElementById('run'); 
+            b.addEventListener("click", function(){
+                ds.run( cm.getValue() );
+            });
+        </script>
+    </body>
 </html>

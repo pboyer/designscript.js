@@ -35,7 +35,7 @@ export class Interpreter implements visitor.Visitor<any> {
         this.env = this.builtins( this.extensions );
         
         this.evalFunctionDefinitionNodes( sl ); 				
-        sl.accept( this );
+        this.visitStatementListNode( sl );
     }
 
     builtins(exts : { [id : string] : any }) : enviro.Environment {
@@ -47,13 +47,13 @@ export class Interpreter implements visitor.Visitor<any> {
             }
         }
         
-        e.set("print", new TypedFunctionDefinition( console.log ));
+        e.set("print", new TypedFunctionDefinition((x) => console.log(x)));
         return e;
     }
 
     evalFunctionDefinitionNodes( sl : ast.StatementListNode ) : void {
         var r, s;
-        while ( sl != undefined ){
+        while ( sl ){
             s = sl.s;
             sl = sl.sl;
             if ( s instanceof ast.FunctionDefinitionNode ) 
@@ -73,9 +73,15 @@ export class Interpreter implements visitor.Visitor<any> {
 
     visitStatementListNode( sl : ast.StatementListNode ) : void {
         var r, s;
-        while ( sl != undefined ){
+        while ( sl ){
             s = sl.s;
             sl = sl.sl;
+          
+            // empty statement list
+            if ( !s )
+                break;
+
+            // todo: hoist func defs
             if ( !(s instanceof ast.FunctionDefinitionNode)) 
                 r = s.accept( this );
         }
@@ -242,7 +248,7 @@ export class Interpreter implements visitor.Visitor<any> {
         // we'll need to check for ReplicatedFunctionArgument here
 
         // if all types match, simply execute
-        return fd.f.apply(undefined, args.map(function(x){ return x; }));
+        return fd.f.apply(undefined, args);
 
         /*
          *

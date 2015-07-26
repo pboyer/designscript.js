@@ -23,6 +23,10 @@ function eval(p){
 }
 
 (function(){
+	var r = eval('a = 4; print( a );');
+})();
+
+(function(){
 	var r = eval('a = 4; debug( a );');
 	assert.equal( 4, r[0] ); 	
 })();
@@ -38,37 +42,37 @@ function eval(p){
 })();
 
 (function(){
-	var r = eval('r = debug( 5 > 4 );');
+	var r = eval('debug( 5 > 4 );');
 	assert.equal( true, r[0] );
 })();
 
 (function(){
-	var r = eval('def foo(a,b){ return = a + b; } t = debug( foo(1, 2) );');
+	var r = eval('def foo(a,b){ return = a + b; } debug( foo(1, 2) );');
 	assert.equal( 3, r[0] );
 })();
 
 (function(){
-	var r = eval('def foo(a,b){ return = bar(a,b); } def bar(a,b){ return = a + b; } t = debug( foo(1, 2));');
+	var r = eval('def foo(a,b){ return = bar(a,b); } def bar(a,b){ return = a + b; } debug( foo(1, 2));');
 	assert.equal( 3, r[0] );
 })();
 
 (function(){
-	var r = eval('def firstElement(a : int[]){ return = a[0]; } t = debug( firstElement({0,1,2}) );');
+	var r = eval('def firstElement(a : int[]){ return = a[0]; } debug( firstElement({0,1,2}) );');
 	assert.equal( 0, r[0] );
 })();
 
 (function(){
-	var r = eval('def intId(a : int){ return = a; } t = debug( intId(2) );');
+	var r = eval('def intId(a : int){ return = a; } debug( intId(2) );');
 	assert.equal( 2, r[0] );
 })();
 
 (function(){
-	var r = eval('a : int = 25; t = debug( a );');
+	var r = eval('a : int = 25; debug( a );');
 	assert.equal( 25, r[0] );
 })();
 
 (function(){
-	var r = eval('a = {true, false, "Ok cool"}; t = debug( a[1 + 1] );');
+	var r = eval('a = {true, false, "Ok cool"}; debug( a[1 + 1] );');
 	assert.equal( "Ok cool", r[0] );
 })();
 

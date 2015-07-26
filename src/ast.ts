@@ -80,7 +80,7 @@ export class Type extends Node {
 }
 
 //
-// Expressionessions 
+// Expressions 
 //
 
 export interface AssociativeNode  {
@@ -330,7 +330,7 @@ export class StatementListNode extends StatementNode {
     s : StatementNode;
     sl : StatementListNode;
     
-    constructor(s : StatementNode, sl : StatementListNode){
+    constructor(s : StatementNode = null, sl : StatementListNode = null){
         super();
         this.s = s;
         this.sl = sl;

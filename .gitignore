@@ -1,4 +1,5 @@
 *.swp
+.DS_Store
 parser.js
 ast.js
 environment.js
