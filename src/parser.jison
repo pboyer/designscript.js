@@ -38,6 +38,7 @@ Statement
 	| FunctionCall SEMICOLON
     | IfStatement
 	| ReturnStatement
+    | LanguageBlock
     ;
 
 LanguageBlock 	
