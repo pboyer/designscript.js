@@ -5,6 +5,7 @@ var ast = require('./ast');
 ds.parser.yy = ast;
 
 (function(){
+    assert.ok( ds.parse('[Imperative]{ a = 4; }').s instanceof ast.ImperativeBlockNode );	
 	assert.ok( ds.parse('[Associative]{ a = 4; }').s instanceof ast.AssociativeBlockNode );	
 	assert.ok( ds.parse('a = 4;').s instanceof ast.AssignmentNode );	
 	assert.ok( ds.parse('def x(a, b){ return = 4; }').s instanceof ast.FunctionDefinitionNode );
