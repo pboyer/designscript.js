@@ -326,6 +326,35 @@ export class StatementNode extends Node {
     }
 }
 
+export class LanguageBlockNode extends StatementNode {
+    name : string;
+    sl : StatementListNode;
+
+    constructor(name : string, sl : StatementListNode){
+        super();
+        this.name = name;
+        this.sl = sl;
+    }
+        
+    toLines( indent : string ) : string[] {
+        return ["[" + this.name + "]{"]
+            .concat( this.sl.toLines( indent + "\t" ) )
+            .concat([ "}" ]);
+    }
+}
+
+export class AssociativeBlockNode extends LanguageBlockNode { 
+    constructor(sl : StatementListNode){
+        super("Associative", sl);
+    }
+}
+
+export class ImperativeBlockNode extends LanguageBlockNode { 
+    constructor(sl : StatementListNode){
+        super("Imperative", sl);
+    }
+}
+
 export class StatementListNode extends StatementNode { 
     s : StatementNode;
     sl : StatementListNode;

@@ -40,6 +40,13 @@ Statement
 	| ReturnStatement
     ;
 
+LanguageBlock 	
+    : LBRACKET ASSOCIATIVE RBRACKET Block
+	{ $$ = record( new yy.AssociativeBlockNode( $4 ), @$);  }
+    | LBRACKET IMPERATIVE RBRACKET Block
+	{ $$ = record( new yy.ImperativeBlockNode( $4 ), @$);  }
+    ;
+
 Block 	
     : LBRACE StatementList RBRACE
 	{ $$ = $2; }

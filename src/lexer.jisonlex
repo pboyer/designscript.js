@@ -11,6 +11,8 @@ str                         [a-zA-Z0-9\s]*
 "null"                      return 'NUL';
 "true"                      return 'TRUE';
 "false"                     return 'FALSE';
+"Imperative"                return 'IMPERATIVE';
+"Associative"               return 'ASSOCIATIVE';
 "return"                    return 'RETURN';
 {digit}+                    return 'INT';
 {id}                        return 'ID';
