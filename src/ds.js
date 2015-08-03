@@ -1,6 +1,6 @@
 var Parser = require('./parser')
-	, Interpreter = require('./interpreter').Interpreter
-	, TypedFuncDef = require('./interpreter').TypedFuncDef
+	, Interpreter = require('./imperative').Interpreter
+	, TypedFuncDef = require('./imperative').TypedFuncDef
 	, FuncArgExpr = require('./ast').FuncArgExpr;
 
 var ast = require('./ast');

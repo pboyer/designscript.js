@@ -10,9 +10,9 @@ release: build
 
 test: build
 	node src/parser_test.js
-	node src/interpreter_test.js 
+	node src/imperative_test.js 
 	node src/associative_test.js 
 
 clean:
 	rm -rf build
-	rm src/ast.js src/parser.js src/interpreter.js src/environment.js src/visitor.js
+	rm src/ast.js src/parser.js src/associative.js src/imperative.js src/environment.js src/visitor.js

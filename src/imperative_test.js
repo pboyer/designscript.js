@@ -1,7 +1,7 @@
 var Parser = require('./parser')
 	, assert = require('assert')
-	, Interpreter = require('./interpreter').Interpreter
-	, TypedFunctionDefinition = require('./interpreter').TypedFunctionDefinition;
+	, Interpreter = require('./imperative').Interpreter
+	, TypedFunctionDefinition = require('./imperative').TypedFunctionDefinition;
 
 var ast = require('./ast');
 Parser.parser.yy = ast;
@@ -17,7 +17,7 @@ function run(p){
         })
 	};
 
-	(new Interpreter( exts )).eval( pp );
+	(new Interpreter( exts )).run( pp );
 	
 	return record;
 }

@@ -2,13 +2,13 @@ import visitor = require('./visitor');
 import ast = require('./ast');
 import enviro = require('./environment');
 
-export class Node {
+export class DependencyNode {
     private static gid : number = 0;
     
-    id : number = Node.gid++;
+    id : number = DependencyNode.gid++;
     dirty : boolean = true;
-    inputs : Node[] = [];
-    outputs : Node[] = [];
+    inputs : DependencyNode[] = [];
+    outputs : DependencyNode[] = [];
     value : any = null;    
     f : (...any : any[]) => any;  
 
@@ -22,9 +22,9 @@ export class Node {
     }
 }
 
-function resolve( node : Node ){
+function resolve( node : DependencyNode ){
     // mark the nodes
-    var marked = new Array<Node>(), remaining = [ node ];
+    var marked = new Array<DependencyNode>(), remaining = [ node ];
     while (remaining.length){
         var n = remaining.pop();
         n.dirty = true;
@@ -34,7 +34,7 @@ function resolve( node : Node ){
 
     // topo sort
     var roots = marked.filter((x) => x.inputs.reduce((a, y) => !y.dirty && a, true));
-    var sorted = new Array<Node>();        
+    var sorted = new Array<DependencyNode>();        
     var visited = {};
 
     while( roots.length ){
@@ -52,7 +52,7 @@ function resolve( node : Node ){
     sorted.forEach((x) => x.eval());
 }
 
-function replace( old : Node, rep : Node) {
+function replace( old : DependencyNode, rep : DependencyNode) {
     rep.outputs = old.outputs;
     rep.inputs = old.inputs;
 
@@ -69,42 +69,42 @@ function replace( old : Node, rep : Node) {
             });
 }
 
-function connect( s : Node, e : Node, i : number ){
+function connect( s : DependencyNode, e : DependencyNode, i : number ){
     if (s === e) throw new Error("Cannot connect a node to itself");
     
     s.outputs.push( e );
     e.inputs[i] = s;
 }
 
-function disconnect( s : Node, e : Node, i : number ){
+function disconnect( s : DependencyNode, e : DependencyNode, i : number ){
     var i = s.outputs.indexOf(e)
     s.outputs.splice(i, 1);
 
     e.inputs[i] = null;
 }
 
-function getBinaryExpressionNode( type : string ) : Node {
+function getBinaryExpressionNode( type : string ) : DependencyNode {
     switch( type ){
         case "+":
-            return new Node( (a, b) => a + b );
+            return new DependencyNode( (a, b) => a + b );
         case "-":
-            return new Node( (a, b) => a - b );
+            return new DependencyNode( (a, b) => a - b );
         case "*":
-            return new Node( (a, b) => a * b );
+            return new DependencyNode( (a, b) => a * b );
         case "<":
-            return new Node( (a, b) => a < b );
+            return new DependencyNode( (a, b) => a < b );
         case "||":
-            return new Node( (a, b) => a || b );
+            return new DependencyNode( (a, b) => a || b );
         case "==":
-            return new Node( (a, b) => a === b );
+            return new DependencyNode( (a, b) => a === b );
         case ">":
-            return new Node( (a, b) => a > b );
+            return new DependencyNode( (a, b) => a > b );
     }
 
     throw new Error( "Unknown binary operator type" );
 }
 
-export class Interpreter implements visitor.Visitor<Node> {
+export class Interpreter implements visitor.Visitor<DependencyNode> {
 
     env : enviro.Environment = new enviro.Environment();
     fds : { [ id : string ] : (...any) => any; } = {};
@@ -113,39 +113,39 @@ export class Interpreter implements visitor.Visitor<Node> {
         sl.accept( this );
     }
 
-    private set( id : string, n : Node ) {
+    private set( id : string, n : DependencyNode ) {
         this.env.set( id, n );
     }
 
-    private lookup( id : string ) : Node {
+    private lookup( id : string ) : DependencyNode {
         return this.env.lookup( id );
     }
 
-    visitIntNode(node : ast.IntNode) : Node { 
-        var n = new Node( () => node.value ); 
+    visitIntNode(node : ast.IntNode) : DependencyNode { 
+        var n = new DependencyNode( () => node.value ); 
         n.eval();
         return n;
     }
     
-    visitDoubleNode(node : ast.DoubleNode) : Node {
-        var n = new Node( () => node.value ); 
+    visitDoubleNode(node : ast.DoubleNode) : DependencyNode {
+        var n = new DependencyNode( () => node.value ); 
         n.eval();
         return n;
     }
     
-    visitBooleanNode(node : ast.BooleanNode) : Node { 
-        var n = new Node( () => node.value ); 
+    visitBooleanNode(node : ast.BooleanNode) : DependencyNode { 
+        var n = new DependencyNode( () => node.value ); 
         n.eval();
         return n;
     }
     
-    visitStringNode(node : ast.StringNode) : Node { 
-        var n = new Node( () => node.value ); 
+    visitStringNode(node : ast.StringNode) : DependencyNode { 
+        var n = new DependencyNode( () => node.value ); 
         n.eval();
         return n;
     }
     
-    visitStatementListNode(node : ast.StatementListNode) : Node {
+    visitStatementListNode(node : ast.StatementListNode) : DependencyNode {
         var n,s,sl = node;
         while (sl){
             s = sl.head;
@@ -156,7 +156,7 @@ export class Interpreter implements visitor.Visitor<Node> {
         return n;
     } 
 
-    visitAssignmentNode(node : ast.AssignmentNode) : Node {
+    visitAssignmentNode(node : ast.AssignmentNode) : DependencyNode {
         var id = node.identifier.name;
         var n = node.expression.accept( this );
        
@@ -169,14 +169,14 @@ export class Interpreter implements visitor.Visitor<Node> {
         return n;
     }
 
-    visitIdentifierNode(node : ast.IdentifierNode) : Node {
+    visitIdentifierNode(node : ast.IdentifierNode) : DependencyNode {
         var n = this.lookup( node.name );  
         if (!n) throw new Error("Unbound identifier: " + node.name);
         return n;
     }
 
-    visitBinaryExpressionNode(node : ast.BinaryExpressionNode) : Node {
-        var n : Node = getBinaryExpressionNode( node.operator );
+    visitBinaryExpressionNode(node : ast.BinaryExpressionNode) : DependencyNode {
+        var n : DependencyNode = getBinaryExpressionNode( node.operator );
         
         connect( node.firstExpression.accept( this ), n, 0 ); 
         connect( node.secondExpression.accept( this ), n, 1 ); 
@@ -184,9 +184,9 @@ export class Interpreter implements visitor.Visitor<Node> {
         return n;
     }
 
-    visitFunctionCallNode(node : ast.FunctionCallNode) : Node { 
+    visitFunctionCallNode(node : ast.FunctionCallNode) : DependencyNode { 
         var f = this.fds[ node.functionId.name ];
-        var n = new Node( f );
+        var n = new DependencyNode( f );
         var el = node.arguments;
         var i = 0;
         while (el){
@@ -198,8 +198,8 @@ export class Interpreter implements visitor.Visitor<Node> {
         return n;
     }
 
-    visitArrayIndexNode(node : ast.ArrayIndexNode) : Node { 
-        var n = new Node((a,i) => a[i]);
+    visitArrayIndexNode(node : ast.ArrayIndexNode) : DependencyNode { 
+        var n = new DependencyNode((a,i) => a[i]);
         var a = node.array.accept( this );    
         var i = node.index.accept( this ); 
         connect( a, n, 0 );   
@@ -208,8 +208,8 @@ export class Interpreter implements visitor.Visitor<Node> {
         return n;
     }
     
-    visitArrayNode(node : ast.ArrayNode) : Node { 
-        var n = new Node(function(){ return Array.prototype.slice.call(arguments, 0); });
+    visitArrayNode(node : ast.ArrayNode) : DependencyNode { 
+        var n = new DependencyNode(function(){ return Array.prototype.slice.call(arguments, 0); });
         var el = node.expressionList;
         var i = 0;
         while (el){
@@ -222,15 +222,15 @@ export class Interpreter implements visitor.Visitor<Node> {
         return n;
     }
 
-    visitIdentifierListNode(node : ast.IdentifierListNode) : Node { throw new Error("Not implemented"); }
-    visitTypedIdentifierNode(node : ast.TypedIdentifierNode) : Node { throw new Error("Not implemented"); }
-    visitExpressionListNode(node : ast.ExpressionListNode) : Node { throw new Error("Not implemented"); }
-    visitIfStatementNode(node : ast.IfStatementNode) : Node { throw new Error("Not implemented"); }
-    visitFunctionDefinitionNode(node : ast.FunctionDefinitionNode) : Node { throw new Error("Not implemented"); }
-    visitReturnNode(node : ast.ReturnNode) : Node { throw new Error("Not implemented"); }
-    visitReplicationExpressionNode(node : ast.ReplicationExpressionNode) : Node { throw new Error("Not implemented"); }
-    visitReplicationGuideNode(node : ast.ReplicationGuideNode) : Node { throw new Error("Not implemented"); }
-    visitReplicationGuideListNode(node : ast.ReplicationGuideListNode) : Node { throw new Error("Not implemented"); }
+    visitIdentifierListNode(node : ast.IdentifierListNode) : DependencyNode { throw new Error("Not implemented"); }
+    visitTypedIdentifierNode(node : ast.TypedIdentifierNode) : DependencyNode { throw new Error("Not implemented"); }
+    visitExpressionListNode(node : ast.ExpressionListNode) : DependencyNode { throw new Error("Not implemented"); }
+    visitIfStatementNode(node : ast.IfStatementNode) : DependencyNode { throw new Error("Not implemented"); }
+    visitFunctionDefinitionNode(node : ast.FunctionDefinitionNode) : DependencyNode { throw new Error("Not implemented"); }
+    visitReturnNode(node : ast.ReturnNode) : DependencyNode { throw new Error("Not implemented"); }
+    visitReplicationExpressionNode(node : ast.ReplicationExpressionNode) : DependencyNode { throw new Error("Not implemented"); }
+    visitReplicationGuideNode(node : ast.ReplicationGuideNode) : DependencyNode { throw new Error("Not implemented"); }
+    visitReplicationGuideListNode(node : ast.ReplicationGuideListNode) : DependencyNode { throw new Error("Not implemented"); }
 
 }
 
