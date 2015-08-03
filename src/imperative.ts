@@ -292,4 +292,8 @@ export class Interpreter implements visitor.Visitor<any> {
         });
     */
     }
+    
+    visitImperativeBlockNode(node : ast.ImperativeBlockNode) : any { throw new Error("Not implemented"); };
+    visitAssociativeBlockNode(node : ast.AssociativeBlockNode) : any { throw new Error("Not implemented"); };
+    
 }

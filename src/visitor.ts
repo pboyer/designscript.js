@@ -22,5 +22,7 @@ export interface Visitor<T> {
     visitReplicationExpressionNode(node : ast.ReplicationExpressionNode) : T;
     visitReplicationGuideNode(node : ast.ReplicationGuideNode) : T;
     visitReplicationGuideListNode(node : ast.ReplicationGuideListNode) : T;
-
+    visitImperativeBlockNode(node : ast.ImperativeBlockNode) : T;
+    visitAssociativeBlockNode(node : ast.AssociativeBlockNode) : T;
+    
 }

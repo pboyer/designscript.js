@@ -238,6 +238,10 @@ var Interpreter = (function () {
         });
     */
     };
+    Interpreter.prototype.visitImperativeBlockNode = function (node) { throw new Error("Not implemented"); };
+    ;
+    Interpreter.prototype.visitAssociativeBlockNode = function (node) { throw new Error("Not implemented"); };
+    ;
     return Interpreter;
 })();
 exports.Interpreter = Interpreter;

@@ -231,6 +231,8 @@ export class Interpreter implements visitor.Visitor<DependencyNode> {
     visitReplicationExpressionNode(node : ast.ReplicationExpressionNode) : DependencyNode { throw new Error("Not implemented"); }
     visitReplicationGuideNode(node : ast.ReplicationGuideNode) : DependencyNode { throw new Error("Not implemented"); }
     visitReplicationGuideListNode(node : ast.ReplicationGuideListNode) : DependencyNode { throw new Error("Not implemented"); }
+    visitImperativeBlockNode(node : ast.ImperativeBlockNode) : DependencyNode { throw new Error("Not implemented"); };
+    visitAssociativeBlockNode(node : ast.AssociativeBlockNode) : DependencyNode { throw new Error("Not implemented"); };
 
 }
 
