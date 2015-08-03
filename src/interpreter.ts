@@ -98,7 +98,7 @@ export class Interpreter implements visitor.Visitor<any> {
     }
 
     visitArrayIndexNode( e : ast.ArrayIndexNode ) : any {
-        var array = e.a.accept( this );
+        var array = e.array.accept( this );
         var index = e.i.accept( this );
         return array[index];
     }
@@ -204,7 +204,7 @@ export class Interpreter implements visitor.Visitor<any> {
         var il = fds.il;
         var val = [];
         while (il != undefined){
-            val.push( il.id );
+            val.push( il.identifier );
             il = il.il;
         }
 
@@ -230,7 +230,7 @@ export class Interpreter implements visitor.Visitor<any> {
         var i = 0;
         var il = fd.il;
         while( il != null){
-            env.set( il.id.id, args[i++] );
+            env.set( il.identifier.id, args[i++] );
             il = il.il;
         };
 

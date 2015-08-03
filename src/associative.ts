@@ -200,7 +200,7 @@ export class Interpreter implements visitor.Visitor<Node> {
 
     visitArrayIndexNode(node : ast.ArrayIndexNode) : Node { 
         var n = new Node((a,i) => a[i]);
-        var a = node.a.accept( this );    
+        var a = node.array.accept( this );    
         var i = node.i.accept( this ); 
         connect( a, n, 0 );   
         connect( i, n, 0 );

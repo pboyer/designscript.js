@@ -12,19 +12,19 @@ export class Node {
 //
 
 export class IdentifierListNode extends Node { 
-    id : IdentifierNode;
-    il : IdentifierListNode;
+    head : IdentifierNode;
+    tail : IdentifierListNode;
     
     constructor(id : IdentifierNode, il : IdentifierListNode){
         super();
-        this.id = id;
-        this.il = il;
+        this.head = id;
+        this.tail = il;
 	}
 
     toString() {
-        return this.il == null ? 
-            this.id.toString() : 
-            this.id.toString() + ", " + this.il.toString();
+        return this.tail == null ? 
+            this.head.toString() : 
+            this.head.toString() + ", " + this.tail.toString();
     }
     
     accept<T>(v : visitor.Visitor<T>) : T {
@@ -33,15 +33,15 @@ export class IdentifierListNode extends Node {
 }
 
 export class IdentifierNode extends Node { 
-    id : string;
+    name : string;
 
     constructor(id : string) {
         super();
-        this.id = id;
+        this.name = id;
 	}
 
     toString() {
-        return this.id;
+        return this.name;
     }
     
     accept<T>(v : visitor.Visitor<T>) : T {
@@ -50,15 +50,15 @@ export class IdentifierNode extends Node {
 }
 
 export class TypedIdentifierNode extends IdentifierNode { 
-    t : Type;
+    type : Type;
 
     constructor(id : string, t : Type) {
         super(id);
-        this.t = t;
+        this.type = t;
 	}
 
     toString() {
-        return this.id + " : " + this.t.toString();
+        return this.name + " : " + this.type.toString();
     }
 
     accept<T>(v : visitor.Visitor<T>) : T {
@@ -67,15 +67,15 @@ export class TypedIdentifierNode extends IdentifierNode {
 }
 
 export class Type extends Node { 
-    t : string;
+    name : string;
     
     constructor(t : string){
         super();
-        this.t = t;
+        this.name = t;
     }
 
     toString(){
-        return this.t;
+        return this.name;
     }
 }
 
@@ -83,11 +83,11 @@ export class Type extends Node {
 // Expressions 
 //
 
-export interface AssociativeNode  {
+interface ExpressionNode {
     accept<T>(v : visitor.Visitor<T>) : T;
 }
 
-export class IntNode extends Node implements AssociativeNode { 
+export class IntNode extends Node implements ExpressionNode { 
     value : Number;
     
     constructor(value : string){
@@ -104,7 +104,7 @@ export class IntNode extends Node implements AssociativeNode {
     }
 }
 
-export class DoubleNode extends Node implements AssociativeNode { 
+export class DoubleNode extends Node implements ExpressionNode { 
     value : Number;
     
     constructor(value : string){
@@ -121,7 +121,7 @@ export class DoubleNode extends Node implements AssociativeNode {
     }
 }
 
-export class BooleanNode extends Node implements AssociativeNode { 
+export class BooleanNode extends Node implements ExpressionNode { 
     value : boolean;
     
     constructor(value : string){
@@ -138,7 +138,7 @@ export class BooleanNode extends Node implements AssociativeNode {
     }
 }
 
-export class StringNode extends Node implements AssociativeNode { 
+export class StringNode extends Node implements ExpressionNode { 
     value : string;
     
     constructor(value : string){
@@ -155,16 +155,16 @@ export class StringNode extends Node implements AssociativeNode {
     }
 }
 
-export class ArrayNode extends Node implements AssociativeNode { 
-    el : ExpressionListNode;
+export class ArrayNode extends Node implements ExpressionNode { 
+    expressionList : ExpressionListNode;
     
     constructor(el : ExpressionListNode){
         super();
-        this.el = el;
+        this.expressionList = el;
 	}
 
     toString(){
-        return "{ " + this.el.toString() + " }";
+        return "{ " + this.expressionList.toString() + " }";
     }
     
     accept<T>(v : visitor.Visitor<T>) : T {
@@ -172,20 +172,20 @@ export class ArrayNode extends Node implements AssociativeNode {
     }
 }
 
-export class BinaryExpressionNode extends Node implements AssociativeNode { 
-    op : string;
-    lhs : AssociativeNode;
-    rhs : AssociativeNode;
+export class BinaryExpressionNode extends Node implements ExpressionNode { 
+    operator : string;
+    firstExpression : ExpressionNode;
+    secondExpression : ExpressionNode;
     
-    constructor(op : string, lhs : AssociativeNode, rhs : AssociativeNode){
+    constructor(op : string, lhs : ExpressionNode, rhs : ExpressionNode){
         super();
-        this.op = op;
-        this.lhs = lhs;
-        this.rhs = rhs;
+        this.operator = op;
+        this.firstExpression = lhs;
+        this.secondExpression = rhs;
 	}
 
     toString() {
-        return this.lhs.toString() + " " + this.op + " " + this.rhs.toString();
+        return this.firstExpression.toString() + " " + this.operator + " " + this.secondExpression.toString();
     }
     
     accept<T>(v : visitor.Visitor<T>) : T {
@@ -193,18 +193,18 @@ export class BinaryExpressionNode extends Node implements AssociativeNode {
     }
 }
 
-export class FunctionCallNode extends Node implements AssociativeNode { 
-    fid : IdentifierNode;
-    el : ExpressionListNode;
+export class FunctionCallNode extends Node implements ExpressionNode { 
+    functionId : IdentifierNode;
+    arguments : ExpressionListNode;
     
     constructor(fid : IdentifierNode, el : ExpressionListNode ){
         super();
-        this.fid = fid;
-        this.el = el;
+        this.functionId = fid;
+        this.arguments = el;
 	}
 
     toString() {
-        return this.fid.toString() + "( " + this.el.toString() + " )";
+        return this.functionId.toString() + "( " + this.arguments.toString() + " )";
     }
 
     accept<T>(v : visitor.Visitor<T>) : T {
@@ -212,18 +212,18 @@ export class FunctionCallNode extends Node implements AssociativeNode {
     }
 }
 
-export class ArrayIndexNode extends Node implements AssociativeNode { 
-    a : AssociativeNode;
-    i : AssociativeNode;
+export class ArrayIndexNode extends Node implements ExpressionNode { 
+    array : ExpressionNode;
+    index : ExpressionNode;
     
-    constructor(a : AssociativeNode, i : AssociativeNode){
+    constructor(a : ExpressionNode, i : ExpressionNode){
         super();
-        this.a = a;
-        this.i = i;
+        this.array = a;
+        this.index = i;
     }
 
     toString() {
-        return this.a.toString() + "[ " + this.i.toString() + " ]";
+        return this.array.toString() + "[ " + this.index.toString() + " ]";
     }
     
     accept<T>(v : visitor.Visitor<T>) : T {
@@ -232,22 +232,22 @@ export class ArrayIndexNode extends Node implements AssociativeNode {
 }
 
 export class ExpressionListNode extends Node { 
-    e : AssociativeNode;
-    el : ExpressionListNode;
+    head : ExpressionNode;
+    tail : ExpressionListNode;
 
-    constructor(e : AssociativeNode, el : ExpressionListNode ){
+    constructor(e : ExpressionNode, el : ExpressionListNode ){
         super();
-        this.e = e;
-        this.el = el;
+        this.head = e;
+        this.tail = el;
 	}
 
     toString() {
-        var s = this.e.toString();
-        var el = this.el;
+        var s = this.head.toString();
+        var el = this.tail;
         while (el != null){
             s = s + ", ";
-            s = s + el.e.toString();
-            el = el.el;
+            s = s + el.head.toString();
+            el = el.tail;
         }
         return s;
     } 
@@ -257,18 +257,18 @@ export class ExpressionListNode extends Node {
     }
 }
 
-export class ReplicationExpressionNode extends Node implements AssociativeNode { 
-    e : AssociativeNode;
-    ril : ReplicationGuideListNode;
+export class ReplicationExpressionNode extends Node implements ExpressionNode { 
+    expression : ExpressionNode;
+    replicationGuideList : ReplicationGuideListNode;
     
     constructor(e : IdentifierNode, ril : ReplicationGuideListNode){
         super();
-        this.e = e;
-        this.ril = ril;
+        this.expression = e;
+        this.replicationGuideList = ril;
 	}
 
     toString(){
-        return this.e.toString() + this.ril.toString();
+        return this.expression.toString() + this.replicationGuideList.toString();
     }
 
     accept<T>(v : visitor.Visitor<T>) : T {
@@ -276,16 +276,16 @@ export class ReplicationExpressionNode extends Node implements AssociativeNode {
     }
 }
 
-export class ReplicationGuideNode extends Node implements AssociativeNode { 
-    i : AssociativeNode;
+export class ReplicationGuideNode extends Node implements ExpressionNode { 
+    index : ExpressionNode;
     
-    constructor(i : AssociativeNode){
+    constructor(i : ExpressionNode){
         super();
-        this.i = i;
+        this.index = i;
 	}
 
     toString(){
-        return "<" + this.i.toString() + ">";
+        return "<" + this.index.toString() + ">";
     }
 
     accept<T>(v : visitor.Visitor<T>) : T {
@@ -293,18 +293,18 @@ export class ReplicationGuideNode extends Node implements AssociativeNode {
     }
 }
 
-export class ReplicationGuideListNode extends Node implements AssociativeNode { 
-    ri : ReplicationGuideNode;
-    ril : ReplicationGuideListNode;
+export class ReplicationGuideListNode extends Node implements ExpressionNode { 
+    head : ReplicationGuideNode;
+    tail : ReplicationGuideListNode;
     
     constructor(ri : ReplicationGuideNode, ril : ReplicationGuideListNode = null){
         super();
-        this.ri = ri;
-	    this.ril = ril;
+        this.head = ri;
+	    this.tail = ril;
     }
 
     toString(){
-        return this.ri.toString() + this.ril.toString();
+        return this.head.toString() + this.tail.toString();
     }
 
     accept<T>(v : visitor.Visitor<T>) : T {
@@ -328,17 +328,17 @@ export class StatementNode extends Node {
 
 export class LanguageBlockNode extends StatementNode {
     name : string;
-    sl : StatementListNode;
+    statementList : StatementListNode;
 
     constructor(name : string, sl : StatementListNode){
         super();
         this.name = name;
-        this.sl = sl;
+        this.statementList = sl;
     }
         
     toLines( indent : string ) : string[] {
         return ["[" + this.name + "]{"]
-            .concat( this.sl.toLines( indent + "\t" ) )
+            .concat( this.statementList.toLines( indent + "\t" ) )
             .concat([ "}" ]);
     }
 }
@@ -356,21 +356,21 @@ export class ImperativeBlockNode extends LanguageBlockNode {
 }
 
 export class StatementListNode extends StatementNode { 
-    s : StatementNode;
-    sl : StatementListNode;
+    head : StatementNode;
+    tail : StatementListNode;
     
     constructor(s : StatementNode = null, sl : StatementListNode = null){
         super();
-        this.s = s;
-        this.sl = sl;
+        this.head = s;
+        this.tail = sl;
 	}
 
     toLines( indent : string ){
-        var s = this.s.toLines( indent );
-        var sl = this.sl;
+        var s = this.head.toLines( indent );
+        var sl = this.tail;
         while (sl != null){
-            s = s.concat( sl.s.toLines( indent ) );
-            sl = sl.sl;
+            s = s.concat( sl.head.toLines( indent ) );
+            sl = sl.tail;
         }
         return s;
     }
@@ -381,22 +381,22 @@ export class StatementListNode extends StatementNode {
 }
 
 export class IfStatementNode extends StatementNode { 
-    test : AssociativeNode;
-    tsl : StatementListNode;
-    fsl : StatementListNode;
+    testExpression : ExpressionNode;
+    trueStatementList : StatementListNode;
+    falseStatementList : StatementListNode;
 
-    constructor( test : AssociativeNode, tsl : StatementListNode, fsl : StatementListNode ){
+    constructor( test : ExpressionNode, tsl : StatementListNode, fsl : StatementListNode ){
         super();
-        this.test = test;
-        this.tsl = tsl;
-        this.fsl = fsl;
+        this.testExpression = test;
+        this.trueStatementList = tsl;
+        this.falseStatementList = fsl;
 	}
 
     toLines( indent : string ) {
-        return [ indent + "if( " + this.test.toString() + " ){" ]
-            .concat( this.tsl.toLines( indent + "\t" ) )
-            .concat( [" } else { "] )
-            .concat( this.fsl.toLines( indent + "\t" ) );
+        return [ indent + "if( " + this.testExpression.toString() + " ){" ]
+            .concat( this.trueStatementList.toLines( indent + "\t" ) )
+            .concat( [indent + " } else { "] )
+            .concat( this.falseStatementList.toLines( indent + "\t" ) );
     }
     
     accept<T>(v : visitor.Visitor<T>) : T {
@@ -405,20 +405,20 @@ export class IfStatementNode extends StatementNode {
 }
 
 export class FunctionDefinitionNode extends StatementNode { 
-    id : IdentifierNode;
-    il : IdentifierListNode;
-    sl : StatementListNode;
+    identifier : IdentifierNode;
+    arguments : IdentifierListNode;
+    body : StatementListNode;
     
     constructor(id : IdentifierNode, il : IdentifierListNode, sl : StatementListNode ){
         super();
-        this.id = id;
-        this.il = il;
-        this.sl = sl;
+        this.identifier = id;
+        this.arguments = il;
+        this.body = sl;
 	}
 
     toLines( indent : string ) {
-        return [ indent + "def " + this.id.toString() + "( " + this.il.toString() + " ){" ]
-            .concat( this.sl.toLines( "\t" + indent ) )
+        return [ indent + "def " + this.identifier.toString() + "( " + this.arguments.toString() + " ){" ]
+            .concat( this.body.toLines( "\t" + indent ) )
             .concat( [ indent + "}" ] );
     }
 
@@ -428,17 +428,17 @@ export class FunctionDefinitionNode extends StatementNode {
 }
 
 export class AssignmentNode extends StatementNode { 
-    id : IdentifierNode;
-    e : AssociativeNode;
+    identifier : IdentifierNode;
+    expression : ExpressionNode;
 
-    constructor(id : IdentifierNode, e : AssociativeNode){
+    constructor(id : IdentifierNode, e : ExpressionNode){
         super();
-        this.id = id;
-        this.e = e;
+        this.identifier = id;
+        this.expression = e;
 	}
 
     toLines( indent ) {
-        return [ indent + this.id.toString() + " = " + this.e.toString() + ";" ];
+        return [ indent + this.identifier.toString() + " = " + this.expression.toString() + ";" ];
     }
 
     accept<T>(v : visitor.Visitor<T>) : T {
@@ -447,15 +447,15 @@ export class AssignmentNode extends StatementNode {
 }
 
 export class ReturnNode extends StatementNode { 
-    e : AssociativeNode;
+    expression : ExpressionNode;
 
-    constructor(e : AssociativeNode){
+    constructor(e : ExpressionNode){
         super();
-        this.e = e;
+        this.expression = e;
 	}
 
     toLines( indent ){
-        return [ indent + "return = " + this.e.toString() + ";" ];
+        return [ indent + "return = " + this.expression.toString() + ";" ];
     }
 
     accept<T>(v : visitor.Visitor<T>) : T {
