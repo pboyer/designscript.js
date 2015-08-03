@@ -54,8 +54,8 @@ export class Interpreter implements visitor.Visitor<any> {
     evalFunctionDefinitionNodes( sl : ast.StatementListNode ) : void {
         var r, s;
         while ( sl ){
-            s = sl.s;
-            sl = sl.sl;
+            s = sl.head;
+            sl = sl.head;
             if ( s instanceof ast.FunctionDefinitionNode ) 
                 s.accept( this );
         }
@@ -74,8 +74,8 @@ export class Interpreter implements visitor.Visitor<any> {
     visitStatementListNode( sl : ast.StatementListNode ) : void {
         var r, s;
         while ( sl ){
-            s = sl.s;
-            sl = sl.sl;
+            s = sl.head;
+            sl = sl.head;
           
             // empty statement list
             if ( !s )
@@ -99,12 +99,12 @@ export class Interpreter implements visitor.Visitor<any> {
 
     visitArrayIndexNode( e : ast.ArrayIndexNode ) : any {
         var array = e.array.accept( this );
-        var index = e.i.accept( this );
+        var index = e.index.accept( this );
         return array[index];
     }
 
     visitArrayNode( e : ast.ArrayNode ) : any[] {
-        return e.el.accept( this );	
+        return e.expressionList.accept( this );	
     }
 
     visitStringNode( e : ast.StringNode ) : string {
@@ -124,11 +124,11 @@ export class Interpreter implements visitor.Visitor<any> {
     }
 
     visitIdentifierNode( e : ast.IdentifierNode ) : any {
-        return this.env.lookup( e.id );
+        return this.env.lookup( e.name );
     }
 
     visitTypedIdentifierNode( e : ast.TypedIdentifierNode ) : any {
-        return this.env.lookup( e.id );
+        return this.env.lookup( e.name );
     }
 
     visitIdentifierListNode( n : ast.IdentifierListNode ) : any {
@@ -136,36 +136,36 @@ export class Interpreter implements visitor.Visitor<any> {
     }
 
     visitBinaryExpressionNode( e : ast.BinaryExpressionNode ) : any {
-        switch( e.op ){
+        switch( e.operator ){
             case "+":
-                return e.lhs.accept( this ) + e.rhs.accept( this );
+                return e.firstExpression.accept( this ) + e.secondExpression.accept( this );
             case "-":
-                return e.lhs.accept( this ) - e.rhs.accept( this );
+                return e.firstExpression.accept( this ) - e.secondExpression.accept( this );
             case "*":
-                return e.lhs.accept( this ) * e.rhs.accept( this );
+                return e.firstExpression.accept( this ) * e.secondExpression.accept( this );
             case "<":
-                return e.lhs.accept( this ) < e.rhs.accept( this );
+                return e.firstExpression.accept( this ) < e.secondExpression.accept( this );
             case "||":
-                return e.lhs.accept( this ) || e.rhs.accept( this );
+                return e.firstExpression.accept( this ) || e.secondExpression.accept( this );
             case "==":
-                return e.lhs.accept( this ) == e.rhs.accept( this );
+                return e.firstExpression.accept( this ) == e.secondExpression.accept( this );
             case ">":
-                return e.lhs.accept( this ) > e.rhs.accept( this );
+                return e.firstExpression.accept( this ) > e.secondExpression.accept( this );
         }
 
         throw new Error( "Unknown binary operator type" );
     }
 
     visitReturnNode( s : ast.ReturnNode ){
-        return s.e.accept( this );
+        return s.expression.accept( this );
     }
 
     visitIfStatementNode( s : ast.IfStatementNode ){
-        var test = s.test.accept( this );
+        var test = s.testExpression.accept( this );
         if (test === true){
-            return this.evalBlockStatement( s.tsl );  
+            return this.evalBlockStatement( s.trueStatementList );  
         } else {	
-            return s.fsl.accept( this );
+            return s.falseStatementList.accept( this );
         }	
     }
 
@@ -177,35 +177,35 @@ export class Interpreter implements visitor.Visitor<any> {
     }
 
     visitFunctionCallNode( e : ast.FunctionCallNode ) : any {
-        var fd = this.env.lookup( e.fid.id );
-        return this.replicate( fd, e.el.accept( this ) );  
+        var fd = this.env.lookup( e.functionId.name );
+        return this.replicate( fd, e.arguments.accept( this ) );  
     }
 
     visitReplicationExpressionNode( fa : ast.ReplicationExpressionNode ) : any {
-        return new ReplicatedFunctionArgument( fa.e.accept(this), fa.ril) 
+        return new ReplicatedFunctionArgument( fa.expression.accept(this), fa.replicationGuides) 
     }
 
     visitExpressionListNode( el : ast.ExpressionListNode ){
         var vs = [];
         while ( el != undefined ){
-            vs.push( el.e.accept( this ) );
-            el = el.el;	
+            vs.push( el.head.accept( this ) );
+            el = el.head;	
         }
         return vs; 
     }
     
     visitAssignmentNode( s : ast.AssignmentNode ){
-        this.env.set( s.id.id, s.e.accept( this ));
+        this.env.set( s.identifier.name, s.expression.accept( this ));
     }
 
     visitFunctionDefinitionNode( fds : ast.FunctionDefinitionNode ) : any {
 
         // unpack the argument list 
-        var il = fds.il;
+        var il = fds.arguments;
         var val = [];
         while (il != undefined){
             val.push( il.identifier );
-            il = il.il;
+            il = il.tail;
         }
 
         var fd; 
@@ -219,7 +219,7 @@ export class Interpreter implements visitor.Visitor<any> {
 
         fd = new TypedFunctionDefinition(f, val); 
 
-        this.env.set(fds.id.id, fd);
+        this.env.set(fds.identifier.name, fd);
     }
 
     apply( fd : ast.FunctionDefinitionNode, env : enviro.Environment, args : any[] ) : any {	
@@ -228,16 +228,16 @@ export class Interpreter implements visitor.Visitor<any> {
 
         // bind the arguments in the scope 
         var i = 0;
-        var il = fd.il;
+        var il = fd.arguments;
         while( il != null){
             env.set( il.identifier.id, args[i++] );
-            il = il.il;
+            il = il.tail;
         };
 
         var current = this.env;
         this.env = env;
 
-        var r = fd.sl.accept( this );
+        var r = fd.body.accept( this );
         
         this.env = current;
         return r;

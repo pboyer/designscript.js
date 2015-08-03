@@ -148,17 +148,17 @@ export class Interpreter implements visitor.Visitor<Node> {
     visitStatementListNode(node : ast.StatementListNode) : Node {
         var n,s,sl = node;
         while (sl){
-            s = sl.s;
+            s = sl.head;
             if ( !s ) break;
             n = s.accept( this );
-            sl = sl.sl;
+            sl = sl.head;
         } 
         return n;
     } 
 
     visitAssignmentNode(node : ast.AssignmentNode) : Node {
-        var id = node.id.id;
-        var n = node.e.accept( this );
+        var id = node.identifier.name;
+        var n = node.expression.accept( this );
        
         if (this.env.contains( id )) 
             replace( this.lookup( id ), n ); 
@@ -170,28 +170,28 @@ export class Interpreter implements visitor.Visitor<Node> {
     }
 
     visitIdentifierNode(node : ast.IdentifierNode) : Node {
-        var n = this.lookup( node.id );  
-        if (!n) throw new Error("Unbound identifier: " + node.id);
+        var n = this.lookup( node.name );  
+        if (!n) throw new Error("Unbound identifier: " + node.name);
         return n;
     }
 
     visitBinaryExpressionNode(node : ast.BinaryExpressionNode) : Node {
-        var n : Node = getBinaryExpressionNode( node.op );
+        var n : Node = getBinaryExpressionNode( node.operator );
         
-        connect( node.lhs.accept( this ), n, 0 ); 
-        connect( node.rhs.accept( this ), n, 1 ); 
+        connect( node.firstExpression.accept( this ), n, 0 ); 
+        connect( node.secondExpression.accept( this ), n, 1 ); 
 
         return n;
     }
 
     visitFunctionCallNode(node : ast.FunctionCallNode) : Node { 
-        var f = this.fds[ node.fid.id ];
+        var f = this.fds[ node.functionId.name ];
         var n = new Node( f );
-        var el = node.el;
+        var el = node.arguments;
         var i = 0;
         while (el){
-            var e = el.e;
-            el = el.el;
+            var e = el.head;
+            el = el.head;
             connect( e.accept(this), n, i++ );
         }
         n.eval();
@@ -201,7 +201,7 @@ export class Interpreter implements visitor.Visitor<Node> {
     visitArrayIndexNode(node : ast.ArrayIndexNode) : Node { 
         var n = new Node((a,i) => a[i]);
         var a = node.array.accept( this );    
-        var i = node.i.accept( this ); 
+        var i = node.index.accept( this ); 
         connect( a, n, 0 );   
         connect( i, n, 0 );
         n.eval();
@@ -210,10 +210,10 @@ export class Interpreter implements visitor.Visitor<Node> {
     
     visitArrayNode(node : ast.ArrayNode) : Node { 
         var n = new Node(function(){ return Array.prototype.slice.call(arguments, 0); });
-        var el = node.el;
+        var el = node.expressionList;
         var i = 0;
         while (el){
-            var e = el.e;
+            var e = el.head;
             var s = e.accept( this );
             connect( s, n, i++ );
             el = el.el;
