@@ -1,36 +1,49 @@
 var Parser = require('./parser')
 	, assert = require('assert')
-	, Interpreter = require('./interpreter').Interpreter
-	, TypedFunctionDefinition = require('./interpreter').TypedFunctionDefinition;
+	, Interpreter = require('./associative').Interpreter;
 
 var ast = require('./ast');
 Parser.parser.yy = ast;
 
-function run(p){
+function run(p, fds){
 	var pp = Parser.parse( p );
-
-	// inject the debugger function
-	var record = [];
-	var exts = {
-		"debug" : new TypedFunctionDefinition(function(x){ 
-            record.push(x); 
-        })
-	};
-
-	(new Interpreter( exts )).eval( pp );
-	
-	return record;
+	var i = new Interpreter();
+	if (fds){
+		for (var fid in fds){
+			i.fds[fid] = fds[fid];
+		}
+	}
+    i.run( pp );
+	return i;
 }
 
 (function(){
-	var r = run('a = 4; print( a );');
+    var i = run('a = 4; b = a * 2;');
 })();
 
 (function(){
-	var r = run('a = 4; debug( a );');
-	assert.equal( 4, r[0] ); 	
+    var i = run('a = 4; b = a * 2 + 5;');
 })();
 
+(function(){
+    var i = run('a = 4; b = {a, a}; a = 3;');
+    assert.equal( 3, i.env.lookup("b").value[0] );
+    assert.equal( 3, i.env.lookup("b").value[1] );
+})();
+
+(function(){
+	var fds = { "foo" : function(a,b){ return 2 * a + b; } };
+	var i = run('a = 4; w = foo( a, a ); a = 3;', fds);
+	assert.equal( 9, i.env.lookup("w").value );
+})();
+
+(function(){
+	var fds = { "concat" : function(a,b){ return a + b; } };
+	var i = run('a = "hi"; b = "ho"; w = concat(b,a);', fds);
+	assert.equal( "hohi", i.env.lookup("w").value );
+})();
+
+/*
 (function(){
 	var r = run('debug( 2 * 3 );');
 	assert.equal( 6, r[0] );
@@ -76,3 +89,4 @@ function run(p){
 	assert.equal( "Ok cool", r[0] );
 })();
 
+*/

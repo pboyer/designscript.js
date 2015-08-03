@@ -10,6 +10,12 @@ export class Environment {
         this.outer = outer; 
     }
 
+    contains(id : string) : boolean {
+        if (this.dict[id] != undefined) return true;
+        if (this.outer != undefined) return this.outer.lookup(id);
+        return false;
+    }
+
     lookup(id : string) : any {
         if (this.dict[id] != undefined) return this.dict[id];
         if (this.outer != undefined) return this.outer.lookup(id);

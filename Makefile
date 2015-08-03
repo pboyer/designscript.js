@@ -11,6 +11,7 @@ release: build
 test: build
 	node src/parser_test.js
 	node src/interpreter_test.js 
+	node src/associative_test.js 
 
 clean:
 	rm -rf build
