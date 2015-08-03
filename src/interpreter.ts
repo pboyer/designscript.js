@@ -55,7 +55,7 @@ export class Interpreter implements visitor.Visitor<any> {
         var r, s;
         while ( sl ){
             s = sl.head;
-            sl = sl.head;
+            sl = sl.tail;
             if ( s instanceof ast.FunctionDefinitionNode ) 
                 s.accept( this );
         }
@@ -75,7 +75,7 @@ export class Interpreter implements visitor.Visitor<any> {
         var r, s;
         while ( sl ){
             s = sl.head;
-            sl = sl.head;
+            sl = sl.tail;
           
             // empty statement list
             if ( !s )
@@ -182,14 +182,14 @@ export class Interpreter implements visitor.Visitor<any> {
     }
 
     visitReplicationExpressionNode( fa : ast.ReplicationExpressionNode ) : any {
-        return new ReplicatedFunctionArgument( fa.expression.accept(this), fa.replicationGuides) 
+        return new ReplicatedFunctionArgument( fa.expression.accept(this), fa.replicationGuideList) 
     }
 
     visitExpressionListNode( el : ast.ExpressionListNode ){
         var vs = [];
         while ( el != undefined ){
             vs.push( el.head.accept( this ) );
-            el = el.head;	
+            el = el.tail;	
         }
         return vs; 
     }
@@ -204,7 +204,7 @@ export class Interpreter implements visitor.Visitor<any> {
         var il = fds.arguments;
         var val = [];
         while (il != undefined){
-            val.push( il.identifier );
+            val.push( il.head );
             il = il.tail;
         }
 
@@ -230,7 +230,7 @@ export class Interpreter implements visitor.Visitor<any> {
         var i = 0;
         var il = fd.arguments;
         while( il != null){
-            env.set( il.identifier.id, args[i++] );
+            env.set( il.head.name, args[i++] );
             il = il.tail;
         };
 

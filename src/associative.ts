@@ -151,7 +151,7 @@ export class Interpreter implements visitor.Visitor<Node> {
             s = sl.head;
             if ( !s ) break;
             n = s.accept( this );
-            sl = sl.head;
+            sl = sl.tail;
         } 
         return n;
     } 
@@ -191,7 +191,7 @@ export class Interpreter implements visitor.Visitor<Node> {
         var i = 0;
         while (el){
             var e = el.head;
-            el = el.head;
+            el = el.tail;
             connect( e.accept(this), n, i++ );
         }
         n.eval();
@@ -203,7 +203,7 @@ export class Interpreter implements visitor.Visitor<Node> {
         var a = node.array.accept( this );    
         var i = node.index.accept( this ); 
         connect( a, n, 0 );   
-        connect( i, n, 0 );
+        connect( i, n, 1 );
         n.eval();
         return n;
     }
@@ -216,7 +216,7 @@ export class Interpreter implements visitor.Visitor<Node> {
             var e = el.head;
             var s = e.accept( this );
             connect( s, n, i++ );
-            el = el.el;
+            el = el.tail;
         }
         n.eval();
         return n;

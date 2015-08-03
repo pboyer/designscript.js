@@ -4,7 +4,7 @@
 
 export class Environment {
     outer : Environment;
-    dict : { [ id : string ] : any; } = {};
+    private dict : { [ id : string ] : any; } = {};
 
     constructor ( outer : Environment = null){
         this.outer = outer; 
