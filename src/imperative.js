@@ -1,22 +1,31 @@
 var enviro = require('./environment');
 var ast = require('./ast');
-var TypedFunctionDefinition = (function () {
-    function TypedFunctionDefinition(f, al) {
-        if (al === void 0) { al = []; }
-        this.f = f;
-        this.al = al; // the type identifiers for the func def
+var TypedFunction = (function () {
+    function TypedFunction(f, al, name) {
+        this.func = f;
+        this.argumentTypes = al;
+        this.name = name;
     }
-    return TypedFunctionDefinition;
+    return TypedFunction;
 })();
-exports.TypedFunctionDefinition = TypedFunctionDefinition;
-var ReplicatedFunctionArgument = (function () {
-    function ReplicatedFunctionArgument(v, rgl) {
-        this.v = v;
-        this.rgl = rgl;
+exports.TypedFunction = TypedFunction;
+var TypedArgument = (function () {
+    function TypedArgument(name, typeName) {
+        if (typeName === void 0) { typeName = "var"; }
+        this.name = name;
+        this.typeName = typeName;
     }
-    return ReplicatedFunctionArgument;
+    return TypedArgument;
 })();
-exports.ReplicatedFunctionArgument = ReplicatedFunctionArgument;
+exports.TypedArgument = TypedArgument;
+var ReplicatedExpression = (function () {
+    function ReplicatedExpression(v, rgl) {
+        this.value = v;
+        this.replicationGuides = rgl;
+    }
+    return ReplicatedExpression;
+})();
+exports.ReplicatedExpression = ReplicatedExpression;
 var Interpreter = (function () {
     function Interpreter(extensions) {
         this.env = new enviro.Environment();
@@ -34,7 +43,7 @@ var Interpreter = (function () {
                 e.set(id, exts[id]);
             }
         }
-        e.set("print", new TypedFunctionDefinition(function (x) { return console.log(x); }));
+        e.set("print", new TypedFunction(function (x) { return console.log(x); }, [new TypedArgument("a")], "print"));
         return e;
     };
     Interpreter.prototype.evalFunctionDefinitionNodes = function (sl) {
@@ -88,16 +97,10 @@ var Interpreter = (function () {
     Interpreter.prototype.visitBooleanNode = function (e) {
         return e.value;
     };
-    Interpreter.prototype.visitDoubleNode = function (e) {
-        return e.value;
-    };
-    Interpreter.prototype.visitIntNode = function (e) {
+    Interpreter.prototype.visitNumberNode = function (e) {
         return e.value;
     };
     Interpreter.prototype.visitIdentifierNode = function (e) {
-        return this.env.lookup(e.name);
-    };
-    Interpreter.prototype.visitTypedIdentifierNode = function (e) {
         return this.env.lookup(e.name);
     };
     Interpreter.prototype.visitIdentifierListNode = function (n) {
@@ -145,7 +148,7 @@ var Interpreter = (function () {
         return this.replicate(fd, e.arguments.accept(this));
     };
     Interpreter.prototype.visitReplicationExpressionNode = function (fa) {
-        return new ReplicatedFunctionArgument(fa.expression.accept(this), fa.replicationGuideList);
+        return new ReplicatedExpression(fa.expression.accept(this), fa.replicationGuideList);
     };
     Interpreter.prototype.visitExpressionListNode = function (el) {
         var vs = [];
@@ -163,7 +166,8 @@ var Interpreter = (function () {
         var il = fds.arguments;
         var val = [];
         while (il != undefined) {
-            val.push(il.head);
+            var t = il.head.type;
+            val.push(new TypedArgument(il.head.name, t ? t.name : undefined));
             il = il.tail;
         }
         var fd;
@@ -173,7 +177,7 @@ var Interpreter = (function () {
             var args = Array.prototype.slice.call(arguments);
             return interpreter.apply(fds, env, args);
         }
-        fd = new TypedFunctionDefinition(f, val);
+        fd = new TypedFunction(f, val, fds.identifier.name);
         this.env.set(fds.identifier.name, fd);
     };
     Interpreter.prototype.apply = function (fd, env, args) {
@@ -192,10 +196,61 @@ var Interpreter = (function () {
         this.env = current;
         return r;
     };
+    Interpreter.prototype.isObjectTypeMatch = function (arg, typeName) {
+        if (typeName === void 0) { typeName = "var"; }
+        if (arg === undefined || arg === null) {
+            return false;
+        }
+        if (typeName === "var" && arg.constructor != Array) {
+            return true;
+        }
+        if (typeName === "var[]..[]") {
+            return true;
+        }
+        if (typeof arg === typeName) {
+            return true;
+        }
+        // consider types like Foo[][]
+        while (arg != undefined && arg != null && typeName.indexOf('[]') != -1 && arg.constructor === Array) {
+            arg = arg[0];
+            typeName = typeName.slice(0, -2);
+            if (typeof arg === typeName)
+                return true;
+        }
+        return false;
+    };
+    Interpreter.prototype.allTypesMatch = function (args, expectedTypes) {
+        // if no supplied, just use default js dispatch
+        if (!expectedTypes || !args) {
+            return true;
+        }
+        // if the Number of args and expected types don't match, return false
+        if (args.length != expectedTypes.length) {
+            return false;
+        }
+        // for each arg type, check match with expected input types
+        for (var i = 0, l = args.length; i < l; i++) {
+            // do a fast type match
+            if (!this.isObjectTypeMatch(args[i], expectedTypes[i])) {
+                return false;
+            }
+        }
+        return true;
+    };
     Interpreter.prototype.replicate = function (fd, args) {
-        // we'll need to check for ReplicatedFunctionArgument here
-        // if all types match, simply execute
-        return fd.f.apply(undefined, args);
+        var expectedTypes = fd.argumentTypes.map(function (x) { return x.typeName; });
+        if (args.length != expectedTypes.length) {
+            throw new Error("Not enough arguments supplied to " + fd.name
+                + " - expected " + fd.argumentTypes.length + ", but got " + args.length);
+        }
+        if (this.allTypesMatch(args, expectedTypes)) {
+            return fd.func.apply(undefined, args);
+        }
+        console.log(expectedTypes, args);
+        throw new Error("Types do not match!");
+        // if the funcrgs in the first argument are a list
+        // for each a in args[0]
+        //  replicate( fd, [ a, rest of args ] )
         /*
          *
         // form the indices of all arguments

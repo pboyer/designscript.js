@@ -1,7 +1,8 @@
 var Parser = require('./parser')
 	, assert = require('assert')
 	, Interpreter = require('./imperative').Interpreter
-	, TypedFunctionDefinition = require('./imperative').TypedFunctionDefinition;
+	, TypedFunction = require('./imperative').TypedFunction
+	, TypedArgument = require('./imperative').TypedArgument;
 
 var ast = require('./ast');
 Parser.parser.yy = ast;
@@ -12,9 +13,8 @@ function run(p){
 	// inject the debugger function
 	var record = [];
 	var exts = {
-		"debug" : new TypedFunctionDefinition(function(x){ 
-            record.push(x); 
-        })
+		"debug" : new TypedFunction(function(x){  record.push(x); }, 
+						[ new TypedArgument("arg") ], "debug")
 	};
 
 	(new Interpreter( exts )).run( pp );
@@ -52,17 +52,17 @@ function run(p){
 })();
 
 (function(){
-	var r = run('def foo(a,b){ return = bar(a,b); } def bar(a,b){ return = a + b; } debug( foo(1, 2));');
+	var r = run('def foo(a,b){ return = bar(a,b); } def bar(a,b){ return = a + b; } debug( foo(1, 2) );');
 	assert.equal( 3, r[0] );
 })();
 
 (function(){
-	var r = run('def firstElement(a : int[]){ return = a[0]; } debug( firstElement({0,1,2}) );');
+	var r = run('def firstElement(a : number[]){ return = a[0]; } debug( firstElement({0,1,2}) );');
 	assert.equal( 0, r[0] );
 })();
 
 (function(){
-	var r = run('def intId(a : int){ return = a; } debug( intId(2) );');
+	var r = run('def intId(a : number){ return = a; } debug( intId(2) );');
 	assert.equal( 2, r[0] );
 })();
 

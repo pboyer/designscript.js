@@ -4,9 +4,7 @@ export interface Visitor<T> {
 
     visitIdentifierNode(node : ast.IdentifierNode) : T;
     visitIdentifierListNode(node : ast.IdentifierListNode) : T;
-    visitTypedIdentifierNode(node : ast.TypedIdentifierNode) : T;
-    visitIntNode(node : ast.IntNode) : T;
-    visitDoubleNode(node : ast.DoubleNode) : T;
+    visitNumberNode(node : ast.NumberNode) : T;
     visitBooleanNode(node : ast.BooleanNode) : T;
     visitStringNode(node : ast.StringNode) : T;
     visitArrayNode(node : ast.ArrayNode) : T;

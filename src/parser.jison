@@ -91,13 +91,11 @@ Identifier
 TypedIdentifier
 	: Identifier
 	| ID COLON Type
-	{ $$ = record( new yy.TypedIdentifierNode( $1, $3 ), @$); }
+	{ $$ = record( new yy.IdentifierNode( $1, $3 ), @$); }
 	;
 
 Type
 	: ID
-	{ $$ = record( new yy.Type( $1 ), @$); }
-	| ID LBRACKET RBRACKET
 	{ $$ = record( new yy.Type( $1 ), @$); }
 	;
 
@@ -155,8 +153,8 @@ FunctionCall
     ;
 
 Literal	
-	: INT
-	{ $$ = record( new yy.IntNode( $1 ), @$); }
+	: NUMBER
+	{ $$ = record( new yy.NumberNode( $1 ), @$); }
 	| TRUE
 	{ $$ = record( new yy.BooleanNode( $1 ), @$); }
 	| FALSE
@@ -166,4 +164,4 @@ Literal
 	| LBRACE ExpressionList RBRACE
 	{ $$ = record( new yy.ArrayNode( $2 ), @$); }
 	;
-
+	

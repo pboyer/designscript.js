@@ -2,30 +2,42 @@ import enviro = require('./environment');
 import ast = require('./ast');
 import visitor = require('./visitor');
 
-export class TypedFunctionDefinition {
-    f: (any) => any;
-    al: ast.TypedIdentifierNode[];
+export class TypedFunction {
+    name: string;
+    func: (any) => any;
+    argumentTypes: TypedArgument[];
 
-    constructor(f: (any) => any, al: ast.TypedIdentifierNode[] = []) {
-        this.f = f;
-        this.al = al; // the type identifiers for the func def
+    constructor(f: (any) => any, al: TypedArgument[], name: string ) {
+        this.func = f;
+        this.argumentTypes = al; 
+        this.name = name;
     }
 }
 
-export class ReplicatedFunctionArgument {
-    v: any;
-    rgl: ast.ReplicationGuideListNode;
+export class TypedArgument {
+    name: string;
+    typeName: string;
+
+    constructor(name: string, typeName : string = "var") {
+        this.name = name;
+        this.typeName = typeName;
+    }
+}
+
+export class ReplicatedExpression {
+    value: any;
+    replicationGuides: ast.ReplicationGuideListNode;
 
     constructor(v: any, rgl: ast.ReplicationGuideListNode) {
-        this.v = v;
-        this.rgl = rgl;
+        this.value = v;
+        this.replicationGuides = rgl;
     }
 }
 
 export class Interpreter implements visitor.Visitor<any> {
 
     env: enviro.Environment = new enviro.Environment();
-    extensions: { [id: string]: TypedFunctionDefinition; };
+    extensions: { [id: string]: TypedFunction; };
 
     constructor(extensions) {
         this.extensions = extensions;
@@ -47,7 +59,7 @@ export class Interpreter implements visitor.Visitor<any> {
             }
         }
 
-        e.set("print", new TypedFunctionDefinition((x) => console.log(x)));
+        e.set("print", new TypedFunction((x) => console.log(x), [ new TypedArgument("a") ], "print"));
         return e;
     }
 
@@ -115,19 +127,11 @@ export class Interpreter implements visitor.Visitor<any> {
         return e.value;
     }
 
-    visitDoubleNode(e: ast.DoubleNode): Number {
-        return e.value;
-    }
-
-    visitIntNode(e: ast.IntNode): Number {
+    visitNumberNode(e: ast.NumberNode): Number {
         return e.value;
     }
 
     visitIdentifierNode(e: ast.IdentifierNode): any {
-        return this.env.lookup(e.name);
-    }
-
-    visitTypedIdentifierNode(e: ast.TypedIdentifierNode): any {
         return this.env.lookup(e.name);
     }
 
@@ -182,7 +186,7 @@ export class Interpreter implements visitor.Visitor<any> {
     }
 
     visitReplicationExpressionNode(fa: ast.ReplicationExpressionNode): any {
-        return new ReplicatedFunctionArgument(fa.expression.accept(this), fa.replicationGuideList)
+        return new ReplicatedExpression(fa.expression.accept(this), fa.replicationGuideList)
     }
 
     visitExpressionListNode(el: ast.ExpressionListNode) {
@@ -199,12 +203,14 @@ export class Interpreter implements visitor.Visitor<any> {
     }
 
     visitFunctionDefinitionNode(fds: ast.FunctionDefinitionNode): any {
-
+ 
         // unpack the argument list 
         var il = fds.arguments;
         var val = [];
         while (il != undefined) {
-            val.push(il.head);
+            var t = il.head.type;
+            val.push(new TypedArgument(il.head.name, t ? t.name : undefined ));
+            
             il = il.tail;
         }
 
@@ -217,7 +223,7 @@ export class Interpreter implements visitor.Visitor<any> {
             return interpreter.apply(fds, env, args);
         }
 
-        fd = new TypedFunctionDefinition(f, val);
+        fd = new TypedFunction(f, val, fds.identifier.name);
 
         this.env.set(fds.identifier.name, fd);
     }
@@ -243,13 +249,79 @@ export class Interpreter implements visitor.Visitor<any> {
         return r;
     }
 
-    replicate(fd: TypedFunctionDefinition, args: any[]): any {
+    isObjectTypeMatch(arg : any, typeName : string = "var") {
 
-        // we'll need to check for ReplicatedFunctionArgument here
+		if ( arg === undefined || arg === null ){
+			return false;
+		}
+        
+		if (typeName === "var" && arg.constructor != Array){
+			return true;
+		}
+        
+		if (typeName === "var[]..[]"){
+			return true;
+		}
 
-        // if all types match, simply execute
-        return fd.f.apply(undefined, args);
+        if ( typeof arg === typeName ){
+            return true;
+        }
+        
+        // consider types like Foo[][]
+        while ( arg != undefined && arg != null && typeName.indexOf('[]') != -1 && arg.constructor === Array ){
+            arg = arg[0];
+            typeName = typeName.slice(0, -2);
+       
+            if ( typeof arg === typeName ) return true;
+        }
+        
+        return false;
+	}
 
+    allTypesMatch( args: any[], expectedTypes : string[] ){
+    
+        // if no supplied, just use default js dispatch
+        if ( !expectedTypes || !args ){
+        	return true;
+        }
+        
+        // if the Number of args and expected types don't match, return false
+        if (args.length != expectedTypes.length){
+        	return false;
+        }
+        
+        // for each arg type, check match with expected input types
+        for (var i = 0, l = args.length; i < l; i++){
+        	// do a fast type match
+        	if ( !this.isObjectTypeMatch(args[i], expectedTypes[i]) ){
+        		return false;
+        	}
+        }
+        
+        return true;
+    }
+    
+    replicate(fd: TypedFunction, args: any[]): any {
+
+        var expectedTypes : string[] = fd.argumentTypes.map((x) => x.typeName);
+        
+        if (args.length != expectedTypes.length){
+            throw new Error("Not enough arguments supplied to " + fd.name 
+                + " - expected " + fd.argumentTypes.length + ", but got " + args.length );
+        }
+        
+        if (this.allTypesMatch(args, expectedTypes)){
+            return fd.func.apply(undefined, args);
+        }
+ 
+        console.log( expectedTypes, args )
+ 
+        throw new Error("Types do not match!");
+        
+        // if the funcrgs in the first argument are a list
+        // for each a in args[0]
+        //  replicate( fd, [ a, rest of args ] )
+        
         /*
          *
         // form the indices of all arguments

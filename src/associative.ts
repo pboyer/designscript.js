@@ -121,13 +121,7 @@ export class Interpreter implements visitor.Visitor<DependencyNode> {
         return this.env.lookup( id );
     }
 
-    visitIntNode(node : ast.IntNode) : DependencyNode { 
-        var n = new DependencyNode( () => node.value ); 
-        n.eval();
-        return n;
-    }
-    
-    visitDoubleNode(node : ast.DoubleNode) : DependencyNode {
+    visitNumberNode(node : ast.NumberNode) : DependencyNode { 
         var n = new DependencyNode( () => node.value ); 
         n.eval();
         return n;
@@ -223,7 +217,6 @@ export class Interpreter implements visitor.Visitor<DependencyNode> {
     }
 
     visitIdentifierListNode(node : ast.IdentifierListNode) : DependencyNode { throw new Error("Not implemented"); }
-    visitTypedIdentifierNode(node : ast.TypedIdentifierNode) : DependencyNode { throw new Error("Not implemented"); }
     visitExpressionListNode(node : ast.ExpressionListNode) : DependencyNode { throw new Error("Not implemented"); }
     visitIfStatementNode(node : ast.IfStatementNode) : DependencyNode { throw new Error("Not implemented"); }
     visitFunctionDefinitionNode(node : ast.FunctionDefinitionNode) : DependencyNode { throw new Error("Not implemented"); }

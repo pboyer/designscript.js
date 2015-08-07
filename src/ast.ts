@@ -33,36 +33,21 @@ export class IdentifierListNode extends Node {
 }
 
 export class IdentifierNode extends Node {
+    type: Type;
     name: string;
 
-    constructor(id: string) {
+    constructor(id: string, t: Type = null) {
         super();
         this.name = id;
-    }
-
-    toString() {
-        return this.name;
-    }
-
-    accept<T>(v: visitor.Visitor<T>): T {
-        return v.visitIdentifierNode(this);
-    }
-}
-
-export class TypedIdentifierNode extends IdentifierNode {
-    type: Type;
-
-    constructor(id: string, t: Type) {
-        super(id);
         this.type = t;
     }
 
     toString() {
-        return this.name + " : " + this.type.toString();
+        return this.type ? this.name + " : " + this.type.toString() : this.name;
     }
 
     accept<T>(v: visitor.Visitor<T>): T {
-        return v.visitTypedIdentifierNode(this);
+        return v.visitIdentifierNode(this);
     }
 }
 
@@ -87,24 +72,7 @@ interface ExpressionNode {
     accept<T>(v: visitor.Visitor<T>): T;
 }
 
-export class IntNode extends Node implements ExpressionNode {
-    value: Number;
-
-    constructor(value: string) {
-        super();
-        this.value = parseInt(value);
-    }
-
-    toString() {
-        return this.value;
-    }
-
-    accept<T>(v: visitor.Visitor<T>): T {
-        return v.visitIntNode(this);
-    }
-}
-
-export class DoubleNode extends Node implements ExpressionNode {
+export class NumberNode extends Node implements ExpressionNode {
     value: Number;
 
     constructor(value: string) {
@@ -117,7 +85,7 @@ export class DoubleNode extends Node implements ExpressionNode {
     }
 
     accept<T>(v: visitor.Visitor<T>): T {
-        return v.visitDoubleNode(this);
+        return v.visitNumberNode(this);
     }
 }
 

@@ -1,6 +1,6 @@
-digit                       [0-9]
-id                          [a-zA-Z][a-zA-Z0-9]*
+id                          [a-zA-Z][a-zA-Z0-9\.]*(\[\])*
 str                         [a-zA-Z0-9\s]*
+number                      [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?
 
 %%
 "//".*                      /* ignore comment */
@@ -8,13 +8,14 @@ str                         [a-zA-Z0-9\s]*
 "else"                      return 'ELSE';
 "def"			            return 'DEF';
 "var"			            return 'VAR';
+"var[]..[]"			        return 'VARRANGE';
 "null"                      return 'NUL';
 "true"                      return 'TRUE';
 "false"                     return 'FALSE';
 "Imperative"                return 'IMPERATIVE';
 "Associative"               return 'ASSOCIATIVE';
 "return"                    return 'RETURN';
-{digit}+                    return 'INT';
+{number}                    return 'NUMBER';
 {id}                        return 'ID';
 "\""{str}"\""               return 'STRING';
 "=="                        return 'EQUALITY';
