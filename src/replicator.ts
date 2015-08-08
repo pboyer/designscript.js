@@ -9,6 +9,37 @@ export class Replicator {
         if (this.allTypesMatch(args, expectedTypes)){
             return fd.func.apply(undefined, args);
         }
+        
+        // default behavior
+        return this.shortest(fd, args);
+    }
+    
+    shortest(fd : types.TypedFunction, args : any[]){
+        
+        var minLen = args.reduce((a, x) => (x instanceof Array) ? Math.min(x.length, a) : a, Number.MAX_VALUE);
+        if (minLen === Number.MAX_VALUE){
+            throw new Error("Could not replicate!");
+        }
+        
+        var results = [];
+        
+        for (var i = 0, l = minLen; i < l; i++){
+            var curargs = [];
+            for (var j = 0, l2 = args.length; j < l2; j++){
+                if (args[j] instanceof Array){
+                    if (args[j].length > minLen){
+                        curargs.push( args[j][args[j].length-1] );
+                    } else {
+                        curargs.push( args[j][i]);
+                    }
+                } else {
+                    curargs.push( args[j] );
+                }
+            }
+            results.push( this.replicate( fd, curargs ) );
+        }
+        
+        return results;
     }
     
     isObjectTypeMatch(arg : any, typeName : string = "var") {

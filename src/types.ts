@@ -2,10 +2,10 @@ import ast = require('./ast');
 
 export class TypedFunction {
     name: string;
-    func: (any) => any;
+    func: (...any) => any;
     argumentTypes: TypedArgument[];
 
-    constructor(f: (any) => any, al: TypedArgument[], name: string ) {
+    constructor(f: (...any) => any, al: TypedArgument[], name: string ) {
         this.func = f;
         this.argumentTypes = al; 
         this.name = name;

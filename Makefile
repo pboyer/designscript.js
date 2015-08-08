@@ -10,6 +10,7 @@ release: build
 
 test: build
 	node src/parser_test.js
+	node src/replicator_test.js 
 	node src/imperative_test.js 
 	node src/associative_test.js 
 
