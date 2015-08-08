@@ -1,9 +1,12 @@
 %{
-    function record( node, state ){
-        node.firstLine = state.first_line;
-        node.lastLine = state.last_line;
-        node.firstCol = state.first_column;
-        node.lastCol = state.last_column;
+    function recordState( node, state ){
+		node.location = {
+	        firstLine : state.first_line,
+		    lastLine : state.last_line,
+		    firstCol : state.first_column,
+		    lastCol : state.last_column
+		}
+
         return node;
     }
 %}
@@ -26,9 +29,9 @@ Program
 
 StatementList
 	: Statement StatementList
-	{ $$ = record( new yy.StatementListNode( $1, $2 ), @$); }
+	{ $$ = recordState( new yy.StatementListNode( $1, $2 ), @$); }
 	|
-	{ $$ = record( new yy.StatementListNode(), @$); }
+	{ $$ = recordState( new yy.StatementListNode(), @$); }
     ;
 
 Statement 
@@ -43,9 +46,9 @@ Statement
 
 LanguageBlock 	
     : LBRACKET ASSOCIATIVE RBRACKET Block
-	{ $$ = record( new yy.AssociativeBlockNode( $4 ), @$);  }
+	{ $$ = recordState( new yy.AssociativeBlockNode( $4 ), @$);  }
     | LBRACKET IMPERATIVE RBRACKET Block
-	{ $$ = record( new yy.ImperativeBlockNode( $4 ), @$);  }
+	{ $$ = recordState( new yy.ImperativeBlockNode( $4 ), @$);  }
     ;
 
 Block 	
@@ -55,55 +58,55 @@ Block
 
 ReturnStatement
     : RETURN ASSIGN Expression SEMICOLON
-	{ $$ = record( new yy.ReturnNode( $3 ), @$); }
+	{ $$ = recordState( new yy.ReturnNode( $3 ), @$); }
 	;
 
 FunctionDefinition
 	: DEF Identifier LPAREN IdentifierList RPAREN LBRACE StatementList RBRACE
-	{ $$ = record( new yy.FunctionDefinitionNode( $2, $4, $7), @$); }
+	{ $$ = recordState( new yy.FunctionDefinitionNode( $2, $4, $7), @$); }
 	;
 
 Assignment	
 	: TypedIdentifier ASSIGN Expression SEMICOLON
-	{ $$ = record( new yy.AssignmentNode( $1, $3 ), @$); }
+	{ $$ = recordState( new yy.AssignmentNode( $1, $3 ), @$); }
     ;
 
 IfStatement
 	: IF LPAREN Expression RPAREN Block
-	{ $$ = record( new yy.IfStatementNode( $3, $5 ), @$); }
+	{ $$ = recordState( new yy.IfStatementNode( $3, $5 ), @$); }
 	| IF LPAREN Expression RPAREN Block ELSE Statement
-	{ $$ = record( new yy.IfStatementNode( $3, $5, $7 ), @$); }
+	{ $$ = recordState( new yy.IfStatementNode( $3, $5, $7 ), @$); }
 	;
 
 IdentifierList
     : TypedIdentifier COMMA IdentifierList
-	{ $$ = record( new yy.IdentifierListNode( $1, $3 ), @$); }
+	{ $$ = recordState( new yy.IdentifierListNode( $1, $3 ), @$); }
 	| TypedIdentifier
-	{ $$ = record( new yy.IdentifierListNode( $1 ), @$); }
+	{ $$ = recordState( new yy.IdentifierListNode( $1 ), @$); }
 	|
 	;
 
 Identifier
 	: ID
-	{ $$ = record( new yy.IdentifierNode($1), @$); }
+	{ $$ = recordState( new yy.IdentifierNode($1), @$); }
 	;
 
 TypedIdentifier
 	: Identifier
 	| ID COLON Type
-	{ $$ = record( new yy.IdentifierNode( $1, $3 ), @$); }
+	{ $$ = recordState( new yy.IdentifierNode( $1, $3 ), @$); }
 	;
 
 Type
 	: ID
-	{ $$ = record( new yy.Type( $1 ), @$); }
+	{ $$ = recordState( new yy.Type( $1 ), @$); }
 	;
 
 ExpressionList 
 	: Expression COMMA ExpressionList
-	{ $$ = record( new yy.ExpressionListNode($1, $3), @$); }
+	{ $$ = recordState( new yy.ExpressionListNode($1, $3), @$); }
 	| Expression
-	{ $$ = record( new yy.ExpressionListNode($1), @$); }	
+	{ $$ = recordState( new yy.ExpressionListNode($1), @$); }	
 	|
     ;
 
@@ -113,55 +116,55 @@ Expression
     | FunctionCall
     | BinaryExpression
     | Identifier ReplicationGuideList
-	{ $$ = record( new yy.ReplicationExpressionNode($1, $2), @$); }
+	{ $$ = recordState( new yy.ReplicationExpressionNode($1, $2), @$); }
 	| LPAREN Expression RPAREN
 	{ $$ = $2; }
 	| Identifier LBRACKET Expression RBRACKET
-	{ $$ = record( new yy.ArrayIndexNode( $1, $3 ), @$); }	
+	{ $$ = recordState( new yy.ArrayIndexNode( $1, $3 ), @$); }	
 	;
 
 BinaryExpression
 	: Expression PLUS Expression
-	{ $$ = record( new yy.BinaryExpressionNode($2 ,$1, $3), @$); }
+	{ $$ = recordState( new yy.BinaryExpressionNode($2 ,$1, $3), @$); }
 	| Expression MINUS Expression
-	{ $$ = record( new yy.BinaryExpressionNode($2 ,$1, $3), @$); }
+	{ $$ = recordState( new yy.BinaryExpressionNode($2 ,$1, $3), @$); }
 	| Expression TIMES Expression
-	{ $$ = record( new yy.BinaryExpressionNode($2, $1, $3), @$); }
+	{ $$ = recordState( new yy.BinaryExpressionNode($2, $1, $3), @$); }
 	| Expression EQUALITY Expression
-	{ $$ = record( new yy.BinaryExpressionNode($2, $1, $3), @$); }
+	{ $$ = recordState( new yy.BinaryExpressionNode($2, $1, $3), @$); }
 	| Expression RCARET Expression
-	{ $$ = record( new yy.BinaryExpressionNode($2, $1, $3), @$); }
+	{ $$ = recordState( new yy.BinaryExpressionNode($2, $1, $3), @$); }
 	| Expression OR Expression
-	{ $$ = record( new yy.BinaryExpressionNode($2, $1, $3), @$); }
+	{ $$ = recordState( new yy.BinaryExpressionNode($2, $1, $3), @$); }
     ;
 
 ReplicationGuide
     : LCARET Expression RCARET
-	{ $$ = record( new yy.ReplicationGuideNode( $2 ), @$); }
+	{ $$ = recordState( new yy.ReplicationGuideNode( $2 ), @$); }
     ;
 
 ReplicationGuideList
     : ReplicationGuide
-	{ $$ = record( new yy.ReplicationGuideListNode( $1 ), @$); }
+	{ $$ = recordState( new yy.ReplicationGuideListNode( $1 ), @$); }
     | ReplicationGuide ReplicationGuideList
-	{ $$ = record( new yy.ReplicationGuideListNode( $1, $2 ), @$); }
+	{ $$ = recordState( new yy.ReplicationGuideListNode( $1, $2 ), @$); }
     ;
 
 FunctionCall
     : Identifier LPAREN ExpressionList RPAREN
-	{ $$ = record( new yy.FunctionCallNode($1, $3), @$); }
+	{ $$ = recordState( new yy.FunctionCallNode($1, $3), @$); }
     ;
 
 Literal	
 	: NUMBER
-	{ $$ = record( new yy.NumberNode( $1 ), @$); }
+	{ $$ = recordState( new yy.NumberNode( $1 ), @$); }
 	| TRUE
-	{ $$ = record( new yy.BooleanNode( $1 ), @$); }
+	{ $$ = recordState( new yy.BooleanNode( $1 ), @$); }
 	| FALSE
-	{ $$ = record( new yy.BooleanNode( $1 ), @$); }
+	{ $$ = recordState( new yy.BooleanNode( $1 ), @$); }
 	| STRING
-	{ $$ = record( new yy.StringNode( $1 ), @$); }
+	{ $$ = recordState( new yy.StringNode( $1 ), @$); }
 	| LBRACE ExpressionList RBRACE
-	{ $$ = record( new yy.ArrayNode( $2 ), @$); }
+	{ $$ = recordState( new yy.ArrayNode( $2 ), @$); }
 	;
 	

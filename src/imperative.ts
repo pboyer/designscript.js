@@ -3,35 +3,34 @@ import ast = require('./ast');
 import visitor = require('./visitor');
 import types = require('./types');
 import replicator = require('./replicator');
+import interpreter = require('./interpreter');
 
-export class Interpreter implements visitor.Visitor<any> {
+export class ImperativeInterpreter implements visitor.Visitor<any>, interpreter.Interpreter {
 
     replicator: replicator.Replicator = new replicator.Replicator();
     env: enviro.Environment = new enviro.Environment();
-    extensions: { [id: string]: types.TypedFunction; };
+    parent: interpreter.Interpreter;
 
-    constructor(extensions) {
-        this.extensions = extensions;
+    constructor(parent : interpreter.Interpreter = null) {
+        this.parent = parent;
+        this.addBuiltins();
     }
 
     run(sl: ast.StatementListNode): void {
-        this.env = this.builtins(this.extensions);
-
         this.evalFunctionDefinitionNodes(sl);
-        this.visitStatementListNode(sl);
+        return this.visitStatementListNode(sl);
+    }
+    
+    lookup(id : string) : any {
+        return this.env.lookup(id);
+    }
+    
+    set(id : string, val : any) : any {
+        return this.env.set(id, val);
     }
 
-    builtins(exts: { [id: string]: any }): enviro.Environment {
-        var e: enviro.Environment = new enviro.Environment();
-
-        if (exts) {
-            for (var id in exts) {
-                e.set(id, exts[id]);
-            }
-        }
-
-        e.set("print", new types.TypedFunction((x) => console.log(x), [ new types.TypedArgument("a") ], "print"));
-        return e;
+    addBuiltins() {
+        this.set("print", new types.TypedFunction((x) => console.log(x), [ new types.TypedArgument("a", "var") ], "print"));
     }
 
     evalFunctionDefinitionNodes(sl: ast.StatementListNode): void {
@@ -54,15 +53,14 @@ export class Interpreter implements visitor.Visitor<any> {
         this.env = this.env.outer;
     }
 
-    visitStatementListNode(sl: ast.StatementListNode): void {
+    visitStatementListNode(sl: ast.StatementListNode): any {
         var r, s;
         while (sl) {
             s = sl.head;
             sl = sl.tail;
           
             // empty statement list
-            if (!s)
-                break;
+            if (!s) break;
 
             // todo: hoist func defs
             if (!(s instanceof ast.FunctionDefinitionNode))
@@ -103,7 +101,7 @@ export class Interpreter implements visitor.Visitor<any> {
     }
 
     visitIdentifierNode(e: ast.IdentifierNode): any {
-        return this.env.lookup(e.name);
+        return this.lookup(e.name);
     }
 
     visitIdentifierListNode(n: ast.IdentifierListNode): any {
@@ -152,7 +150,9 @@ export class Interpreter implements visitor.Visitor<any> {
     }
 
     visitFunctionCallNode(e: ast.FunctionCallNode): any {
-        var fd = this.env.lookup(e.functionId.name);
+        var fd = this.lookup(e.functionId.name);
+        
+        // TODO incorporate replication guide info
         return this.replicator.replicate(fd, e.arguments.accept(this));
     }
 
@@ -170,7 +170,7 @@ export class Interpreter implements visitor.Visitor<any> {
     }
 
     visitAssignmentNode(s: ast.AssignmentNode) {
-        this.env.set(s.identifier.name, s.expression.accept(this));
+        this.set(s.identifier.name, s.expression.accept(this));
     }
 
     visitFunctionDefinitionNode(fds: ast.FunctionDefinitionNode): any {
@@ -196,7 +196,7 @@ export class Interpreter implements visitor.Visitor<any> {
 
         fd = new types.TypedFunction(f, val, fds.identifier.name);
 
-        this.env.set(fds.identifier.name, fd);
+        this.set(fds.identifier.name, fd);
     }
 
     apply(fd: ast.FunctionDefinitionNode, env: enviro.Environment, args: any[]): any {

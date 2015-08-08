@@ -1,6 +1,6 @@
 var Parser = require('./parser')
 	, assert = require('assert')
-	, Interpreter = require('./imperative').Interpreter
+	, Interpreter = require('./imperative').ImperativeInterpreter
 	, TypedFunction = require('./types').TypedFunction
 	, TypedArgument = require('./types').TypedArgument;
 
@@ -10,14 +10,14 @@ Parser.parser.yy = ast;
 function run(p){
 	var pp = Parser.parse( p );
 
-	// inject the debugger function
+	var i = new Interpreter();
+	
+	// inject the debug function
 	var record = [];
-	var exts = {
-		"debug" : new TypedFunction(function(x){  record.push(x); }, 
-						[ new TypedArgument("arg") ], "debug")
-	};
+	var debug = new TypedFunction(function(x){  record.push(x); }, [ new TypedArgument("arg") ], "debug");
+	i.set("debug", debug);
 
-	(new Interpreter( exts )).run( pp );
+	i.run( pp );
 	
 	return record;
 }

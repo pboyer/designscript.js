@@ -1,6 +1,6 @@
 var Parser = require('./parser')
 	, assert = require('assert')
-	, Interpreter = require('./associative').Interpreter;
+	, Interpreter = require('./associative').AssociativeInterpreter;
 
 var ast = require('./ast');
 Parser.parser.yy = ast;

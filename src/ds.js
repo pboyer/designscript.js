@@ -1,5 +1,5 @@
 var Parser = require('./parser')
-	, Interpreter = require('./imperative').Interpreter
+	, Interpreter = require('./associative').AssociativeInterpreter
 	, TypedFunction = require('./types').TypedFunction
 	, TypedArgument = require('./types').TypedArgument;
 
@@ -18,4 +18,4 @@ module.exports =
     TypedFunction : TypedFunction,
     TypedArgument : TypedArgument,
     run : run
-}
+};
