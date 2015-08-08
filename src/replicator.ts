@@ -28,7 +28,7 @@ export class Replicator {
             for (var j = 0, l2 = args.length; j < l2; j++){
                 if (args[j] instanceof Array){
                     if (args[j].length > minLen){
-                        curargs.push( args[j][args[j].length-1] );
+                        curargs.push( args[j][minLen-1] );
                     } else {
                         curargs.push( args[j][i]);
                     }
