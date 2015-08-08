@@ -1,8 +1,8 @@
 var Parser = require('./parser')
 	, assert = require('assert')
 	, Interpreter = require('./imperative').Interpreter
-	, TypedFunction = require('./imperative').TypedFunction
-	, TypedArgument = require('./imperative').TypedArgument;
+	, TypedFunction = require('./types').TypedFunction
+	, TypedArgument = require('./types').TypedArgument;
 
 var ast = require('./ast');
 Parser.parser.yy = ast;

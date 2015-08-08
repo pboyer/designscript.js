@@ -15,4 +15,4 @@ test: build
 
 clean:
 	rm -rf build
-	rm src/ast.js src/parser.js src/associative.js src/imperative.js src/environment.js src/visitor.js
+	rm src/ast.js src/parser.js src/replicator.js src/associative.js src/imperative.js src/environment.js src/visitor.js

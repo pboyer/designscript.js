@@ -1,7 +1,7 @@
 var Parser = require('./parser')
 	, Interpreter = require('./imperative').Interpreter
-	, TypedFuncDef = require('./imperative').TypedFuncDef
-	, FuncArgExpr = require('./ast').FuncArgExpr;
+	, TypedFunction = require('./types').TypedFunction
+	, TypedArgument = require('./types').TypedArgument;
 
 var ast = require('./ast');
 Parser.parser.yy = ast;
@@ -15,6 +15,7 @@ module.exports =
 {
     Parser : Parser.parser,
     Interpreter : Interpreter,
-    TypedFuncDef : TypedFuncDef,
+    TypedFunction : TypedFunction,
+    TypedArgument : TypedArgument,
     run : run
 }

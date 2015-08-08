@@ -1,8 +1,2 @@
 *.swp
 .DS_Store
-associative.js
-parser.js
-ast.js
-environment.js
-visitor.js
-interpreter.js
