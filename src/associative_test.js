@@ -46,12 +46,12 @@ function run(p, fds){
 
 (function(){
 	var i = run('w = [Imperative]{ return = 8; }');
-	// assert.equal( "hohi", i.env.lookup("w").value );
+	assert.equal( 8, i.env.lookup("w").value );
 })();
 
 (function(){
 	var i = run('w = [Imperative]{ return = [Associative]{ return = 8; }}');
-	// assert.equal( "hohi", i.env.lookup("w").value );
+	assert.equal( 8, i.env.lookup("w").value );
 })();
 
 /*
