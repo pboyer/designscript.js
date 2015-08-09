@@ -4,6 +4,7 @@ import visitor = require('./visitor');
 import types = require('./types');
 import replicator = require('./replicator');
 import interpreter = require('./interpreter');
+import associative = require('./associative');
 
 export class ImperativeInterpreter implements visitor.Visitor<any>, interpreter.Interpreter {
 
@@ -129,10 +130,6 @@ export class ImperativeInterpreter implements visitor.Visitor<any>, interpreter.
         throw new Error("Unknown binary operator type");
     }
 
-    visitReturnNode(s: ast.ReturnNode) {
-        return s.expression.accept(this);
-    }
-
     visitIfStatementNode(s: ast.IfStatementNode) {
         var test = s.testExpression.accept(this);
         if (test === true) {
@@ -170,7 +167,9 @@ export class ImperativeInterpreter implements visitor.Visitor<any>, interpreter.
     }
 
     visitAssignmentNode(s: ast.AssignmentNode) {
-        this.set(s.identifier.name, s.expression.accept(this));
+        var v = s.expression.accept(this);
+        this.set(s.identifier.name, v);
+        return v;
     }
 
     visitFunctionDefinitionNode(fds: ast.FunctionDefinitionNode): any {
@@ -220,6 +219,13 @@ export class ImperativeInterpreter implements visitor.Visitor<any>, interpreter.
         return r;
     }
 
-    visitImperativeBlockNode(node : ast.ImperativeBlockNode) : any { throw new Error("Not implemented"); };
-    visitAssociativeBlockNode(node : ast.AssociativeBlockNode) : any { throw new Error("Not implemented"); };
+    visitImperativeBlockNode(node : ast.ImperativeBlockNode) : any { 
+        var i = new ImperativeInterpreter(this);
+        return i.run(node.statementList);
+    };
+    
+    visitAssociativeBlockNode(node : ast.AssociativeBlockNode) : any { 
+        var i = new associative.AssociativeInterpreter(this);
+        return i.run(node.statementList).value;
+    };
 }

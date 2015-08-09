@@ -38,10 +38,15 @@ Statement
 	: FunctionDefinition 
 	| Block
 	| Assignment
+	| LanguageBlockAssignment
 	| FunctionCall SEMICOLON
     | IfStatement
 	| ReturnStatement
-    | LanguageBlock
+    ;
+	
+LanguageBlockAssignment	
+	: TypedIdentifier ASSIGN LanguageBlock
+	{ $$ = recordState( new yy.AssignmentNode( $1, $3 ), @$); }
     ;
 
 LanguageBlock 	
@@ -50,7 +55,7 @@ LanguageBlock
     | LBRACKET IMPERATIVE RBRACKET Block
 	{ $$ = recordState( new yy.ImperativeBlockNode( $4 ), @$);  }
     ;
-
+	
 Block 	
     : LBRACE StatementList RBRACE
 	{ $$ = $2; }
@@ -58,7 +63,9 @@ Block
 
 ReturnStatement
     : RETURN ASSIGN Expression SEMICOLON
-	{ $$ = recordState( new yy.ReturnNode( $3 ), @$); }
+	{ $$ = recordState( new yy.AssignmentNode( $1, $3 ), @$); }
+	| RETURN ASSIGN LanguageBlock
+	{ $$ = recordState( new yy.AssignmentNode( $1, $3 ), @$); }
 	;
 
 FunctionDefinition
@@ -122,6 +129,7 @@ Expression
 	| Identifier LBRACKET Expression RBRACKET
 	{ $$ = recordState( new yy.ArrayIndexNode( $1, $3 ), @$); }	
 	;
+
 
 BinaryExpression
 	: Expression PLUS Expression

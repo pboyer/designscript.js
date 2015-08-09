@@ -5,8 +5,8 @@ var ast = require('./ast');
 ds.parser.yy = ast;
 
 (function(){
-    assert.ok( ds.parse('[Imperative]{ a = 4; }').head instanceof ast.ImperativeBlockNode );	
-	assert.ok( ds.parse('[Associative]{ a = 4; }').head instanceof ast.AssociativeBlockNode );	
+    assert.ok( ds.parse('w = [Imperative]{ return = 4; }').head.expression instanceof ast.ImperativeBlockNode );	
+	assert.ok( ds.parse('w = [Associative]{ return = 4; }').head.expression instanceof ast.AssociativeBlockNode );	
 	assert.ok( ds.parse('a = 4;').head instanceof ast.AssignmentNode );	
 	assert.ok( ds.parse('def x(a, b){ return = 4; }').head instanceof ast.FunctionDefinitionNode );
 	assert.ok( ds.parse('if (a) { return = b; }').head instanceof ast.IfStatementNode ); 

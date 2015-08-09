@@ -315,11 +315,19 @@ export class AssociativeBlockNode extends LanguageBlockNode {
     constructor(sl: StatementListNode) {
         super("Associative", sl);
     }
+    
+    accept<T>(v: visitor.Visitor<T>): T {
+        return v.visitAssociativeBlockNode(this);
+    }
 }
 
 export class ImperativeBlockNode extends LanguageBlockNode {
     constructor(sl: StatementListNode) {
         super("Imperative", sl);
+    }
+    
+    accept<T>(v: visitor.Visitor<T>): T {
+        return v.visitImperativeBlockNode(this);
     }
 }
 
@@ -413,21 +421,3 @@ export class AssignmentNode extends StatementNode {
         return v.visitAssignmentNode(this);
     }
 }
-
-export class ReturnNode extends StatementNode {
-    expression: ExpressionNode;
-
-    constructor(e: ExpressionNode) {
-        super();
-        this.expression = e;
-    }
-
-    toLines(indent) {
-        return [indent + "return = " + this.expression.toString() + ";"];
-    }
-
-    accept<T>(v: visitor.Visitor<T>): T {
-        return v.visitReturnNode(this);
-    }
-}
-

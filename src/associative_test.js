@@ -7,6 +7,7 @@ Parser.parser.yy = ast;
 
 function run(p, fds){
 	var pp = Parser.parse( p );
+
 	var i = new Interpreter();
 	if (fds){
 		for (var fid in fds){
@@ -41,6 +42,16 @@ function run(p, fds){
 	var fds = { "concat" : function(a,b){ return a + b; } };
 	var i = run('a = "hi"; b = "ho"; w = concat(b,a);', fds);
 	assert.equal( "hohi", i.env.lookup("w").value );
+})();
+
+(function(){
+	var i = run('w = [Imperative]{ return = 8; }');
+	// assert.equal( "hohi", i.env.lookup("w").value );
+})();
+
+(function(){
+	var i = run('w = [Imperative]{ return = [Associative]{ return = 8; }}');
+	// assert.equal( "hohi", i.env.lookup("w").value );
 })();
 
 /*

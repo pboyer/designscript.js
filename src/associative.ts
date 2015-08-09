@@ -125,7 +125,6 @@ export class AssociativeInterpreter implements visitor.Visitor<DependencyNode>, 
     visitExpressionListNode(node : ast.ExpressionListNode) : DependencyNode { throw new Error("Not implemented"); }
     visitIfStatementNode(node : ast.IfStatementNode) : DependencyNode { throw new Error("Not implemented"); }
     visitFunctionDefinitionNode(node : ast.FunctionDefinitionNode) : DependencyNode { throw new Error("Not implemented"); }
-    visitReturnNode(node : ast.ReturnNode) : DependencyNode { throw new Error("Not implemented"); }
     visitReplicationExpressionNode(node : ast.ReplicationExpressionNode) : DependencyNode { throw new Error("Not implemented"); }
     visitReplicationGuideNode(node : ast.ReplicationGuideNode) : DependencyNode { throw new Error("Not implemented"); }
     visitReplicationGuideListNode(node : ast.ReplicationGuideListNode) : DependencyNode { throw new Error("Not implemented"); }

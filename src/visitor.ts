@@ -16,7 +16,6 @@ export interface Visitor<T> {
     visitIfStatementNode(node : ast.IfStatementNode) : T;
     visitFunctionDefinitionNode(node : ast.FunctionDefinitionNode) : T;
     visitAssignmentNode(node : ast.AssignmentNode) : T;
-    visitReturnNode(node : ast.ReturnNode) : T;
     visitReplicationExpressionNode(node : ast.ReplicationExpressionNode) : T;
     visitReplicationGuideNode(node : ast.ReplicationGuideNode) : T;
     visitReplicationGuideListNode(node : ast.ReplicationGuideListNode) : T;
