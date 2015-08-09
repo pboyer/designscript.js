@@ -1,11 +1,16 @@
 import visitor = require('./visitor');
 
 export class Node {
+    parserState : ParserState;
+}
+
+export class ParserState {
     firstLine: number;
     lastLine: number;
     firstCol: number;
     lastCol: number;
 }
+
 
 //
 // IdentifierNode
@@ -158,6 +163,37 @@ export class BinaryExpressionNode extends Node implements ExpressionNode {
 
     accept<T>(v: visitor.Visitor<T>): T {
         return v.visitBinaryExpressionNode(this);
+    }
+}
+
+export class RangeExpressionNode extends Node implements ExpressionNode {
+    start: ExpressionNode;
+    end: ExpressionNode;
+    step: ExpressionNode;
+    isStepCount: boolean;
+
+    constructor(start : ExpressionNode, end : ExpressionNode, step : ExpressionNode = null, isStepCount = false) {
+        super();
+        this.start = start;
+        if (end instanceof RangeExpressionNode) 
+            throw new Error("Multiply nested range expressions are not supported");
+        this.end = end;
+        if (step instanceof RangeExpressionNode) 
+            throw new Error("step cannot be a RangeExpression");
+        this.step = step;
+        this.isStepCount = isStepCount;
+    }
+
+    toString() {
+        return 
+            this.start.toString() + ".." + this.end.toString() + 
+                (this.step == null ? "" : 
+                    ".." + (this.isStepCount ? "#" : "") + this.step.toString());
+            
+    }
+
+    accept<T>(v: visitor.Visitor<T>): T {
+        return v.visitRangeExpressionNode(this);
     }
 }
 

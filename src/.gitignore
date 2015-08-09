@@ -7,3 +7,4 @@ types.js
 interpreter.js
 imperative.js
 associative.js
+range.js

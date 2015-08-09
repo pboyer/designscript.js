@@ -1,6 +1,6 @@
 %{
     function recordState( node, state ){
-		node.location = {
+		node.parserState = {
 	        firstLine : state.first_line,
 		    lastLine : state.last_line,
 		    firstCol : state.first_column,
@@ -17,8 +17,8 @@
 %left PLUS MINUS
 %left TIMES
 %right NOT
-%left DOT
 %nonassoc LCARET
+%right DOTDOT
 
 %%
 
@@ -122,6 +122,7 @@ Expression
 	| Identifier
     | FunctionCall
     | BinaryExpression
+	| RangeExpression
     | Identifier ReplicationGuideList
 	{ $$ = recordState( new yy.ReplicationExpressionNode($1, $2), @$); }
 	| LPAREN Expression RPAREN
@@ -130,7 +131,25 @@ Expression
 	{ $$ = recordState( new yy.ArrayIndexNode( $1, $3 ), @$); }	
 	;
 
+RangeExpression
+	: Expression DOTDOT CountExpression
+	{ $$ = recordState( new yy.RangeExpressionNode($1, $3), @$); }
+	| Expression DOTDOT CountExpression DOTDOT CountExpression
+	{ $$ = recordState( new yy.RangeExpressionNode($1, $3, $5), @$); }
+	| Expression DOTDOT CountExpression DOTDOT POUND CountExpression
+	{ $$ = recordState( new yy.RangeExpressionNode($1, $3, $6, true), @$); }
+    ;
 
+CountExpression
+	: Literal
+	| Identifier
+    | FunctionCall
+	| LPAREN Expression RPAREN
+	{ $$ = $2; }
+	| Identifier LBRACKET Expression RBRACKET
+	{ $$ = recordState( new yy.ArrayIndexNode( $1, $3 ), @$); }	
+	;
+	
 BinaryExpression
 	: Expression PLUS Expression
 	{ $$ = recordState( new yy.BinaryExpressionNode($2 ,$1, $3), @$); }

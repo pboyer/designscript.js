@@ -5,6 +5,7 @@ import types = require('./types');
 import replicator = require('./replicator');
 import interpreter = require('./interpreter');
 import associative = require('./associative');
+import range = require('./range');
 
 export class ImperativeInterpreter implements visitor.Visitor<any>, interpreter.Interpreter {
 
@@ -106,25 +107,49 @@ export class ImperativeInterpreter implements visitor.Visitor<any>, interpreter.
     }
 
     visitIdentifierListNode(n: ast.IdentifierListNode): any {
-        return null;
+        throw new Error("Not implemented!");
     }
 
+    visitRangeExpressionNode(node : ast.RangeExpressionNode) : number[] { 
+        
+        var start = node.start.accept(this);
+        if (typeof start != 'number') throw new Error("start must be a number.");
+        
+        var end = node.end.accept(this);
+        if (typeof end != 'number') throw new Error("end must be a number.");
+        
+        if (!node.step) return range.Range.byStartEnd(start,end);
+        
+        var step = node.step.accept(this);
+        if (typeof step != 'number') throw new Error("step must be a number.");
+        
+        
+        
+        return node.isStepCount ?
+            range.Range.byStepCount(start,end,step) :
+            range.Range.byStepSize(start,end,step);
+    };
+    
     visitBinaryExpressionNode(e: ast.BinaryExpressionNode): any {
+        
+        var a = e.firstExpression.accept(this);
+        var b = e.secondExpression.accept(this);
+        
         switch (e.operator) {
             case "+":
-                return e.firstExpression.accept(this) + e.secondExpression.accept(this);
+                return a + b;
             case "-":
-                return e.firstExpression.accept(this) - e.secondExpression.accept(this);
+                return a - b;
             case "*":
-                return e.firstExpression.accept(this) * e.secondExpression.accept(this);
+                return a * b;
             case "<":
-                return e.firstExpression.accept(this) < e.secondExpression.accept(this);
+                return a < b;
             case "||":
-                return e.firstExpression.accept(this) || e.secondExpression.accept(this);
+                return a || b;
             case "==":
-                return e.firstExpression.accept(this) == e.secondExpression.accept(this);
+                return a == b;
             case ">":
-                return e.firstExpression.accept(this) > e.secondExpression.accept(this);
+                return a > b;
         }
 
         throw new Error("Unknown binary operator type");
@@ -218,7 +243,7 @@ export class ImperativeInterpreter implements visitor.Visitor<any>, interpreter.
         this.env = current;
         return r;
     }
-
+    
     visitImperativeBlockNode(node : ast.ImperativeBlockNode) : any { 
         var i = new ImperativeInterpreter(this);
         return i.run(node.statementList);

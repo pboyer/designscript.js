@@ -54,6 +54,26 @@ function run(p, fds){
 	assert.equal( 8, i.env.lookup("w").value );
 })();
 
+(function(){
+	var i = run('c = 0..2;');
+	assert.deepEqual( [0,1,2], i.env.lookup("c").value );
+})();
+
+(function(){
+	var i = run('a = 0; b = 2; c = a..b;');
+	assert.deepEqual( [0,1,2], i.env.lookup("c").value );
+})();
+
+(function(){
+	var i = run('a = 0; b = 2; c = a..b..2;');
+	assert.deepEqual( [0,2], i.env.lookup("c").value );
+})();
+
+(function(){
+	var i = run('a = 0; b = 2; c = a..b..#3;');
+	assert.deepEqual( [0,1,2], i.env.lookup("c").value );
+})();
+
 /*
 (function(){
 	var r = run('debug( 2 * 3 );');

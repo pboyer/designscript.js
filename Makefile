@@ -13,6 +13,7 @@ test: build
 	node src/replicator_test.js 
 	node src/imperative_test.js 
 	node src/associative_test.js 
+	node src/range_test.js 
 
 clean:
 	rm -rf build

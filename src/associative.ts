@@ -3,6 +3,7 @@ import ast = require('./ast');
 import enviro = require('./environment');
 import interpreter = require('./interpreter');
 import imperative = require('./imperative');
+import range = require('./range');
 
 export class AssociativeInterpreter implements visitor.Visitor<DependencyNode>, interpreter.Interpreter {
 
@@ -143,6 +144,31 @@ export class AssociativeInterpreter implements visitor.Visitor<DependencyNode>, 
             var i = new AssociativeInterpreter(this);
             return i.run(node.statementList).value;
         });
+        n.eval();
+        return n;
+    };
+    
+    visitRangeExpressionNode(node : ast.RangeExpressionNode) : DependencyNode { 
+        
+        var start = node.start.accept( this );
+        var end = node.end.accept( this );
+        
+        if (!node.step){
+            var n = new DependencyNode(range.Range.byStartEnd);
+            connect( start, n, 0 );
+            connect( end, n, 1 );
+            n.eval();
+            return n;
+        }
+
+        var step = node.step.accept( this );
+        var f = node.isStepCount ? range.Range.byStepCount : range.Range.byStepSize;
+        
+        var n = new DependencyNode(f);
+        connect( start, n, 0 );
+        connect( end, n, 1 );
+        connect( step, n, 2 );
+        
         n.eval();
         return n;
     };

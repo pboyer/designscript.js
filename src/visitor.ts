@@ -9,6 +9,7 @@ export interface Visitor<T> {
     visitStringNode(node : ast.StringNode) : T;
     visitArrayNode(node : ast.ArrayNode) : T;
     visitBinaryExpressionNode(node : ast.BinaryExpressionNode) : T;
+    visitRangeExpressionNode(node : ast.RangeExpressionNode) : T;
     visitFunctionCallNode(node : ast.FunctionCallNode) : T;
     visitArrayIndexNode(node : ast.ArrayIndexNode) : T;
     visitExpressionListNode(node : ast.ExpressionListNode) : T;

@@ -1,4 +1,4 @@
-id                          [a-zA-Z][a-zA-Z0-9\.]*(\[\])*
+id                          [a-zA-Z][a-zA-Z0-9]*(\[\])*
 str                         [a-zA-Z0-9\s]*
 number                      [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?
 
@@ -24,6 +24,8 @@ number                      [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?
 "-"                         return 'MINUS';
 "*"                         return 'TIMES';
 ":"                         return 'COLON';
+".."                        return 'DOTDOT';
+"#"                         return 'POUND';
 ","                         return 'COMMA';
 "<"                         return 'LCARET';
 ">"                         return 'RCARET';

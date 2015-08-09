@@ -22,6 +22,15 @@ function run(p){
 	return record;
 }
 
+function interpret(p){
+	var pp = Parser.parse( p );
+
+	var i = new Interpreter();
+	i.run( pp );
+	
+	return i;
+}
+
 (function(){
 	var r = run('a = 4; print( a );');
 })();
@@ -76,3 +85,22 @@ function run(p){
 	assert.equal( "Ok cool", r[0] );
 })();
 
+(function(){
+	var i = interpret('c = 0..2;');
+	assert.deepEqual( [0,1,2], i.env.lookup("c") );
+})();
+
+(function(){
+	var i = interpret('a = 0; b = 2; c = a..b;');
+	assert.deepEqual( [0,1,2], i.env.lookup("c") );
+})();
+
+(function(){
+	var i = interpret('a = 0; b = 2; c = a..b..2;');
+	assert.deepEqual( [0,2], i.env.lookup("c") );
+})();
+
+(function(){
+	var i = interpret('a = 0; b = 2; c = a..b..#3;');
+	assert.deepEqual( [0,1,2], i.env.lookup("c") );
+})();
