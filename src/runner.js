@@ -1,9 +1,6 @@
 var fs = require('fs')
     , Parser = require('./parser')
-	, assert = require('assert')
-	, Interpreter = require('./imperative').Interpreter
-	, TypedFuncDef = require('./imperative').TypedFuncDef
-	, FuncArgExpr = require('./ast').FuncArgExpr;
+	, Interpreter = require('./associative').AssociativeInterpreter;
 
 var ast = require('./ast');
 Parser.parser.yy = ast;
