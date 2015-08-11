@@ -2,7 +2,7 @@ import types = require('./types');
 
 export class Replicator {
         
-    replicate(fd: types.TypedFunction, args: any[], repGuides? : number[]): any {
+    replicate(fd: types.TypedFunction, args: any[], repGuides : number[] = null): any {
 
         var expectedTypes : string[] = fd.argumentTypes.map((x) => x.typeName);
         
@@ -10,15 +10,34 @@ export class Replicator {
             return fd.func.apply(undefined, args);
         } 
         
-        return this._replicate( fd, args, expectedTypes, [this.range(args.length)], 0 );
+        var sortedRepGuides = repGuides ? this.sortedRepGroups(repGuides, args.length) : [this.range(args.length)];
+        
+        return this._replicate( fd, args, expectedTypes, sortedRepGuides, 0 );
     }
     
-    _replicate(fd : types.TypedFunction, args : any[], expectedTypes : string[], repGuides : number[][], curRepGuide : number){
+    private sortedRepGroups(repGuides : number[], argCount : number) : number[][] {
+        
+        var m = Math.max.apply(undefined, repGuides);
+        
+        if (m > argCount) {
+            throw new Error("Replication guide cannot be larger than the number of arguments!");
+        }
+        
+        var sorted = this.repeat(m, []);
+        
+        for (var i = 0; i < repGuides.length; i++ ){
+            sorted[repGuides[i]].push(i);
+        }
+        
+        return sorted;
+    }
+    
+    private _replicate(fd : types.TypedFunction, args : any[], expectedTypes : string[], sortedRepGuides : number[][], curRepGuide : number){
         
         var isTypeMatch = this.allTypesMatch(args, expectedTypes);
         
         // are we at the the last replication guide and matching
-        if ( curRepGuide > repGuides.length-1 && isTypeMatch){
+        if ( curRepGuide > sortedRepGuides.length-1 && isTypeMatch){
             if (isTypeMatch) {
                 return fd.func.apply(undefined, args);
             }
@@ -27,7 +46,7 @@ export class Replicator {
         
         var results = [];
         
-        var s = repGuides[curRepGuide];
+        var s = sortedRepGuides[curRepGuide];
         
         var minLen = s.reduce((a, x) => (args[x] instanceof Array) ? Math.min(args[x].length, a) : a, Number.MAX_VALUE);
         
@@ -44,7 +63,7 @@ export class Replicator {
                     curargs.push( args[j] );
                 }
             }
-            results.push( this._replicate( fd, curargs, expectedTypes, repGuides, curRepGuide + 1 ) );
+            results.push( this._replicate( fd, curargs, expectedTypes, sortedRepGuides, curRepGuide + 1 ) );
         }
      
         return results;
@@ -53,6 +72,12 @@ export class Replicator {
     private range(t : number) : any[] {
          var a = [];
          for (var i = 0; i < t; i++) a.push(i);
+         return a;
+    }
+    
+    private repeat(t : number, v : any) : any[] {
+         var a = [];
+         for (var i = 0; i < t; i++) a.push(v);
          return a;
     }
        
