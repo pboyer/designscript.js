@@ -122,14 +122,6 @@ export class AssociativeInterpreter implements visitor.Visitor<DependencyNode>, 
         return n;
     }
 
-    visitIdentifierListNode(node : ast.IdentifierListNode) : DependencyNode { throw new Error("Not implemented"); }
-    visitExpressionListNode(node : ast.ExpressionListNode) : DependencyNode { throw new Error("Not implemented"); }
-    visitIfStatementNode(node : ast.IfStatementNode) : DependencyNode { throw new Error("Not implemented"); }
-    visitFunctionDefinitionNode(node : ast.FunctionDefinitionNode) : DependencyNode { throw new Error("Not implemented"); }
-    visitReplicationExpressionNode(node : ast.ReplicationExpressionNode) : DependencyNode { throw new Error("Not implemented"); }
-    visitReplicationGuideNode(node : ast.ReplicationGuideNode) : DependencyNode { throw new Error("Not implemented"); }
-    visitReplicationGuideListNode(node : ast.ReplicationGuideListNode) : DependencyNode { throw new Error("Not implemented"); }
-    
     visitImperativeBlockNode(node : ast.ImperativeBlockNode) : DependencyNode { 
         var n = new DependencyNode( () => {
             var i = new imperative.ImperativeInterpreter(this);
@@ -172,8 +164,16 @@ export class AssociativeInterpreter implements visitor.Visitor<DependencyNode>, 
         n.eval();
         return n;
     };
+    
+    visitIdentifierListNode(node : ast.IdentifierListNode) : DependencyNode { throw new Error("Not implemented"); }
+    visitExpressionListNode(node : ast.ExpressionListNode) : DependencyNode { throw new Error("Not implemented"); }
+    visitIfStatementNode(node : ast.IfStatementNode) : DependencyNode { throw new Error("Not implemented"); }
+    visitFunctionDefinitionNode(node : ast.FunctionDefinitionNode) : DependencyNode { throw new Error("Not implemented"); }
+    visitReplicationExpressionNode(node : ast.ReplicationExpressionNode) : DependencyNode { throw new Error("Not implemented"); }
+    visitReplicationGuideNode(node : ast.ReplicationGuideNode) : DependencyNode { throw new Error("Not implemented"); }
+    visitReplicationGuideListNode(node : ast.ReplicationGuideListNode) : DependencyNode { throw new Error("Not implemented"); }
+    
 }
-
 
 export class DependencyNode {
     private static gid : number = 0;
