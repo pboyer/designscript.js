@@ -2,9 +2,9 @@ var replicator = require('./replicator')
 	, types = require('./types')
 	, assert = require('assert');
 
-function run(f, a){
+function run(f, a, rg){
 	var r = new replicator.Replicator();
-	return r.replicate(f,a);
+	return r.replicate(f,a,rg);
 }
 
 var doubleIt = 
@@ -50,3 +50,11 @@ var concat =
 		[	new types.TypedArgument("a", "var[]..[]"), 
 			new types.TypedArgument("b", "var[]..[]")]);
 assert.deepEqual( [1,2,3,4], run(concat, [[1,2], [3,4]]));	
+
+(function(){
+	
+})();
+var a = new replicator.Replicator();
+a.sortRepGroups([1,2]);
+
+assert.deepEqual( [[4,5],[5,6]], run(add, [[1,2], [3,4]], [1,2]));	

@@ -74,6 +74,7 @@ function run(p, fds){
 	assert.deepEqual( [0,1,2], i.env.lookup("c").value );
 })();
 
+
 /*
 (function(){
 	var r = run('debug( 2 * 3 );');
