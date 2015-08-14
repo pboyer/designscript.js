@@ -104,3 +104,22 @@ function interpret(p){
 	var i = interpret('a = 0; b = 2; c = a..b..#3;');
 	assert.deepEqual( [0,1,2], i.env.lookup("c") );
 })();
+
+(function(){
+	var i = interpret('a = 0; b = 2; c = a..b..2;');
+	assert.deepEqual( [0,2], i.env.lookup("c") );
+})();
+
+(function(){
+	var i = interpret('def add1(a : number){ return = a + 1; } c = 0..5; d = add1(c); ');
+	assert.deepEqual( [1,2,3,4,5,6], i.env.lookup("d") );
+})();
+
+(function(){
+	var i = interpret('def add1(a : number){ return = a + 1; } c = 0..5; d = add1(c<1>); ');
+	assert.deepEqual( [1,2,3,4,5,6], i.env.lookup("d") );
+})();
+
+(function(){
+	assert.throws(function(){ interpret('def add1(a : number){ return = a + 1; } c = 0..5; d = add1(c<2>); ')})
+})();

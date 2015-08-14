@@ -24,9 +24,9 @@ export class TypedArgument {
 
 export class ReplicatedExpression {
     value: any;
-    replicationGuides: ast.ReplicationGuideListNode;
+    replicationGuides: number[];
 
-    constructor(v: any, rgl: ast.ReplicationGuideListNode) {
+    constructor(v: any, rgl: number[]) {
         this.value = v;
         this.replicationGuides = rgl;
     }

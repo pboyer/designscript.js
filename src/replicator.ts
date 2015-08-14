@@ -2,8 +2,22 @@ import types = require('./types');
 
 export class Replicator {
         
-    replicate(fd: types.TypedFunction, args: any[], repGuides : number[] = null): any {
+    replicate(fd: types.TypedFunction, args: any[], repGuides? : number[]): any {
 
+        if (!repGuides){
+            repGuides = new Array<number>(args.length);
+        
+            for (var i = 0; i < args.length; i++){
+                var arg = args[i];
+                if (arg instanceof types.ReplicatedExpression){
+                    args[i] = arg.value;
+                    repGuides[i] = arg.replicationGuides[0];
+                } else {
+                    repGuides[i] = 1;
+                }
+            }
+        }
+        
         var expectedTypes : string[] = fd.argumentTypes.map((x) => x.typeName);
         
         if ( this.allTypesMatch(args, expectedTypes)){

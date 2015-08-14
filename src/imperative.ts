@@ -3,18 +3,15 @@ import ast = require('./ast');
 import visitor = require('./visitor');
 import types = require('./types');
 import replicator = require('./replicator');
-import interpreter = require('./interpreter');
 import associative = require('./associative');
 import range = require('./range');
 
-export class ImperativeInterpreter implements visitor.Visitor<any>, interpreter.Interpreter {
+export class ImperativeInterpreter implements visitor.Visitor<any>{
 
     replicator: replicator.Replicator = new replicator.Replicator();
     env: enviro.Environment = new enviro.Environment();
-    parent: interpreter.Interpreter;
 
-    constructor(parent : interpreter.Interpreter = null) {
-        this.parent = parent;
+    constructor() {
         this.addBuiltins();
     }
 
@@ -72,14 +69,6 @@ export class ImperativeInterpreter implements visitor.Visitor<any>, interpreter.
         return r;
     }
 
-    visitReplicationGuideListNode(r: ast.ReplicationGuideListNode): any {
-        throw new Error("visitReplicatedGuideListNode not implemented");
-    }
-
-    visitReplicationGuideNode(r: ast.ReplicationGuideNode): any {
-        throw new Error("visitReplicatedGuideNode not implemented");
-    }
-
     visitArrayIndexNode(e: ast.ArrayIndexNode): any {
         var array = e.array.accept(this);
         var index = e.index.accept(this);
@@ -122,8 +111,6 @@ export class ImperativeInterpreter implements visitor.Visitor<any>, interpreter.
         
         var step = node.step.accept(this);
         if (typeof step != 'number') throw new Error("step must be a number.");
-        
-        
         
         return node.isStepCount ?
             range.Range.byStepCount(start,end,step) :
@@ -174,12 +161,28 @@ export class ImperativeInterpreter implements visitor.Visitor<any>, interpreter.
     visitFunctionCallNode(e: ast.FunctionCallNode): any {
         var fd = this.lookup(e.functionId.name);
         
-        // TODO incorporate replication guide info
+        if (!(fd instanceof types.TypedFunction)){
+            throw new Error(e.functionId.name + " is not a function!");
+        }
+        
         return this.replicator.replicate(fd, e.arguments.accept(this));
     }
 
     visitReplicationExpressionNode(fa: ast.ReplicationExpressionNode): any {
-        return new types.ReplicatedExpression(fa.expression.accept(this), fa.replicationGuideList)
+        return new types.ReplicatedExpression(fa.expression.accept(this), fa.replicationGuideList.accept(this))
+    }
+   
+    visitReplicationGuideListNode(rl: ast.ReplicationGuideListNode): number[] {
+        var vs = [];
+        while (rl != undefined) {
+            vs.push(rl.head.accept(this));
+            rl = rl.tail;
+        }
+        return vs;
+    }
+
+    visitReplicationGuideNode(r: ast.ReplicationGuideNode): number {
+        return r.index.accept(this);
     }
 
     visitExpressionListNode(el: ast.ExpressionListNode) {
@@ -245,12 +248,12 @@ export class ImperativeInterpreter implements visitor.Visitor<any>, interpreter.
     }
     
     visitImperativeBlockNode(node : ast.ImperativeBlockNode) : any { 
-        var i = new ImperativeInterpreter(this);
+        var i = new ImperativeInterpreter();
         return i.run(node.statementList);
     };
     
     visitAssociativeBlockNode(node : ast.AssociativeBlockNode) : any { 
-        var i = new associative.AssociativeInterpreter(this);
+        var i = new associative.AssociativeInterpreter();
         return i.run(node.statementList).value;
     };
 }

@@ -51,10 +51,4 @@ var concat =
 			new types.TypedArgument("b", "var[]..[]")]);
 assert.deepEqual( [1,2,3,4], run(concat, [[1,2], [3,4]]));	
 
-(function(){
-	
-})();
-var a = new replicator.Replicator();
-a.sortRepGroups([1,2]);
-
 assert.deepEqual( [[4,5],[5,6]], run(add, [[1,2], [3,4]], [1,2]));	

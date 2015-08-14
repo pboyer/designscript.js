@@ -1,19 +1,13 @@
 import visitor = require('./visitor');
 import ast = require('./ast');
 import enviro = require('./environment');
-import interpreter = require('./interpreter');
 import imperative = require('./imperative');
 import range = require('./range');
+import types = require('./types');
 
-export class AssociativeInterpreter implements visitor.Visitor<DependencyNode>, interpreter.Interpreter {
+export class AssociativeInterpreter implements visitor.Visitor<DependencyNode> {
 
-    parent : interpreter.Interpreter = null;
     env : enviro.Environment = new enviro.Environment();
-    fds : { [ id : string ] : (...any) => any; } = {};
-
-    constructor( parent : interpreter.Interpreter = null ){
-        this.parent = parent;
-    }
 
     run( sl : ast.StatementListNode ) : DependencyNode {
         return sl.accept( this );
@@ -84,20 +78,6 @@ export class AssociativeInterpreter implements visitor.Visitor<DependencyNode>, 
         return n;
     }
 
-    visitFunctionCallNode(node : ast.FunctionCallNode) : DependencyNode { 
-        var f = this.fds[ node.functionId.name ];
-        var n = new DependencyNode( f );
-        var el = node.arguments;
-        var i = 0;
-        while (el){
-            var e = el.head;
-            el = el.tail;
-            connect( e.accept(this), n, i++ );
-        }
-        n.eval();
-        return n;
-    }
-
     visitArrayIndexNode(node : ast.ArrayIndexNode) : DependencyNode { 
         var n = new DependencyNode((a,i) => a[i]);
         var a = node.array.accept( this );    
@@ -124,7 +104,7 @@ export class AssociativeInterpreter implements visitor.Visitor<DependencyNode>, 
 
     visitImperativeBlockNode(node : ast.ImperativeBlockNode) : DependencyNode { 
         var n = new DependencyNode( () => {
-            var i = new imperative.ImperativeInterpreter(this);
+            var i = new imperative.ImperativeInterpreter();
             return i.run(node.statementList);
         });
         n.eval();
@@ -133,7 +113,7 @@ export class AssociativeInterpreter implements visitor.Visitor<DependencyNode>, 
     
     visitAssociativeBlockNode(node : ast.AssociativeBlockNode) : DependencyNode { 
         var n = new DependencyNode( () => {
-            var i = new AssociativeInterpreter(this);
+            var i = new AssociativeInterpreter();
             return i.run(node.statementList).value;
         });
         n.eval();
@@ -152,7 +132,7 @@ export class AssociativeInterpreter implements visitor.Visitor<DependencyNode>, 
             n.eval();
             return n;
         }
-
+            
         var step = node.step.accept( this );
         var f = node.isStepCount ? range.Range.byStepCount : range.Range.byStepSize;
         
@@ -165,13 +145,103 @@ export class AssociativeInterpreter implements visitor.Visitor<DependencyNode>, 
         return n;
     };
     
+    apply(fd: ast.FunctionDefinitionNode, env: enviro.Environment, args: any[]): any {
+        env = new enviro.Environment(env);
+
+        // bind the arguments in the scope 
+        var i = 0;
+        var il = fd.arguments;
+        while (il != null) {
+            env.set(il.head.name, args[i++]);
+            il = il.tail;
+        };
+
+        var current = this.env;
+        this.env = env;
+
+        var r = fd.body.accept(this);
+
+        this.env = current;
+        return r;
+    }
+    
+    visitFunctionDefinitionNode(fds : ast.FunctionDefinitionNode) : DependencyNode { 
+         
+         // unpack the argument list 
+        var il = fds.arguments;
+        var val = [];
+        while (il != undefined) {
+            var t = il.head.type;
+            val.push(new types.TypedArgument(il.head.name, t ? t.name : undefined ));
+            
+            il = il.tail;
+        }
+
+        var fd;
+        var env = this.env;
+        var interpreter = this;
+
+        function f() {
+            var args = Array.prototype.slice.call(arguments);
+            return interpreter.apply(fds, env, args);
+        }
+
+        fd = new types.TypedFunction(f, val, fds.identifier.name);
+
+        this.set(fds.identifier.name, fd);
+        
+        return null; 
+    }
+
+    visitFunctionCallNode(node : ast.FunctionCallNode) : DependencyNode { 
+        var f = this.lookup(node.functionId.name);
+        
+        if (!(f instanceof types.TypedFunction)){
+            throw new Error(node.functionId.name + " is not a function!");
+        }
+
+        var n = new DependencyNode(function(){ return this.replicator.replicate(f, arguments ); });
+        var el = node.arguments;
+        var i = 0;
+        while (el){
+            var e = el.head;
+            el = el.tail;
+            connect( e.accept(this), n, i++ );
+        }
+        n.eval();
+        return n;
+    }
+
+    visitReplicationExpressionNode(node : ast.ReplicationExpressionNode) : DependencyNode { 
+         throw new Error("Not implemented");
+    }
+    
+    
+    // visitFunctionCallNode(e: ast.FunctionCallNode): any {
+    //     var fd = this.lookup(e.functionId.name);
+    //     return this.replicator.replicate(fd, e.arguments.accept(this));
+    // }
+
+    // visitReplicationExpressionNode(fa: ast.ReplicationExpressionNode): any {
+    //     return new types.ReplicatedExpression(fa.expression.accept(this), fa.replicationGuideList.accept(this))
+    // }
+   
+    // visitReplicationGuideListNode(rl: ast.ReplicationGuideListNode): number[] {
+    //     var vs = [];
+    //     while (rl != undefined) {
+    //         vs.push(rl.head.accept(this));
+    //         rl = rl.tail;
+    //     }
+    //     return vs;
+    // }
+    
+    visitReplicationGuideNode(node : ast.ReplicationGuideNode) : DependencyNode { throw new Error("Not implemented"); }
+    visitReplicationGuideListNode(node : ast.ReplicationGuideListNode) : DependencyNode { throw new Error("Not implemented"); }
+    
     visitIdentifierListNode(node : ast.IdentifierListNode) : DependencyNode { throw new Error("Not implemented"); }
     visitExpressionListNode(node : ast.ExpressionListNode) : DependencyNode { throw new Error("Not implemented"); }
     visitIfStatementNode(node : ast.IfStatementNode) : DependencyNode { throw new Error("Not implemented"); }
-    visitFunctionDefinitionNode(node : ast.FunctionDefinitionNode) : DependencyNode { throw new Error("Not implemented"); }
-    visitReplicationExpressionNode(node : ast.ReplicationExpressionNode) : DependencyNode { throw new Error("Not implemented"); }
-    visitReplicationGuideNode(node : ast.ReplicationGuideNode) : DependencyNode { throw new Error("Not implemented"); }
-    visitReplicationGuideListNode(node : ast.ReplicationGuideListNode) : DependencyNode { throw new Error("Not implemented"); }
+
     
 }
 
