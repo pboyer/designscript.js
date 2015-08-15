@@ -1,6 +1,5 @@
-import types = require('./types');
-
 export class Range {
+
     static byStartEnd(start: number, end : number): number[] {
 		return Range.byStepSize( start, end, start < end ? 1.0 : -1.0 );
     }

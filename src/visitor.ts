@@ -1,26 +1,26 @@
-import ast = require('./ast');
+import * as AST from './ast';
 
 export interface Visitor<T> {
 
-    visitIdentifierNode(node : ast.IdentifierNode) : T;
-    visitIdentifierListNode(node : ast.IdentifierListNode) : T;
-    visitNumberNode(node : ast.NumberNode) : T;
-    visitBooleanNode(node : ast.BooleanNode) : T;
-    visitStringNode(node : ast.StringNode) : T;
-    visitArrayNode(node : ast.ArrayNode) : T;
-    visitBinaryExpressionNode(node : ast.BinaryExpressionNode) : T;
-    visitRangeExpressionNode(node : ast.RangeExpressionNode) : T;
-    visitFunctionCallNode(node : ast.FunctionCallNode) : T;
-    visitArrayIndexNode(node : ast.ArrayIndexNode) : T;
-    visitExpressionListNode(node : ast.ExpressionListNode) : T;
-    visitStatementListNode(node : ast.StatementListNode) : T;
-    visitIfStatementNode(node : ast.IfStatementNode) : T;
-    visitFunctionDefinitionNode(node : ast.FunctionDefinitionNode) : T;
-    visitAssignmentNode(node : ast.AssignmentNode) : T;
-    visitReplicationExpressionNode(node : ast.ReplicationExpressionNode) : T;
-    visitReplicationGuideNode(node : ast.ReplicationGuideNode) : T;
-    visitReplicationGuideListNode(node : ast.ReplicationGuideListNode) : T;
-    visitImperativeBlockNode(node : ast.ImperativeBlockNode) : T;
-    visitAssociativeBlockNode(node : ast.AssociativeBlockNode) : T;
+    visitIdentifierNode(node : AST.IdentifierNode) : T;
+    visitIdentifierListNode(node : AST.IdentifierListNode) : T;
+    visitNumberNode(node : AST.NumberNode) : T;
+    visitBooleanNode(node : AST.BooleanNode) : T;
+    visitStringNode(node : AST.StringNode) : T;
+    visitArrayNode(node : AST.ArrayNode) : T;
+    visitBinaryExpressionNode(node : AST.BinaryExpressionNode) : T;
+    visitRangeExpressionNode(node : AST.RangeExpressionNode) : T;
+    visitFunctionCallNode(node : AST.FunctionCallNode) : T;
+    visitArrayIndexNode(node : AST.ArrayIndexNode) : T;
+    visitExpressionListNode(node : AST.ExpressionListNode) : T;
+    visitStatementListNode(node : AST.StatementListNode) : T;
+    visitIfStatementNode(node : AST.IfStatementNode) : T;
+    visitFunctionDefinitionNode(node : AST.FunctionDefinitionNode) : T;
+    visitAssignmentNode(node : AST.AssignmentNode) : T;
+    visitReplicationExpressionNode(node : AST.ReplicationExpressionNode) : T;
+    visitReplicationGuideNode(node : AST.ReplicationGuideNode) : T;
+    visitReplicationGuideListNode(node : AST.ReplicationGuideListNode) : T;
+    visitImperativeBlockNode(node : AST.ImperativeBlockNode) : T;
+    visitAssociativeBlockNode(node : AST.AssociativeBlockNode) : T;
     
 }

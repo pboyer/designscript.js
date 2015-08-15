@@ -1,15 +1,15 @@
-import types = require('./types');
+import { TypedFunction, ReplicatedExpression } from "./types";
 
 export class Replicator {
         
-    replicate(fd: types.TypedFunction, args: any[], repGuides? : number[]): any {
+    static replicate(fd: TypedFunction, args: any[], repGuides? : number[]): any {
 
         if (!repGuides){
             repGuides = new Array<number>(args.length);
         
             for (var i = 0; i < args.length; i++){
                 var arg = args[i];
-                if (arg instanceof types.ReplicatedExpression){
+                if (arg instanceof ReplicatedExpression){
                     args[i] = arg.value;
                     repGuides[i] = arg.replicationGuides[0];
                 } else {
@@ -20,18 +20,18 @@ export class Replicator {
         
         var expectedTypes : string[] = fd.argumentTypes.map((x) => x.typeName);
         
-        if ( this.allTypesMatch(args, expectedTypes)){
+        if ( Replicator.allTypesMatch(args, expectedTypes)){
             return fd.func.apply(undefined, args);
         } 
         
-        var sortedRepGuides = repGuides ? this.sortRepGroups(repGuides, args.length) : [this.range(args.length)];
+        var sortedRepGuides = repGuides ? Replicator.sortRepGroups(repGuides, args.length) : [Replicator.range(args.length)];
         
-        return this.replicateCore( fd, args, expectedTypes, sortedRepGuides, 0 );
+        return Replicator.replicateCore( fd, args, expectedTypes, sortedRepGuides, 0 );
     }
     
-    private replicateCore(fd : types.TypedFunction, args : any[], expectedTypes : string[], sortedRepGuides : number[][], curRepGuide : number){
+    private static replicateCore(fd : TypedFunction, args : any[], expectedTypes : string[], sortedRepGuides : number[][], curRepGuide : number){
         
-        var isTypeMatch = this.allTypesMatch(args, expectedTypes);
+        var isTypeMatch = Replicator.allTypesMatch(args, expectedTypes);
         
         // are we at the the last replication guide and matching
         if ( curRepGuide > sortedRepGuides.length-1){
@@ -61,25 +61,25 @@ export class Replicator {
                     curargs.push( args[j] );
                 }
             }
-            results.push( this.replicateCore( fd, curargs, expectedTypes, sortedRepGuides, curRepGuide + 1 ) );
+            results.push( Replicator.replicateCore( fd, curargs, expectedTypes, sortedRepGuides, curRepGuide + 1 ) );
         }
      
         return results;
     }
     
-    private range(t : number) : any[] {
+    private static range(t : number) : any[] {
          var a = [];
          for (var i = 0; i < t; i++) a.push(i);
          return a;
     }
     
-    private repeat(t : number, v : any) : any[] {
+    private static repeat(t : number, v : any) : any[] {
          var a = [];
          for (var i = 0; i < t; i++) a.push(v);
          return a;
     }
     
-    private sortRepGroups(repGuides : number[], argCount : number) : number[][] {
+    private static sortRepGroups(repGuides : number[], argCount : number) : number[][] {
         
         var m = Math.max.apply(undefined, repGuides);
         
@@ -103,7 +103,7 @@ export class Replicator {
         return sorted;
     }
        
-    allTypesMatch( args: any[], expectedTypes : string[] ){
+    static allTypesMatch( args: any[], expectedTypes : string[] ){
     
         if ( !expectedTypes || !args ){
         	return true;
@@ -117,7 +117,7 @@ export class Replicator {
         // for each arg type, check match with expected input types
         for (var i = 0, l = args.length; i < l; i++){
         	// do a fast type match
-        	if ( !this.isTypeMatch(args[i], expectedTypes[i]) ){
+        	if ( !Replicator.isTypeMatch(args[i], expectedTypes[i]) ){
         		return false;
         	}
         }
@@ -125,7 +125,7 @@ export class Replicator {
         return true;
     }
        
-    isTypeMatch(arg : any, typeName : string = "var") {
+    static isTypeMatch(arg : any, typeName : string = "var") {
 
 		if ( arg === undefined || arg === null ) return false;
 

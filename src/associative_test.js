@@ -27,6 +27,7 @@ function run(p, fds){
     var i = run('a = 4; b = a * 2 + 5;');
 })();
 
+// reassignment
 // (function(){
 //     var i = run('a = 4; b = {a, a}; a = 3;');
 //     assert.equal( 3, i.env.lookup("b").value[0] );

@@ -1,21 +1,20 @@
-import enviro = require('./environment');
-import ast = require('./ast');
-import visitor = require('./visitor');
-import types = require('./types');
-import replicator = require('./replicator');
-import associative = require('./associative');
-import range = require('./range');
+import * as AST from './ast';
+import { Visitor } from './visitor';
+import { Environment } from './environment';
+import { AssociativeInterpreter } from './associative';
+import { Replicator } from './replicator';
+import { TypedFunction, TypedArgument, ReplicatedExpression } from './types';
+import { Range } from './range';
 
-export class ImperativeInterpreter implements visitor.Visitor<any>{
+export class ImperativeInterpreter implements Visitor<any>{
 
-    replicator: replicator.Replicator = new replicator.Replicator();
-    env: enviro.Environment = new enviro.Environment();
+    env: Environment = new Environment();
 
     constructor() {
         this.addBuiltins();
     }
 
-    run(sl: ast.StatementListNode): void {
+    run(sl: AST.StatementListNode): void {
         this.evalFunctionDefinitionNodes(sl);
         return this.visitStatementListNode(sl);
     }
@@ -29,30 +28,30 @@ export class ImperativeInterpreter implements visitor.Visitor<any>{
     }
 
     addBuiltins() {
-        this.set("print", new types.TypedFunction((x) => console.log(x), [ new types.TypedArgument("a", "var") ], "print"));
+        this.set('print', new TypedFunction((x) => console.log(x), [ new TypedArgument('a', 'var') ], 'print'));
     }
 
-    evalFunctionDefinitionNodes(sl: ast.StatementListNode): void {
+    evalFunctionDefinitionNodes(sl: AST.StatementListNode): void {
         var r, s;
         while (sl) {
             s = sl.head;
             sl = sl.tail;
-            if (s instanceof ast.FunctionDefinitionNode)
+            if (s instanceof AST.FunctionDefinitionNode)
                 s.accept(this);
         }
     }
 
     pushEnvironment(): void {
-        this.env = new enviro.Environment(this.env);
+        this.env = new Environment(this.env);
     }
 
     popEnvironment(): void {
-        if (this.env == null) throw new Error("Cannot pop empty environment!");
+        if (this.env == null) throw new Error('Cannot pop empty environment!');
 
         this.env = this.env.outer;
     }
 
-    visitStatementListNode(sl: ast.StatementListNode): any {
+    visitStatementListNode(sl: AST.StatementListNode): any {
         var r, s;
         while (sl) {
             s = sl.head;
@@ -62,87 +61,87 @@ export class ImperativeInterpreter implements visitor.Visitor<any>{
             if (!s) break;
 
             // todo: hoist func defs
-            if (!(s instanceof ast.FunctionDefinitionNode))
+            if (!(s instanceof AST.FunctionDefinitionNode))
                 r = s.accept(this);
         }
 
         return r;
     }
 
-    visitArrayIndexNode(e: ast.ArrayIndexNode): any {
+    visitArrayIndexNode(e: AST.ArrayIndexNode): any {
         var array = e.array.accept(this);
         var index = e.index.accept(this);
         return array[index];
     }
 
-    visitArrayNode(e: ast.ArrayNode): any[] {
+    visitArrayNode(e: AST.ArrayNode): any[] {
         return e.expressionList.accept(this);
     }
 
-    visitStringNode(e: ast.StringNode): string {
+    visitStringNode(e: AST.StringNode): string {
         return e.value;
     }
 
-    visitBooleanNode(e: ast.BooleanNode): boolean {
+    visitBooleanNode(e: AST.BooleanNode): boolean {
         return e.value;
     }
 
-    visitNumberNode(e: ast.NumberNode): Number {
+    visitNumberNode(e: AST.NumberNode): Number {
         return e.value;
     }
 
-    visitIdentifierNode(e: ast.IdentifierNode): any {
+    visitIdentifierNode(e: AST.IdentifierNode): any {
         return this.lookup(e.name);
     }
 
-    visitIdentifierListNode(n: ast.IdentifierListNode): any {
-        throw new Error("Not implemented!");
+    visitIdentifierListNode(n: AST.IdentifierListNode): any {
+        throw new Error('Not implemented!');
     }
 
-    visitRangeExpressionNode(node : ast.RangeExpressionNode) : number[] { 
+    visitRangeExpressionNode(node : AST.RangeExpressionNode) : number[] { 
         
         var start = node.start.accept(this);
-        if (typeof start != 'number') throw new Error("start must be a number.");
+        if (typeof start != 'number') throw new Error('start must be a number.');
         
         var end = node.end.accept(this);
-        if (typeof end != 'number') throw new Error("end must be a number.");
+        if (typeof end != 'number') throw new Error('end must be a number.');
         
-        if (!node.step) return range.Range.byStartEnd(start,end);
+        if (!node.step) return Range.byStartEnd(start,end);
         
         var step = node.step.accept(this);
-        if (typeof step != 'number') throw new Error("step must be a number.");
+        if (typeof step != 'number') throw new Error('step must be a number.');
         
         return node.isStepCount ?
-            range.Range.byStepCount(start,end,step) :
-            range.Range.byStepSize(start,end,step);
+            Range.byStepCount(start,end,step) :
+            Range.byStepSize(start,end,step);
     };
     
-    visitBinaryExpressionNode(e: ast.BinaryExpressionNode): any {
+    visitBinaryExpressionNode(e: AST.BinaryExpressionNode): any {
         
         var a = e.firstExpression.accept(this);
         var b = e.secondExpression.accept(this);
         
         switch (e.operator) {
-            case "+":
+            case '+':
                 return a + b;
-            case "-":
+            case '-':
                 return a - b;
-            case "*":
+            case '*':
                 return a * b;
-            case "<":
+            case '<':
                 return a < b;
-            case "||":
+            case '||':
                 return a || b;
-            case "==":
+            case '==':
                 return a == b;
-            case ">":
+            case '>':
                 return a > b;
         }
 
-        throw new Error("Unknown binary operator type");
+        throw new Error('Unknown binary operator type');
     }
 
-    visitIfStatementNode(s: ast.IfStatementNode) {
+    visitIfStatementNode(s: AST.IfStatementNode) {
         var test = s.testExpression.accept(this);
         if (test === true) {
             return this.evalBlockStatement(s.trueStatementList);
@@ -151,28 +150,28 @@ export class ImperativeInterpreter implements visitor.Visitor<any>{
         }
     }
 
-    evalBlockStatement(sl: ast.StatementListNode): any {
+    evalBlockStatement(sl: AST.StatementListNode): any {
         this.pushEnvironment();
         var r = sl.accept(this);
         this.popEnvironment();
         return r;
     }
 
-    visitFunctionCallNode(e: ast.FunctionCallNode): any {
+    visitFunctionCallNode(e: AST.FunctionCallNode): any {
         var fd = this.lookup(e.functionId.name);
         
-        if (!(fd instanceof types.TypedFunction)){
-            throw new Error(e.functionId.name + " is not a function!");
+        if (!(fd instanceof TypedFunction)){
+            throw new Error(e.functionId.name + ' is not a function!');
         }
         
-        return this.replicator.replicate(fd, e.arguments.accept(this));
+        return Replicator.replicate(fd, e.arguments.accept(this));
     }
 
-    visitReplicationExpressionNode(fa: ast.ReplicationExpressionNode): any {
-        return new types.ReplicatedExpression(fa.expression.accept(this), fa.replicationGuideList.accept(this))
+    visitReplicationExpressionNode(fa: AST.ReplicationExpressionNode): any {
+        return new ReplicatedExpression(fa.expression.accept(this), fa.replicationGuideList.accept(this))
     }
    
-    visitReplicationGuideListNode(rl: ast.ReplicationGuideListNode): number[] {
+    visitReplicationGuideListNode(rl: AST.ReplicationGuideListNode): number[] {
         var vs = [];
         while (rl != undefined) {
             vs.push(rl.head.accept(this));
@@ -181,11 +180,11 @@ export class ImperativeInterpreter implements visitor.Visitor<any>{
         return vs;
     }
 
-    visitReplicationGuideNode(r: ast.ReplicationGuideNode): number {
+    visitReplicationGuideNode(r: AST.ReplicationGuideNode): number {
         return r.index.accept(this);
     }
 
-    visitExpressionListNode(el: ast.ExpressionListNode) {
+    visitExpressionListNode(el: AST.ExpressionListNode) {
         var vs = [];
         while (el != undefined) {
             vs.push(el.head.accept(this));
@@ -194,20 +193,20 @@ export class ImperativeInterpreter implements visitor.Visitor<any>{
         return vs;
     }
 
-    visitAssignmentNode(s: ast.AssignmentNode) {
+    visitAssignmentNode(s: AST.AssignmentNode) {
         var v = s.expression.accept(this);
         this.set(s.identifier.name, v);
         return v;
     }
 
-    visitFunctionDefinitionNode(fds: ast.FunctionDefinitionNode): any {
+    visitFunctionDefinitionNode(fds: AST.FunctionDefinitionNode): any {
  
         // unpack the argument list 
         var il = fds.arguments;
         var val = [];
         while (il != undefined) {
             var t = il.head.type;
-            val.push(new types.TypedArgument(il.head.name, t ? t.name : undefined ));
+            val.push(new TypedArgument(il.head.name, t ? t.name : undefined ));
             
             il = il.tail;
         }
@@ -224,14 +223,14 @@ export class ImperativeInterpreter implements visitor.Visitor<any>{
         // recursion
         env.set(fds.identifier.name, f);
 
-        fd = new types.TypedFunction(f, val, fds.identifier.name);
+        fd = new TypedFunction(f, val, fds.identifier.name);
 
         this.set(fds.identifier.name, fd);
     }
 
-    apply(fd: ast.FunctionDefinitionNode, env: enviro.Environment, args: any[]): any {
+    apply(fd: AST.FunctionDefinitionNode, env: Environment, args: any[]): any {
 
-        env = new enviro.Environment(env);
+        env = new Environment(env);
 
         // bind the arguments in the scope 
         var i = 0;
@@ -250,13 +249,13 @@ export class ImperativeInterpreter implements visitor.Visitor<any>{
         return r;
     }
     
-    visitImperativeBlockNode(node : ast.ImperativeBlockNode) : any { 
+    visitImperativeBlockNode(node : AST.ImperativeBlockNode) : any { 
         var i = new ImperativeInterpreter();
         return i.run(node.statementList);
     };
     
-    visitAssociativeBlockNode(node : ast.AssociativeBlockNode) : any { 
-        var i = new associative.AssociativeInterpreter();
+    visitAssociativeBlockNode(node : AST.AssociativeBlockNode) : any { 
+        var i = new AssociativeInterpreter();
         return i.run(node.statementList).value;
     };
 }

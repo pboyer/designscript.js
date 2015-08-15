@@ -19,7 +19,7 @@ export class Environment {
     lookup(id : string) : any {
         if (this.dict[id] != undefined) return this.dict[id];
         if (this.outer != undefined) return this.outer.lookup(id);
-        throw new Error(id + " is an unbound identifier!");
+        throw new Error(id + ' is an unbound identifier!');
     }
 
     set(id : string, val : any) : void {

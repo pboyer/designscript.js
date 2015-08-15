@@ -1,4 +1,4 @@
-import visitor = require('./visitor');
+import { Visitor } from 'visitor';
 
 export class Node {
     parserState : ParserState;
@@ -29,10 +29,10 @@ export class IdentifierListNode extends Node {
     toString() {
         return this.tail == null ?
             this.head.toString() :
-            this.head.toString() + ", " + this.tail.toString();
+            this.head.toString() + ', ' + this.tail.toString();
     }
 
-    accept<T>(v: visitor.Visitor<T>): T {
+    accept<T>(v: Visitor<T>): T {
         return v.visitIdentifierListNode(this);
     }
 }
@@ -48,10 +48,10 @@ export class IdentifierNode extends Node {
     }
 
     toString() {
-        return this.type ? this.name + " : " + this.type.toString() : this.name;
+        return this.type ? this.name + ' : ' + this.type.toString() : this.name;
     }
 
-    accept<T>(v: visitor.Visitor<T>): T {
+    accept<T>(v: Visitor<T>): T {
         return v.visitIdentifierNode(this);
     }
 }
@@ -74,7 +74,7 @@ export class Type extends Node {
 //
 
 interface ExpressionNode {
-    accept<T>(v: visitor.Visitor<T>): T;
+    accept<T>(v: Visitor<T>): T;
 }
 
 export class NumberNode extends Node implements ExpressionNode {
@@ -89,7 +89,7 @@ export class NumberNode extends Node implements ExpressionNode {
         return this.value;
     }
 
-    accept<T>(v: visitor.Visitor<T>): T {
+    accept<T>(v: Visitor<T>): T {
         return v.visitNumberNode(this);
     }
 }
@@ -99,14 +99,14 @@ export class BooleanNode extends Node implements ExpressionNode {
 
     constructor(value: string) {
         super();
-        this.value = value === "true";
+        this.value = value === 'true';
     }
 
     toString() {
         return this.value;
     }
 
-    accept<T>(v: visitor.Visitor<T>): T {
+    accept<T>(v: Visitor<T>): T {
         return v.visitBooleanNode(this);
     }
 }
@@ -123,7 +123,7 @@ export class StringNode extends Node implements ExpressionNode {
         return this.value;
     }
 
-    accept<T>(v: visitor.Visitor<T>): T {
+    accept<T>(v: Visitor<T>): T {
         return v.visitStringNode(this);
     }
 }
@@ -137,10 +137,10 @@ export class ArrayNode extends Node implements ExpressionNode {
     }
 
     toString() {
-        return "{ " + this.expressionList.toString() + " }";
+        return '{ ' + this.expressionList.toString() + ' }';
     }
 
-    accept<T>(v: visitor.Visitor<T>): T {
+    accept<T>(v: Visitor<T>): T {
         return v.visitArrayNode(this);
     }
 }
@@ -158,10 +158,10 @@ export class BinaryExpressionNode extends Node implements ExpressionNode {
     }
 
     toString() {
-        return this.firstExpression.toString() + " " + this.operator + " " + this.secondExpression.toString();
+        return this.firstExpression.toString() + ' ' + this.operator + ' ' + this.secondExpression.toString();
     }
 
-    accept<T>(v: visitor.Visitor<T>): T {
+    accept<T>(v: Visitor<T>): T {
         return v.visitBinaryExpressionNode(this);
     }
 }
@@ -176,23 +176,23 @@ export class RangeExpressionNode extends Node implements ExpressionNode {
         super();
         this.start = start;
         if (end instanceof RangeExpressionNode) 
-            throw new Error("Multiply nested range expressions are not supported");
+            throw new Error('Multiply nested range expressions are not supported');
         this.end = end;
         if (step instanceof RangeExpressionNode) 
-            throw new Error("step cannot be a RangeExpression");
+            throw new Error('step cannot be a RangeExpression');
         this.step = step;
         this.isStepCount = isStepCount;
     }
 
     toString() {
         return 
-            this.start.toString() + ".." + this.end.toString() + 
-                (this.step == null ? "" : 
-                    ".." + (this.isStepCount ? "#" : "") + this.step.toString());
+            this.start.toString() + '..' + this.end.toString() + 
+                (this.step == null ? '' : 
+                    '..' + (this.isStepCount ? '#' : '') + this.step.toString());
             
     }
 
-    accept<T>(v: visitor.Visitor<T>): T {
+    accept<T>(v: Visitor<T>): T {
         return v.visitRangeExpressionNode(this);
     }
 }
@@ -208,10 +208,10 @@ export class FunctionCallNode extends Node implements ExpressionNode {
     }
 
     toString() {
-        return this.functionId.toString() + "( " + this.arguments.toString() + " )";
+        return this.functionId.toString() + '( ' + this.arguments.toString() + ' )';
     }
 
-    accept<T>(v: visitor.Visitor<T>): T {
+    accept<T>(v: Visitor<T>): T {
         return v.visitFunctionCallNode(this);
     }
 }
@@ -227,10 +227,10 @@ export class ArrayIndexNode extends Node implements ExpressionNode {
     }
 
     toString() {
-        return this.array.toString() + "[ " + this.index.toString() + " ]";
+        return this.array.toString() + '[ ' + this.index.toString() + ' ]';
     }
 
-    accept<T>(v: visitor.Visitor<T>): T {
+    accept<T>(v: Visitor<T>): T {
         return v.visitArrayIndexNode(this);
     }
 }
@@ -249,14 +249,14 @@ export class ExpressionListNode extends Node {
         var s = this.head.toString();
         var el = this.tail;
         while (el != null) {
-            s = s + ", ";
+            s = s + ', ';
             s = s + el.head.toString();
             el = el.tail;
         }
         return s;
     }
 
-    accept<T>(v: visitor.Visitor<T>): T {
+    accept<T>(v: Visitor<T>): T {
         return v.visitExpressionListNode(this);
     }
 }
@@ -275,7 +275,7 @@ export class ReplicationExpressionNode extends Node implements ExpressionNode {
         return this.expression.toString() + this.replicationGuideList.toString();
     }
 
-    accept<T>(v: visitor.Visitor<T>): T {
+    accept<T>(v: Visitor<T>): T {
         return v.visitReplicationExpressionNode(this);
     }
 }
@@ -289,10 +289,10 @@ export class ReplicationGuideNode extends Node implements ExpressionNode {
     }
 
     toString() {
-        return "<" + this.index.toString() + ">";
+        return '<' + this.index.toString() + '>';
     }
 
-    accept<T>(v: visitor.Visitor<T>): T {
+    accept<T>(v: Visitor<T>): T {
         return v.visitReplicationGuideNode(this);
     }
 }
@@ -311,7 +311,7 @@ export class ReplicationGuideListNode extends Node implements ExpressionNode {
         return this.head.toString() + this.tail.toString();
     }
 
-    accept<T>(v: visitor.Visitor<T>): T {
+    accept<T>(v: Visitor<T>): T {
         return v.visitReplicationGuideListNode(this);
     }
 }
@@ -322,7 +322,7 @@ export class ReplicationGuideListNode extends Node implements ExpressionNode {
 
 export class StatementNode extends Node {
     toString() {
-        return this.toLines("").join("\n");
+        return this.toLines('').join('\n');
     }
 
     toLines(indent: string): string[] {
@@ -341,28 +341,28 @@ export class LanguageBlockNode extends StatementNode {
     }
 
     toLines(indent: string): string[] {
-        return [indent + "[" + this.name + "]{"]
-            .concat(this.statementList.toLines(indent + "\t"))
-            .concat([indent + "}"]);
+        return [indent + '[' + this.name + ']{']
+            .concat(this.statementList.toLines(indent + '\t'))
+            .concat([indent + '}']);
     }
 }
 
 export class AssociativeBlockNode extends LanguageBlockNode {
     constructor(sl: StatementListNode) {
-        super("Associative", sl);
+        super('Associative', sl);
     }
     
-    accept<T>(v: visitor.Visitor<T>): T {
+    accept<T>(v: Visitor<T>): T {
         return v.visitAssociativeBlockNode(this);
     }
 }
 
 export class ImperativeBlockNode extends LanguageBlockNode {
     constructor(sl: StatementListNode) {
-        super("Imperative", sl);
+        super('Imperative', sl);
     }
     
-    accept<T>(v: visitor.Visitor<T>): T {
+    accept<T>(v: Visitor<T>): T {
         return v.visitImperativeBlockNode(this);
     }
 }
@@ -387,7 +387,7 @@ export class StatementListNode extends StatementNode {
         return s;
     }
 
-    accept<T>(v: visitor.Visitor<T>): T {
+    accept<T>(v: Visitor<T>): T {
         return v.visitStatementListNode(this);
     }
 }
@@ -405,13 +405,13 @@ export class IfStatementNode extends StatementNode {
     }
 
     toLines(indent: string) {
-        return [indent + "if( " + this.testExpression.toString() + " ){"]
-            .concat(this.trueStatementList.toLines(indent + "\t"))
-            .concat([indent + " } else { "])
-            .concat(this.falseStatementList.toLines(indent + "\t"));
+        return [indent + 'if( ' + this.testExpression.toString() + ' ){']
+            .concat(this.trueStatementList.toLines(indent + '\t'))
+            .concat([indent + ' } else { '])
+            .concat(this.falseStatementList.toLines(indent + '\t'));
     }
 
-    accept<T>(v: visitor.Visitor<T>): T {
+    accept<T>(v: Visitor<T>): T {
         return v.visitIfStatementNode(this);
     }
 }
@@ -429,12 +429,12 @@ export class FunctionDefinitionNode extends StatementNode {
     }
 
     toLines(indent: string) {
-        return [indent + "def " + this.identifier.toString() + "( " + this.arguments.toString() + " ){"]
-            .concat(this.body.toLines("\t" + indent))
-            .concat([indent + "}"]);
+        return [indent + 'def ' + this.identifier.toString() + '( ' + this.arguments.toString() + ' ){']
+            .concat(this.body.toLines('\t' + indent))
+            .concat([indent + '}']);
     }
 
-    accept<T>(v: visitor.Visitor<T>): T {
+    accept<T>(v: Visitor<T>): T {
         return v.visitFunctionDefinitionNode(this);
     }
 }
@@ -450,10 +450,10 @@ export class AssignmentNode extends StatementNode {
     }
 
     toLines(indent) {
-        return [indent + this.identifier.toString() + " = " + this.expression.toString() + ";"];
+        return [indent + this.identifier.toString() + ' = ' + this.expression.toString() + ';'];
     }
 
-    accept<T>(v: visitor.Visitor<T>): T {
+    accept<T>(v: Visitor<T>): T {
         return v.visitAssignmentNode(this);
     }
 }

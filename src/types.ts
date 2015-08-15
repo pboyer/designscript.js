@@ -1,5 +1,3 @@
-import ast = require('./ast');
-
 export class TypedFunction {
     name: string;
     func: (...any) => any;
@@ -16,7 +14,7 @@ export class TypedArgument {
     name: string;
     typeName: string;
 
-    constructor(name: string, typeName : string = "var") {
+    constructor(name: string, typeName : string = 'var') {
         this.name = name;
         this.typeName = typeName;
     }

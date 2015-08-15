@@ -1,10 +1,9 @@
-var replicator = require('./replicator')
+var Replicator = require('./replicator').Replicator
 	, types = require('./types')
 	, assert = require('assert');
 
 function run(f, a, rg){
-	var r = new replicator.Replicator();
-	return r.replicate(f,a,rg);
+	return Replicator.replicate(f,a,rg);
 }
 
 var doubleIt = 
