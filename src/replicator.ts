@@ -1,4 +1,4 @@
-import { TypedFunction, ReplicatedExpression } from "./types";
+import { TypedFunction, ReplicatedExpression } from "./Types";
 
 export class Replicator {
         
@@ -38,7 +38,7 @@ export class Replicator {
             if (isTypeMatch) {
                 return fd.func.apply(undefined, args);
             }
-            throw new Error("Type match failure: " + "Expected " + expectedTypes );
+            throw new Error("Type match failure: " + "Expected " + expectedTypes + args );
         } 
         
         var results = [];

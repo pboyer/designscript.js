@@ -1,4 +1,4 @@
-var Range = require('./range').Range
+var Range = require('./Range').Range
 	, assert = require('assert');
 
 assert.deepEqual( [0,1], Range.byStartEnd(0,1) );	

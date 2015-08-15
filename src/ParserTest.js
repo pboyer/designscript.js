@@ -1,7 +1,7 @@
-var ds = require('./parser')
+var ds = require('./Parser')
 	, assert = require('assert');
 
-var ast = require('./ast');
+var ast = require('./AST');
 ds.parser.yy = ast;
 
 (function(){

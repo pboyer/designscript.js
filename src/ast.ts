@@ -1,7 +1,7 @@
-import { Visitor } from 'visitor';
+import { Visitor } from './Visitor';
 
 export class Node {
-    parserState : ParserState;
+    parserState: ParserState;
 }
 
 export class ParserState {
@@ -10,7 +10,6 @@ export class ParserState {
     firstCol: number;
     lastCol: number;
 }
-
 
 //
 // IdentifierNode
@@ -172,24 +171,24 @@ export class RangeExpressionNode extends Node implements ExpressionNode {
     step: ExpressionNode;
     isStepCount: boolean;
 
-    constructor(start : ExpressionNode, end : ExpressionNode, step : ExpressionNode = null, isStepCount = false) {
+    constructor(start: ExpressionNode, end: ExpressionNode, step: ExpressionNode = null, isStepCount = false) {
         super();
         this.start = start;
-        if (end instanceof RangeExpressionNode) 
+        if (end instanceof RangeExpressionNode)
             throw new Error('Multiply nested range expressions are not supported');
         this.end = end;
-        if (step instanceof RangeExpressionNode) 
+        if (step instanceof RangeExpressionNode)
             throw new Error('step cannot be a RangeExpression');
         this.step = step;
         this.isStepCount = isStepCount;
     }
 
     toString() {
-        return 
-            this.start.toString() + '..' + this.end.toString() + 
-                (this.step == null ? '' : 
-                    '..' + (this.isStepCount ? '#' : '') + this.step.toString());
-            
+        return
+        this.start.toString() + '..' + this.end.toString() +
+        (this.step == null ? '' :
+            '..' + (this.isStepCount ? '#' : '') + this.step.toString());
+
     }
 
     accept<T>(v: Visitor<T>): T {
@@ -351,7 +350,7 @@ export class AssociativeBlockNode extends LanguageBlockNode {
     constructor(sl: StatementListNode) {
         super('Associative', sl);
     }
-    
+
     accept<T>(v: Visitor<T>): T {
         return v.visitAssociativeBlockNode(this);
     }
@@ -361,7 +360,7 @@ export class ImperativeBlockNode extends LanguageBlockNode {
     constructor(sl: StatementListNode) {
         super('Imperative', sl);
     }
-    
+
     accept<T>(v: Visitor<T>): T {
         return v.visitImperativeBlockNode(this);
     }

@@ -1,4 +1,4 @@
-import * as AST from './ast';
+import * as AST from './AST';
 
 export interface Visitor<T> {
 

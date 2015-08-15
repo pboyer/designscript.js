@@ -2,19 +2,19 @@ all : build
 
 build:
 	tsc 
-	jison src/parser.jison src/lexer.jisonlex -o src/parser.js
+	jison src/Parser.jison src/Lexer.jisonlex -o src/Parser.js
 
 release: build
 	mkdir -p build
-	browserify src/ds.js -o build/ds.js -s ds
+	browserify src/release.js -o build/ds.js -s ds
 
 test: build
-	node src/parser_test.js
-	node src/replicator_test.js 
-	node src/imperative_test.js 
-	node src/associative_test.js 
-	node src/range_test.js 
+	node src/ParserTest.js
+	node src/ReplicatorTest.js 
+	node src/ImperativeInterpreterTest.js 
+	node src/AssociativeInterpreterTest.js 
+	node src/RangeTest.js 
 
 clean:
 	rm -rf build
-	rm src/ast.js src/types.js src/parser.js src/interpreter.js src/associative.js src/imperative.js src/replicator.js  src/environment.js src/visitor.js
+	rm src/AST.js src/RuntimeError.js src/Types.js src/Parser.js src/AssociativeInterpreter.js src/ImperativeInterpreter.js src/Replicator.js src/Range.js  src/Environment.js src/Visitor.js

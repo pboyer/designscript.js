@@ -1,7 +1,7 @@
-var Parser = require('./parser')
+var Parser = require('./Parser')
 	, assert = require('assert')
-	, types = require('./types')
-	, Interpreter = require('./associative').AssociativeInterpreter;
+	, types = require('./Types')
+	, Interpreter = require('./AssociativeInterpreter').AssociativeInterpreter;
 
 var ast = require('./ast');
 Parser.parser.yy = ast;

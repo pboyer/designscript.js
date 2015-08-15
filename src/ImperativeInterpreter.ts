@@ -1,10 +1,10 @@
-import * as AST from './ast';
-import { Visitor } from './visitor';
-import { Environment } from './environment';
-import { AssociativeInterpreter } from './associative';
-import { Replicator } from './replicator';
-import { TypedFunction, TypedArgument, ReplicatedExpression } from './types';
-import { Range } from './range';
+import * as AST from './AST';
+import { Visitor } from './Visitor';
+import { Environment } from './Environment';
+import { AssociativeInterpreter } from './AssociativeInterpreter';
+import { Replicator } from './Replicator';
+import { TypedFunction, TypedArgument, ReplicatedExpression } from './Types';
+import { Range } from './Range';
 
 export class ImperativeInterpreter implements Visitor<any>{
 
@@ -18,17 +18,17 @@ export class ImperativeInterpreter implements Visitor<any>{
         this.evalFunctionDefinitionNodes(sl);
         return this.visitStatementListNode(sl);
     }
-    
-    lookup(id : string) : any {
+
+    lookup(id: string): any {
         return this.env.lookup(id);
     }
-    
-    set(id : string, val : any) : any {
+
+    set(id: string, val: any): any {
         return this.env.set(id, val);
     }
 
     addBuiltins() {
-        this.set('print', new TypedFunction((x) => console.log(x), [ new TypedArgument('a', 'var') ], 'print'));
+        this.set('print', new TypedFunction((x) => console.log(x), [new TypedArgument('a', 'var')], 'print'));
     }
 
     evalFunctionDefinitionNodes(sl: AST.StatementListNode): void {
@@ -98,29 +98,29 @@ export class ImperativeInterpreter implements Visitor<any>{
         throw new Error('Not implemented!');
     }
 
-    visitRangeExpressionNode(node : AST.RangeExpressionNode) : number[] { 
-        
+    visitRangeExpressionNode(node: AST.RangeExpressionNode): number[] {
+
         var start = node.start.accept(this);
         if (typeof start != 'number') throw new Error('start must be a number.');
-        
+
         var end = node.end.accept(this);
         if (typeof end != 'number') throw new Error('end must be a number.');
-        
-        if (!node.step) return Range.byStartEnd(start,end);
-        
+
+        if (!node.step) return Range.byStartEnd(start, end);
+
         var step = node.step.accept(this);
         if (typeof step != 'number') throw new Error('step must be a number.');
-        
+
         return node.isStepCount ?
-            Range.byStepCount(start,end,step) :
-            Range.byStepSize(start,end,step);
+            Range.byStepCount(start, end, step) :
+            Range.byStepSize(start, end, step);
     };
-    
+
     visitBinaryExpressionNode(e: AST.BinaryExpressionNode): any {
-        
+
         var a = e.firstExpression.accept(this);
         var b = e.secondExpression.accept(this);
-        
+
         switch (e.operator) {
             case '+':
                 return a + b;
@@ -159,18 +159,18 @@ export class ImperativeInterpreter implements Visitor<any>{
 
     visitFunctionCallNode(e: AST.FunctionCallNode): any {
         var fd = this.lookup(e.functionId.name);
-        
-        if (!(fd instanceof TypedFunction)){
+
+        if (!(fd instanceof TypedFunction)) {
             throw new Error(e.functionId.name + ' is not a function!');
         }
-        
+
         return Replicator.replicate(fd, e.arguments.accept(this));
     }
 
     visitReplicationExpressionNode(fa: AST.ReplicationExpressionNode): any {
         return new ReplicatedExpression(fa.expression.accept(this), fa.replicationGuideList.accept(this))
     }
-   
+
     visitReplicationGuideListNode(rl: AST.ReplicationGuideListNode): number[] {
         var vs = [];
         while (rl != undefined) {
@@ -206,8 +206,8 @@ export class ImperativeInterpreter implements Visitor<any>{
         var val = [];
         while (il != undefined) {
             var t = il.head.type;
-            val.push(new TypedArgument(il.head.name, t ? t.name : undefined ));
-            
+            val.push(new TypedArgument(il.head.name, t ? t.name : undefined));
+
             il = il.tail;
         }
 
@@ -248,13 +248,13 @@ export class ImperativeInterpreter implements Visitor<any>{
         this.env = current;
         return r;
     }
-    
-    visitImperativeBlockNode(node : AST.ImperativeBlockNode) : any { 
+
+    visitImperativeBlockNode(node: AST.ImperativeBlockNode): any {
         var i = new ImperativeInterpreter();
         return i.run(node.statementList);
     };
-    
-    visitAssociativeBlockNode(node : AST.AssociativeBlockNode) : any { 
+
+    visitAssociativeBlockNode(node: AST.AssociativeBlockNode): any {
         var i = new AssociativeInterpreter();
         return i.run(node.statementList).value;
     };
