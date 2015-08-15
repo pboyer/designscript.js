@@ -220,6 +220,9 @@ export class ImperativeInterpreter implements visitor.Visitor<any>{
             var args = Array.prototype.slice.call(arguments);
             return interpreter.apply(fds, env, args);
         }
+        
+        // recursion
+        env.set(fds.identifier.name, f);
 
         fd = new types.TypedFunction(f, val, fds.identifier.name);
 

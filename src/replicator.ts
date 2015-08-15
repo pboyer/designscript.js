@@ -38,7 +38,7 @@ export class Replicator {
             if (isTypeMatch) {
                 return fd.func.apply(undefined, args);
             }
-            throw new Error("Type match failure!");
+            throw new Error("Type match failure: " + "Expected " + expectedTypes );
         } 
         
         var results = [];
