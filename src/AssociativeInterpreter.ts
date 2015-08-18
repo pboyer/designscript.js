@@ -3,7 +3,7 @@ import { Visitor } from './Visitor';
 import { Environment } from './Environment';
 import { ImperativeInterpreter } from './ImperativeInterpreter';
 import { Replicator } from './Replicator';
-import { TypedFunction, TypedArgument, ReplicatedExpression } from './Types';
+import { TypedFunction, TypedArgument, ReplicatedExpression, DesignScriptError } from './RuntimeTypes';
 import { Range } from './Range';
 
 export class DependencyNode {
@@ -75,7 +75,7 @@ export class AssociativeInterpreter implements Visitor<DependencyNode> {
         var n = node.expression.accept(this);
 
         if (this.env.contains(id)) {
-            throw new Error('You cannot reassign a variable in associative mode!');
+            throw this.error('You cannot reassign a variable in associative mode!', node.parserState);
             // replace( this.lookup( id ), n ); 
         }
 
@@ -88,18 +88,18 @@ export class AssociativeInterpreter implements Visitor<DependencyNode> {
     visitIdentifierNode(node: AST.IdentifierNode): DependencyNode {
         var n: any = this.lookup(node.name);
         if (!n) {
-            throw new Error('Unbound identifier: ' + node.name);
+            throw this.error('Unbound identifier: ' + node.name, node.parserState);
         }
 
         if (n instanceof TypedFunction) {
-            throw new Error('The identifier ' + node.name +
-                ' is a function and is being used as a value');
+            throw this.error('The identifier ' + node.name +
+                ' is a function and is being used as a value', node.parserState);
         } else if (n instanceof DependencyNode) {
             return n;
         }
 
-        throw new Error('The identifier ' + node.name +
-            ' is of an unknown type!');
+        throw this.error('The identifier ' + node.name +
+            ' is of an unknown type!', node.parserState);
     }
 
     visitBinaryExpressionNode(node: AST.BinaryExpressionNode): DependencyNode {
@@ -264,7 +264,7 @@ export class AssociativeInterpreter implements Visitor<DependencyNode> {
             return n.eval();
         }
 
-        throw new Error(node.functionId.name + ' is not a function.');
+        throw this.error(node.functionId.name + ' is not a function.', node.parserState);
     }
 
     visitReplicationExpressionNode(node: AST.ReplicationExpressionNode): DependencyNode {
@@ -299,7 +299,10 @@ export class AssociativeInterpreter implements Visitor<DependencyNode> {
     visitIdentifierListNode(node: AST.IdentifierListNode): DependencyNode { throw new Error('Not implemented'); }
     visitExpressionListNode(node: AST.ExpressionListNode): DependencyNode { throw new Error('Not implemented'); }
     visitIfStatementNode(node: AST.IfStatementNode): DependencyNode { throw new Error('Not implemented'); }
-
+    
+    error(message : string, state: AST.ParserState ) : DesignScriptError {
+        return new DesignScriptError( message, state );
+    }
 }
 
 function resolve(node: DependencyNode) {

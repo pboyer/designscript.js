@@ -12,7 +12,7 @@ export class ParserState {
 }
 
 //
-// IdentifierNode
+// Identifiers
 //
 
 export class IdentifierListNode extends Node {

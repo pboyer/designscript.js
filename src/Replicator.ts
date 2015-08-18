@@ -1,4 +1,4 @@
-import { TypedFunction, ReplicatedExpression } from "./Types";
+import { TypedFunction, ReplicatedExpression } from "./RuntimeTypes";
 
 export class Replicator {
         

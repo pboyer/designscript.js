@@ -1,6 +1,6 @@
 var Parser = require('./Parser')
 	, assert = require('assert')
-	, types = require('./Types')
+	, types = require('./RuntimeTypes')
 	, Interpreter = require('./AssociativeInterpreter').AssociativeInterpreter;
 
 var ast = require('./ast');

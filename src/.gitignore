@@ -3,8 +3,8 @@ AST.js
 Environment.js
 Visitor.js
 Replicator.js
-Types.js
+RuntimeTypes.js
 ImperativeInterpreter.js
 AssociativeInterpreter.js
 Range.js
-RuntimeError.js
+RuntimeTypes.js

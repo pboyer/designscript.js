@@ -1,5 +1,5 @@
 var Replicator = require('./Replicator').Replicator
-	, types = require('./Types')
+	, types = require('./RuntimeTypes')
 	, assert = require('assert');
 
 function run(f, a, rg){

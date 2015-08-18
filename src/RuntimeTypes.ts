@@ -1,3 +1,5 @@
+import { ParserState } from "./AST";
+
 export class TypedFunction {
     name: string;
     func: (...any) => any;
@@ -28,4 +30,18 @@ export class ReplicatedExpression {
         this.value = v;
         this.replicationGuides = rgl;
     }
+}
+
+export class DesignScriptError {
+	state : ParserState;
+	message: string;
+	stack: string;
+	
+	constructor(message : string, state : ParserState ){
+		this.state = state;
+	}
+	
+	toString(){
+		return "RuntimeError! THIS IS A BIG MISTAKE";
+	}	
 }

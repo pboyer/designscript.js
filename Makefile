@@ -17,4 +17,4 @@ test: build
 
 clean:
 	rm -rf build
-	rm src/AST.js src/RuntimeError.js src/Types.js src/Parser.js src/AssociativeInterpreter.js src/ImperativeInterpreter.js src/Replicator.js src/Range.js  src/Environment.js src/Visitor.js
+	rm src/AST.js src/RuntimeTypes.js src/Parser.js src/AssociativeInterpreter.js src/ImperativeInterpreter.js src/Replicator.js src/Range.js  src/Environment.js src/Visitor.js

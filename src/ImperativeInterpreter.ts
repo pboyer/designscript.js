@@ -3,7 +3,7 @@ import { Visitor } from './Visitor';
 import { Environment } from './Environment';
 import { AssociativeInterpreter } from './AssociativeInterpreter';
 import { Replicator } from './Replicator';
-import { TypedFunction, TypedArgument, ReplicatedExpression } from './Types';
+import { TypedFunction, TypedArgument, ReplicatedExpression, DesignScriptError } from './RuntimeTypes';
 import { Range } from './Range';
 
 export class ImperativeInterpreter implements Visitor<any>{
@@ -101,15 +101,15 @@ export class ImperativeInterpreter implements Visitor<any>{
     visitRangeExpressionNode(node: AST.RangeExpressionNode): number[] {
 
         var start = node.start.accept(this);
-        if (typeof start != 'number') throw new Error('start must be a number.');
+        if (typeof start != 'number') throw this.error('start must be a number.', node.parserState);
 
         var end = node.end.accept(this);
-        if (typeof end != 'number') throw new Error('end must be a number.');
+        if (typeof end != 'number') throw this.error('end must be a number.', node.parserState);
 
         if (!node.step) return Range.byStartEnd(start, end);
 
         var step = node.step.accept(this);
-        if (typeof step != 'number') throw new Error('step must be a number.');
+        if (typeof step != 'number') throw this.error('step must be a number.', node.parserState);
 
         return node.isStepCount ?
             Range.byStepCount(start, end, step) :
@@ -138,7 +138,7 @@ export class ImperativeInterpreter implements Visitor<any>{
                 return a > b;
         }
 
-        throw new Error('Unknown binary operator type');
+        throw this.error('Unknown binary operator type', e.parserState);
     }
 
     visitIfStatementNode(s: AST.IfStatementNode) {
@@ -161,7 +161,7 @@ export class ImperativeInterpreter implements Visitor<any>{
         var fd = this.lookup(e.functionId.name);
 
         if (!(fd instanceof TypedFunction)) {
-            throw new Error(e.functionId.name + ' is not a function!');
+            throw this.error(e.functionId.name + ' is not a function!', e.parserState);
         }
 
         return Replicator.replicate(fd, e.arguments.accept(this));
@@ -258,4 +258,8 @@ export class ImperativeInterpreter implements Visitor<any>{
         var i = new AssociativeInterpreter();
         return i.run(node.statementList).value;
     };
+    
+    error(message : string, state: AST.ParserState ) : DesignScriptError {
+        return new DesignScriptError( message, state );
+    }
 }
