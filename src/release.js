@@ -1,7 +1,7 @@
 var Parser = require('./Parser')
 	, Interpreter = require('./AssociativeInterpreter').AssociativeInterpreter
-	, TypedFunction = require('./Types').TypedFunction
-	, TypedArgument = require('./Types').TypedArgument;
+	, TypedFunction = require('./RuntimeTypes').TypedFunction
+	, TypedArgument = require('./RuntimeTypes').TypedArgument;
 
 var ast = require('./AST');
 Parser.parser.yy = ast;
