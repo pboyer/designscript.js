@@ -296,13 +296,13 @@ export class AssociativeInterpreter implements Visitor<DependencyNode> {
         return DependencyNode.constant(node.index);
     }
 
-    visitIdentifierListNode(node: AST.IdentifierListNode): DependencyNode { throw new Error('Not implemented'); }
-    visitExpressionListNode(node: AST.ExpressionListNode): DependencyNode { throw new Error('Not implemented'); }
-    visitIfStatementNode(node: AST.IfStatementNode): DependencyNode { throw new Error('Not implemented'); }
-    
     error(message : string, state: AST.ParserState ) : DesignScriptError {
         return new DesignScriptError( message, state );
     }
+    
+    visitIdentifierListNode(node: AST.IdentifierListNode): DependencyNode { throw new Error('Not implemented'); }
+    visitExpressionListNode(node: AST.ExpressionListNode): DependencyNode { throw new Error('Not implemented'); }
+    visitIfStatementNode(node: AST.IfStatementNode): DependencyNode { throw new Error('Not implemented'); }
 }
 
 function resolve(node: DependencyNode) {

@@ -8,7 +8,7 @@ Parser.parser.yy = ast;
 
 function run(p){
 	var pp = Parser.parse( p );
-	(new Interpreter()).eval( pp );
+	(new Interpreter()).run( pp );
 }
 
 module.exports = 

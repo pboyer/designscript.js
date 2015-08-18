@@ -1,0 +1,4 @@
+built in print node in associative
+preevaluate function definitions in associative
+dont allow nested function definitions
+replicate binary operators (associative and imperative)

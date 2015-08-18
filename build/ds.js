@@ -650,12 +650,12 @@ var AssociativeInterpreter = (function () {
     AssociativeInterpreter.prototype.visitReplicationGuideNode = function (node) {
         return DependencyNode.constant(node.index);
     };
-    AssociativeInterpreter.prototype.visitIdentifierListNode = function (node) { throw new Error('Not implemented'); };
-    AssociativeInterpreter.prototype.visitExpressionListNode = function (node) { throw new Error('Not implemented'); };
-    AssociativeInterpreter.prototype.visitIfStatementNode = function (node) { throw new Error('Not implemented'); };
     AssociativeInterpreter.prototype.error = function (message, state) {
         return new RuntimeTypes_1.DesignScriptError(message, state);
     };
+    AssociativeInterpreter.prototype.visitIdentifierListNode = function (node) { throw new Error('Not implemented'); };
+    AssociativeInterpreter.prototype.visitExpressionListNode = function (node) { throw new Error('Not implemented'); };
+    AssociativeInterpreter.prototype.visitIfStatementNode = function (node) { throw new Error('Not implemented'); };
     return AssociativeInterpreter;
 })();
 exports.AssociativeInterpreter = AssociativeInterpreter;
@@ -1954,7 +1954,7 @@ Parser.parser.yy = ast;
 
 function run(p){
 	var pp = Parser.parse( p );
-	(new Interpreter()).eval( pp );
+	(new Interpreter()).run( pp );
 }
 
 module.exports = 
