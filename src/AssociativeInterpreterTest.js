@@ -78,6 +78,10 @@ function run(p, fds){
 	assert.deepEqual( [1,2,3], i.env.lookup("c").value );
 })();
 
+(function(){
+	var i = run('a = {1,2,3}; f = print(a);');
+})();
+
 /*
 // reassignment
 // (function(){

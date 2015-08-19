@@ -100,13 +100,13 @@ export class AssociativeInterpreter implements Visitor<DependencyNode> {
         var n = node.expression.accept(this);
             
         if (this.env.contains(id)) {
-            throw this.error('You cannot reassign a variable in associative mode!', node.parserState);
+            throw this.error('You cannot reassign a variable in an associative code block.', node.parserState);
             // replace( this.lookup( id ), n ); 
+            // resolve( n );
+        } else {
+            this.set(id, n);
         }
-
-        this.set(id, n);
-        resolve(n);
-
+        
         return n;
     }
 
@@ -256,6 +256,7 @@ export class AssociativeInterpreter implements Visitor<DependencyNode> {
     }
 
     visitFunctionCallNode(node: AST.FunctionCallNode): DependencyNode {
+
         var f = this.lookup(node.functionId.name);
 
         if (f instanceof TypedFunction) {
@@ -275,7 +276,7 @@ export class AssociativeInterpreter implements Visitor<DependencyNode> {
     
     apply(fd: AST.FunctionDefinitionNode, env: Environment, args: any[]): any {
         env = new Environment(env);
-
+        
         // bind
         var i = 0;
         var il = fd.arguments;
@@ -332,6 +333,7 @@ export class AssociativeInterpreter implements Visitor<DependencyNode> {
     visitIfStatementNode(node: AST.IfStatementNode): DependencyNode { throw new Error('Not implemented'); }
 }
 
+// for redefinition, not in use
 function resolve(node: DependencyNode) {
     // mark the nodes
     var marked = new Array<DependencyNode>(), remaining = [node];
@@ -362,6 +364,7 @@ function resolve(node: DependencyNode) {
     sorted.forEach((x) => x.eval());
 }
 
+// for refinition, not in use
 function replace(old: DependencyNode, rep: DependencyNode) {
     rep.outputs = old.outputs;
     rep.inputs = old.inputs;
