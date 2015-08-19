@@ -1,7 +1,8 @@
 import { Visitor } from './Visitor';
 
-export class Node {
+export interface Node {
     parserState: ParserState;
+    accept<T>(v: Visitor<T>);
 }
 
 export class ParserState {
@@ -11,11 +12,17 @@ export class ParserState {
     lastCol: number;
 }
 
+// not exported! this allows internal code sharing 
+// between nodes
+class ParsedNode {
+    parserState: ParserState;
+}
+
 //
 // Identifiers
 //
 
-export class IdentifierListNode extends Node {
+export class IdentifierListNode extends ParsedNode implements Node {
     head: IdentifierNode;
     tail: IdentifierListNode;
 
@@ -36,7 +43,7 @@ export class IdentifierListNode extends Node {
     }
 }
 
-export class IdentifierNode extends Node {
+export class IdentifierNode extends ParsedNode implements Node {
     type: Type;
     name: string;
 
@@ -55,7 +62,7 @@ export class IdentifierNode extends Node {
     }
 }
 
-export class Type extends Node {
+export class Type extends ParsedNode implements Node {
     name: string;
 
     constructor(t: string) {
@@ -66,17 +73,21 @@ export class Type extends Node {
     toString() {
         return this.name;
     }
+    
+    accept<T>(v: Visitor<T>): T {
+        throw new Error("Not implemented!");
+    }
 }
 
 //
 // Expressions 
 //
 
-interface ExpressionNode {
+interface ExpressionNode extends Node {
     accept<T>(v: Visitor<T>): T;
 }
 
-export class NumberNode extends Node implements ExpressionNode {
+export class NumberNode extends ParsedNode implements ExpressionNode {
     value: Number;
 
     constructor(value: string) {
@@ -93,7 +104,7 @@ export class NumberNode extends Node implements ExpressionNode {
     }
 }
 
-export class BooleanNode extends Node implements ExpressionNode {
+export class BooleanNode extends ParsedNode implements ExpressionNode {
     value: boolean;
 
     constructor(value: string) {
@@ -110,7 +121,7 @@ export class BooleanNode extends Node implements ExpressionNode {
     }
 }
 
-export class StringNode extends Node implements ExpressionNode {
+export class StringNode extends ParsedNode implements ExpressionNode {
     value: string;
 
     constructor(value: string) {
@@ -127,7 +138,7 @@ export class StringNode extends Node implements ExpressionNode {
     }
 }
 
-export class ArrayNode extends Node implements ExpressionNode {
+export class ArrayNode extends ParsedNode implements ExpressionNode {
     expressionList: ExpressionListNode;
 
     constructor(el: ExpressionListNode) {
@@ -144,7 +155,7 @@ export class ArrayNode extends Node implements ExpressionNode {
     }
 }
 
-export class BinaryExpressionNode extends Node implements ExpressionNode {
+export class BinaryExpressionNode extends ParsedNode implements ExpressionNode {
     operator: string;
     firstExpression: ExpressionNode;
     secondExpression: ExpressionNode;
@@ -165,7 +176,7 @@ export class BinaryExpressionNode extends Node implements ExpressionNode {
     }
 }
 
-export class RangeExpressionNode extends Node implements ExpressionNode {
+export class RangeExpressionNode extends ParsedNode implements ExpressionNode {
     start: ExpressionNode;
     end: ExpressionNode;
     step: ExpressionNode;
@@ -196,7 +207,7 @@ export class RangeExpressionNode extends Node implements ExpressionNode {
     }
 }
 
-export class FunctionCallNode extends Node implements ExpressionNode {
+export class FunctionCallNode extends ParsedNode implements ExpressionNode {
     functionId: IdentifierNode;
     arguments: ExpressionListNode;
 
@@ -215,7 +226,7 @@ export class FunctionCallNode extends Node implements ExpressionNode {
     }
 }
 
-export class ArrayIndexNode extends Node implements ExpressionNode {
+export class ArrayIndexNode extends ParsedNode implements ExpressionNode {
     array: ExpressionNode;
     index: ExpressionNode;
 
@@ -234,7 +245,7 @@ export class ArrayIndexNode extends Node implements ExpressionNode {
     }
 }
 
-export class ExpressionListNode extends Node {
+export class ExpressionListNode extends ParsedNode implements Node {
     head: ExpressionNode;
     tail: ExpressionListNode;
 
@@ -260,7 +271,7 @@ export class ExpressionListNode extends Node {
     }
 }
 
-export class ReplicationExpressionNode extends Node implements ExpressionNode {
+export class ReplicationExpressionNode extends ParsedNode implements ExpressionNode {
     expression: ExpressionNode;
     replicationGuideList: ReplicationGuideListNode;
 
@@ -279,7 +290,7 @@ export class ReplicationExpressionNode extends Node implements ExpressionNode {
     }
 }
 
-export class ReplicationGuideNode extends Node implements ExpressionNode {
+export class ReplicationGuideNode extends ParsedNode implements ExpressionNode {
     index: ExpressionNode;
 
     constructor(i: ExpressionNode) {
@@ -296,7 +307,7 @@ export class ReplicationGuideNode extends Node implements ExpressionNode {
     }
 }
 
-export class ReplicationGuideListNode extends Node implements ExpressionNode {
+export class ReplicationGuideListNode extends ParsedNode implements ExpressionNode {
     head: ReplicationGuideNode;
     tail: ReplicationGuideListNode;
 
@@ -319,13 +330,17 @@ export class ReplicationGuideListNode extends Node implements ExpressionNode {
 // Statements
 //
 
-export class StatementNode extends Node {
+export class StatementNode extends ParsedNode implements Node {
     toString() {
         return this.toLines('').join('\n');
     }
 
     toLines(indent: string): string[] {
         return [];
+    }
+    
+    accept<T>(v: Visitor<T>): T {
+        throw new Error("Not implemented!")
     }
 }
 
