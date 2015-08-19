@@ -35,16 +35,52 @@ export class AssociativeInterpreter implements Visitor<DependencyNode> {
 
     env: Environment = new Environment();
 
-    run(sl: AST.StatementListNode): DependencyNode {
-        return sl.accept(this);
+    constructor() {
+        this.addBuiltins();
     }
 
-    set(id: string, n: DependencyNode | TypedFunction) {
-        this.env.set(id, n);
+    run(sl: AST.StatementListNode): DependencyNode {
+        this.evalFunctionDefinitionNodes(sl);
+        return this.visitStatementListNode(sl);
     }
 
     lookup(id: string): DependencyNode | TypedFunction {
         return this.env.lookup(id);
+    }
+
+    set(id: string, val: DependencyNode | TypedFunction): void {
+        return this.env.set(id, val);
+    }
+
+    addBuiltins() {
+        this.set('print', new TypedFunction((x) => console.log(x), [new TypedArgument('a', 'var')], 'print'));
+    }
+
+    evalFunctionDefinitionNodes(sl: AST.StatementListNode): void {
+        var r, s;
+        while (sl) {
+            s = sl.head;
+            sl = sl.tail;
+            if (s instanceof AST.FunctionDefinitionNode)
+                s.accept(this);
+        }
+    }
+
+    visitStatementListNode(sl: AST.StatementListNode): DependencyNode {
+        var r, s;
+        while (sl) {
+            s = sl.head;
+            sl = sl.tail;
+          
+            // empty statement list
+            if (!s) break;
+
+            // TODO: in non-global, throw exception
+            if (!(s instanceof AST.FunctionDefinitionNode))
+                r = s.accept(this);
+        }
+
+        return r;
     }
 
     visitNumberNode(node: AST.NumberNode): DependencyNode {
@@ -59,21 +95,10 @@ export class AssociativeInterpreter implements Visitor<DependencyNode> {
         return DependencyNode.constant(node.value);
     }
 
-    visitStatementListNode(node: AST.StatementListNode): DependencyNode {
-        var n, s, sl = node;
-        while (sl) {
-            s = sl.head;
-            if (!s) break;
-            n = s.accept(this);
-            sl = sl.tail;
-        }
-        return n;
-    }
-
     visitAssignmentNode(node: AST.AssignmentNode): DependencyNode {
         var id = node.identifier.name;
         var n = node.expression.accept(this);
-
+            
         if (this.env.contains(id)) {
             throw this.error('You cannot reassign a variable in associative mode!', node.parserState);
             // replace( this.lookup( id ), n ); 
@@ -99,7 +124,7 @@ export class AssociativeInterpreter implements Visitor<DependencyNode> {
         }
 
         throw this.error('The identifier ' + node.name +
-            ' is of an unknown type!', node.parserState);
+            ' is of an unknown type!' + n, node.parserState);
     }
 
     visitBinaryExpressionNode(node: AST.BinaryExpressionNode): DependencyNode {
@@ -128,7 +153,7 @@ export class AssociativeInterpreter implements Visitor<DependencyNode> {
                 n = new DependencyNode((a, b) => a > b);
                 break;
             default:
-                throw new Error('Unknown binary operator type');
+                throw this.error('Unknown binary operator type', node.parserState);
         }
 
         connect(node.firstExpression.accept(this), n, 0);
@@ -148,6 +173,7 @@ export class AssociativeInterpreter implements Visitor<DependencyNode> {
     }
 
     visitArrayNode(node: AST.ArrayNode): DependencyNode {
+
         var n = new DependencyNode(function() { return Array.prototype.slice.call(arguments); });
         var el = node.expressionList;
         var i = 0;
@@ -199,26 +225,6 @@ export class AssociativeInterpreter implements Visitor<DependencyNode> {
         return n.eval();
     };
 
-    apply(fd: AST.FunctionDefinitionNode, env: Environment, args: any[]): any {
-        env = new Environment(env);
-
-        // bind
-        var i = 0;
-        var il = fd.arguments;
-        while (il != null) {
-            env.set(il.head.name, args[i++]);
-            il = il.tail;
-        };
-
-        var current = this.env;
-        this.env = env;
-
-        var r = fd.body.accept(this);
-
-        this.env = current;
-        return r;
-    }
-
     visitFunctionDefinitionNode(fds: AST.FunctionDefinitionNode): DependencyNode { 
          
         // unpack the argument list 
@@ -240,7 +246,7 @@ export class AssociativeInterpreter implements Visitor<DependencyNode> {
             return interpreter.apply(fds, env, args);
         }
 
-        env.set(fds.identifier.name, f); // recursion
+        env.set(fds.identifier.name, f); // recursion?
 
         fd = new TypedFunction(f, val, fds.identifier.name);
 
@@ -265,6 +271,27 @@ export class AssociativeInterpreter implements Visitor<DependencyNode> {
         }
 
         throw this.error(node.functionId.name + ' is not a function.', node.parserState);
+    }
+    
+    apply(fd: AST.FunctionDefinitionNode, env: Environment, args: any[]): any {
+        env = new Environment(env);
+
+        // bind
+        var i = 0;
+        var il = fd.arguments;
+        while (il != null) {
+            env.set(il.head.name, DependencyNode.constant(args[i++]));
+            il = il.tail;
+        };
+       
+        var current = this.env;
+        this.env = env;
+
+        var r = fd.body.accept(this);
+
+        this.env = current;
+ 
+        return r.value;
     }
 
     visitReplicationExpressionNode(node: AST.ReplicationExpressionNode): DependencyNode {
@@ -296,10 +323,10 @@ export class AssociativeInterpreter implements Visitor<DependencyNode> {
         return DependencyNode.constant(node.index);
     }
 
-    error(message : string, state: AST.ParserState ) : DesignScriptError {
-        return new DesignScriptError( message, state );
+    error(message: string, state: AST.ParserState): DesignScriptError {
+        return new DesignScriptError(message, state);
     }
-    
+
     visitIdentifierListNode(node: AST.IdentifierListNode): DependencyNode { throw new Error('Not implemented'); }
     visitExpressionListNode(node: AST.ExpressionListNode): DependencyNode { throw new Error('Not implemented'); }
     visitIfStatementNode(node: AST.IfStatementNode): DependencyNode { throw new Error('Not implemented'); }

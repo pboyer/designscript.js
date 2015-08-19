@@ -38,10 +38,11 @@ export class DesignScriptError {
 	stack: string;
 	
 	constructor(message : string, state : ParserState ){
-		this.state = state;
+		this.message = message;
+        this.state = state;
 	}
 	
 	toString(){
-		return "RuntimeError! THIS IS A BIG MISTAKE";
+		return "Error: " + this.message;
 	}	
 }

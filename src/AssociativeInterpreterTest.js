@@ -27,19 +27,6 @@ function run(p, fds){
     var i = run('a = 4; b = a * 2 + 5;');
 })();
 
-// reassignment
-// (function(){
-//     var i = run('a = 4; b = {a, a}; a = 3;');
-//     assert.equal( 3, i.env.lookup("b").value[0] );
-//     assert.equal( 3, i.env.lookup("b").value[1] );
-// })();
-
-// (function(){
-// 	var fds = { "foo" : function(a,b){ return 2 * a + b; } };
-// 	var i = run('a = 4; w = foo( a, a ); a = 3;', fds);
-// 	assert.equal( 9, i.env.lookup("w").value );
-// })();
-
 (function(){
 	var concat = 
 		new types.TypedFunction(
@@ -81,7 +68,31 @@ function run(p, fds){
 	assert.deepEqual( [0,1,2], i.env.lookup("c").value );
 })();
 
+(function(){
+	var i = run('a = {1,2,3}; def foo(b){ return = b; } c = foo(a);');
+	assert.deepEqual( [1,2,3], i.env.lookup("c").value );
+})();
+
+(function(){
+	var i = run('a = {1,2,3}; def foo(b){ return = bar(b); } def bar(b){ return = b; }  c = foo(a);');
+	assert.deepEqual( [1,2,3], i.env.lookup("c").value );
+})();
+
 /*
+// reassignment
+// (function(){
+//     var i = run('a = 4; b = {a, a}; a = 3;');
+//     assert.equal( 3, i.env.lookup("b").value[0] );
+//     assert.equal( 3, i.env.lookup("b").value[1] );
+// })();
+
+// (function(){
+// 	var fds = { "foo" : function(a,b){ return 2 * a + b; } };
+// 	var i = run('a = 4; w = foo( a, a ); a = 3;', fds);
+// 	assert.equal( 9, i.env.lookup("w").value );
+// })();
+
+
 (function(){
 	var r = run('debug( 2 * 3 );');
 	assert.equal( 6, r[0] );
