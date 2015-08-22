@@ -1,6 +1,7 @@
 var AST = require('./AST');
 var Environment_1 = require('./Environment');
 var RuntimeTypes_1 = require('./RuntimeTypes');
+var Replicator_1 = require('./Replicator');
 var Range_1 = require('./Range');
 var ImperativeInterpreter = (function () {
     function ImperativeInterpreter(debug) {
@@ -128,9 +129,7 @@ var ImperativeInterpreter = (function () {
         this.step(node, function () {
             var f = _this.env.lookup(node.functionId.name);
             node.arguments.cpsAccept(_this, function (args) {
-                args.push(ret); // last arg is the continuation
-                f.func.apply(undefined, args);
-                // TODO Replicator.cpsReplicate(f, args, ret)
+                Replicator_1.Replicator.cpsreplicate(f, args, ret);
             });
         });
     };
@@ -249,9 +248,37 @@ var ImperativeInterpreter = (function () {
             });
         });
     };
-    ImperativeInterpreter.prototype.visitReplicationExpressionNode = function (node, ret) { throw new Error("Not implemented"); };
-    ImperativeInterpreter.prototype.visitReplicationGuideNode = function (node, ret) { throw new Error("Not implemented"); };
-    ImperativeInterpreter.prototype.visitReplicationGuideListNode = function (node, ret) { throw new Error("Not implemented"); };
+    ImperativeInterpreter.prototype.visitReplicationExpressionNode = function (node, ret) {
+        var _this = this;
+        this.step(node, function () {
+            node.expression.cpsAccept(_this, function (e) {
+                node.replicationGuideList.cpsAccept(_this, function (rl) {
+                    ret(new RuntimeTypes_1.ReplicatedExpression(e, rl));
+                });
+            });
+        });
+    };
+    ImperativeInterpreter.prototype.visitReplicationGuideNode = function (node, ret) {
+        var _this = this;
+        this.step(node, function () { return node.index.cpsAccept(_this, ret); });
+    };
+    ImperativeInterpreter.prototype.visitReplicationGuideListNode = function (node, ret) {
+        var _this = this;
+        this.step(node, function () {
+            var iterate = function (n, a) {
+                if (!n || !n.head) {
+                    ret(a);
+                }
+                else {
+                    n.head.cpsAccept(_this, function (x) {
+                        a.push(x);
+                        iterate(n.tail, a);
+                    });
+                }
+            };
+            iterate(node, []);
+        });
+    };
     ImperativeInterpreter.prototype.visitAssociativeBlockNode = function (node, ret) { throw new Error("Not implemented"); };
     ImperativeInterpreter.prototype.visitIdentifierListNode = function (node, ret) { throw new Error("Not implemented"); };
     ImperativeInterpreter.prototype.error = function (message, state) {

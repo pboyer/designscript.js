@@ -161,9 +161,7 @@ export class ImperativeInterpreter implements CpsVisitor<any> {
             var f: TypedFunction = this.env.lookup(node.functionId.name);
 
             node.arguments.cpsAccept(this, (args) => {
-                args.push(ret); // last arg is the continuation
-                f.func.apply(undefined, args);
-                // TODO Replicator.cpsReplicate(f, args, ret)
+                Replicator.cpsreplicate(f, args, ret)
             });
         });
     }
@@ -298,16 +296,37 @@ export class ImperativeInterpreter implements CpsVisitor<any> {
     }
 
     visitReplicationExpressionNode(node: AST.ReplicationExpressionNode, ret: (T) => void) {
-        
+        this.step(node, () =>{
+            node.expression.cpsAccept( this, (e) => {
+                node.replicationGuideList.cpsAccept( this, (rl) => {
+                    ret( new ReplicatedExpression( e, rl ) );     
+                });
+            });
+        });
     }
     
     visitReplicationGuideNode(node: AST.ReplicationGuideNode, ret: (T) => void) {
-        
+        this.step(node, () => node.index.cpsAccept( this, ret ));
     }
     
-    visitReplicationGuideListNode(node: AST.ReplicationGuideListNode, ret: (T) => void) { throw new Error("Not implemented"); }
-    visitAssociativeBlockNode(node: AST.AssociativeBlockNode, ret: (T) => void) { throw new Error("Not implemented"); }
+    visitReplicationGuideListNode(node: AST.ReplicationGuideListNode, ret: (T) => void) {
+        this.step(node, () => {
+            var iterate = (n, a) => {
+                if (!n || !n.head) {
+                    ret(a);
+                } else {
+                    n.head.cpsAccept(this, (x) => {
+                        a.push(x);
+                        iterate(n.tail, a);
+                    });
+                }
+            };
 
+            iterate(node, []);
+        });
+    }
+    
+    visitAssociativeBlockNode(node: AST.AssociativeBlockNode, ret: (T) => void) { throw new Error("Not implemented"); }
     visitIdentifierListNode(node: AST.IdentifierListNode, ret: (T) => void) { throw new Error("Not implemented"); }
 
     error(message: string, state: AST.ParserState): DesignScriptError {

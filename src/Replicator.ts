@@ -1,7 +1,83 @@
 import { TypedFunction, ReplicatedExpression } from "./RuntimeTypes";
 
 export class Replicator {
+       
+    static cpsreplicate(fd: TypedFunction, args: any[], ret : (any) => any, repGuides? : number[] ) {
+
+        if (!repGuides){
+            repGuides = new Array<number>(args.length);
         
+            for (var i = 0; i < args.length; i++){
+                var arg = args[i];
+                if (arg instanceof ReplicatedExpression){
+                    args[i] = arg.value;
+                    repGuides[i] = arg.replicationGuides[0];
+                } else {
+                    repGuides[i] = 1;
+                }
+            }
+        }
+        
+        var expectedTypes : string[] = fd.argumentTypes.map((x) => x.typeName);
+        
+        if ( Replicator.allTypesMatch(args, expectedTypes)){
+            args.push(ret);
+            return fd.func.apply(undefined, args);
+        } 
+        
+        
+        var sortedRepGuides = repGuides ? Replicator.sortRepGroups(repGuides, args.length) : [Replicator.range(args.length)];
+        
+        Replicator.cpsreplicateCore( fd, args, expectedTypes, sortedRepGuides, 0, ret );
+    }
+    
+    private static cpsreplicateCore(fd : TypedFunction, args : any[], expectedTypes : string[], 
+        sortedRepGuides : number[][], curRepGuide : number, ret : (any) => any ){
+        
+        var isTypeMatch = Replicator.allTypesMatch(args, expectedTypes);
+        
+        // are we at the the last replication guide and matching
+        if ( curRepGuide > sortedRepGuides.length-1){
+            if (isTypeMatch) {
+                args.push(ret);
+                return fd.func.apply(undefined, args);
+            }
+            throw new Error("Type match failure: " + "Expected " + expectedTypes + args );
+        } 
+       
+        var s = sortedRepGuides[curRepGuide];
+        
+        var minLen = s.reduce((a, x) => (args[x] instanceof Array) ? 
+            Math.min(args[x].length, a) : a, Number.MAX_VALUE);
+        
+        var iter = (i, r) => {
+            if (i >= minLen){
+                return ret(r);
+            }
+            
+            // build up all args to be replicated
+            var curargs = [];
+            for (var j = 0, l = args.length; j < l; j++){
+                if (s.indexOf(j) > -1 && args[j] instanceof Array){
+                    if (args[j].length > minLen){
+                        curargs.push( args[j][minLen-1] );
+                    } else {
+                        curargs.push( args[j][i]);
+                    }
+                } else {
+                    curargs.push( args[j] );
+                }
+            }
+                
+            Replicator.cpsreplicateCore( fd, curargs, expectedTypes, sortedRepGuides, curRepGuide + 1, (v) => {
+                r.push(v);
+                iter( i + 1, r );
+            });
+        }
+
+        iter( 0, [] );
+    }
+     
     static replicate(fd: TypedFunction, args: any[], repGuides? : number[]): any {
 
         if (!repGuides){
@@ -80,7 +156,7 @@ export class Replicator {
     }
     
     private static sortRepGroups(repGuides : number[], argCount : number) : number[][] {
-        
+
         var m = Math.max.apply(undefined, repGuides);
         
         if (m > argCount) {
