@@ -97,12 +97,16 @@ export class Type extends ParsedNode implements Node {
 // Expressions 
 //
 
-interface ExpressionNode extends Node {
+export interface ExpressionNode extends Node {
     accept<T>(v: Visitor<T>): T;
 }
 
-export class NumberNode extends ParsedNode implements ExpressionNode {
-    value: Number;
+export interface LiteralExpressionNode<T> extends ExpressionNode {
+    value : T;
+}
+
+export class NumberNode extends ParsedNode implements LiteralExpressionNode<number> {
+    value: number;
 
     constructor(value: string) {
         super();
@@ -122,7 +126,7 @@ export class NumberNode extends ParsedNode implements ExpressionNode {
     }
 }
 
-export class BooleanNode extends ParsedNode implements ExpressionNode {
+export class BooleanNode extends ParsedNode implements LiteralExpressionNode<boolean> {
     value: boolean;
 
     constructor(value: string) {
@@ -143,7 +147,7 @@ export class BooleanNode extends ParsedNode implements ExpressionNode {
     }
 }
 
-export class StringNode extends ParsedNode implements ExpressionNode {
+export class StringNode extends ParsedNode implements LiteralExpressionNode<string> {
     value: string;
 
     constructor(value: string) {

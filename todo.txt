@@ -4,10 +4,4 @@ replicate binary operators (associative and imperative)
 
 debugger objectives
 
-get start of eval
-allow pausing!
-should provide the type without strings and shit
-would be nice to attach after construction
-can stop on exceptions
-
-return continuation, representing the "rest" of the computation
+remove ArrayNode ?

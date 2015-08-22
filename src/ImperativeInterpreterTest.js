@@ -76,7 +76,7 @@ function interpret(p) {
 })();
 
 (function () {
-	var r = run('a : int = 25; debug( a );');
+	var r = run('a : number = 25; debug( a );');
 	assert.equal(25, r[0]);
 })();
 

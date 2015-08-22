@@ -115,6 +115,7 @@ ExpressionList
 	| Expression
 	{ $$ = recordState( new yy.ExpressionListNode($1), @$); }	
 	|
+	{ $$ = recordState( new yy.ExpressionListNode(), @$); }
     ;
 
 Expression
