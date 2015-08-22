@@ -6,6 +6,7 @@ import { Replicator } from './Replicator';
 import { TypedFunction, TypedArgument, ReplicatedExpression, DesignScriptError } from './RuntimeTypes';
 import { Range } from './Range';
 
+    
 export class DependencyNode {
     private static gid: number = 0;
 

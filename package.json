@@ -1,0 +1,18 @@
+{
+  "name": "ds",
+  "version": "0.0.1",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/pboyer/ds.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+	  "es6-promise": "3.0.2"
+  },
+  "devDependencies": {
+  },
+  "engines": {
+    "node": ">=0.12.0"
+  }
+}

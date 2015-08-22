@@ -1,8 +1,10 @@
 import { Visitor } from './Visitor';
+import { CpsVisitor } from './CpsVisitor';
 
 export interface Node {
     parserState: ParserState;
-    accept<T>(v: Visitor<T>);
+    accept<T>(v: Visitor<T>) : T;
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void);
 }
 
 export class ParserState {
@@ -41,6 +43,10 @@ export class IdentifierListNode extends ParsedNode implements Node {
     accept<T>(v: Visitor<T>): T {
         return v.visitIdentifierListNode(this);
     }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void) {
+        v.visitIdentifierListNode(this,c);
+    }
 }
 
 export class IdentifierNode extends ParsedNode implements Node {
@@ -60,6 +66,10 @@ export class IdentifierNode extends ParsedNode implements Node {
     accept<T>(v: Visitor<T>): T {
         return v.visitIdentifierNode(this);
     }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void) {
+        v.visitIdentifierNode(this,c);
+    }
 }
 
 export class Type extends ParsedNode implements Node {
@@ -75,6 +85,10 @@ export class Type extends ParsedNode implements Node {
     }
     
     accept<T>(v: Visitor<T>): T {
+        throw new Error("Not implemented!");
+    }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void) {
         throw new Error("Not implemented!");
     }
 }
@@ -102,6 +116,10 @@ export class NumberNode extends ParsedNode implements ExpressionNode {
     accept<T>(v: Visitor<T>): T {
         return v.visitNumberNode(this);
     }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, ret : (T) => any): T {
+        return v.visitNumberNode(this, ret);
+    }
 }
 
 export class BooleanNode extends ParsedNode implements ExpressionNode {
@@ -118,6 +136,10 @@ export class BooleanNode extends ParsedNode implements ExpressionNode {
 
     accept<T>(v: Visitor<T>): T {
         return v.visitBooleanNode(this);
+    }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void) {
+        v.visitBooleanNode(this,c);
     }
 }
 
@@ -136,6 +158,10 @@ export class StringNode extends ParsedNode implements ExpressionNode {
     accept<T>(v: Visitor<T>): T {
         return v.visitStringNode(this);
     }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void) {
+        v.visitStringNode(this,c);
+    }
 }
 
 export class ArrayNode extends ParsedNode implements ExpressionNode {
@@ -152,6 +178,10 @@ export class ArrayNode extends ParsedNode implements ExpressionNode {
 
     accept<T>(v: Visitor<T>): T {
         return v.visitArrayNode(this);
+    }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void) {
+        v.visitArrayNode(this,c);
     }
 }
 
@@ -173,6 +203,10 @@ export class BinaryExpressionNode extends ParsedNode implements ExpressionNode {
 
     accept<T>(v: Visitor<T>): T {
         return v.visitBinaryExpressionNode(this);
+    }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, ret : (T) => any): T {
+        return v.visitBinaryExpressionNode(this, ret);
     }
 }
 
@@ -205,6 +239,10 @@ export class RangeExpressionNode extends ParsedNode implements ExpressionNode {
     accept<T>(v: Visitor<T>): T {
         return v.visitRangeExpressionNode(this);
     }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void) {
+        v.visitRangeExpressionNode(this,c);
+    }
 }
 
 export class FunctionCallNode extends ParsedNode implements ExpressionNode {
@@ -224,6 +262,10 @@ export class FunctionCallNode extends ParsedNode implements ExpressionNode {
     accept<T>(v: Visitor<T>): T {
         return v.visitFunctionCallNode(this);
     }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void) {
+        v.visitFunctionCallNode(this,c);
+    }
 }
 
 export class ArrayIndexNode extends ParsedNode implements ExpressionNode {
@@ -242,6 +284,10 @@ export class ArrayIndexNode extends ParsedNode implements ExpressionNode {
 
     accept<T>(v: Visitor<T>): T {
         return v.visitArrayIndexNode(this);
+    }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void) {
+        v.visitArrayIndexNode(this,c);
     }
 }
 
@@ -269,6 +315,10 @@ export class ExpressionListNode extends ParsedNode implements Node {
     accept<T>(v: Visitor<T>): T {
         return v.visitExpressionListNode(this);
     }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void) {
+        v.visitExpressionListNode(this,c);
+    }
 }
 
 export class ReplicationExpressionNode extends ParsedNode implements ExpressionNode {
@@ -288,6 +338,10 @@ export class ReplicationExpressionNode extends ParsedNode implements ExpressionN
     accept<T>(v: Visitor<T>): T {
         return v.visitReplicationExpressionNode(this);
     }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void) {
+        v.visitReplicationExpressionNode(this,c);
+    }
 }
 
 export class ReplicationGuideNode extends ParsedNode implements ExpressionNode {
@@ -304,6 +358,10 @@ export class ReplicationGuideNode extends ParsedNode implements ExpressionNode {
 
     accept<T>(v: Visitor<T>): T {
         return v.visitReplicationGuideNode(this);
+    }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void) {
+        v.visitReplicationGuideNode(this,c);
     }
 }
 
@@ -324,6 +382,10 @@ export class ReplicationGuideListNode extends ParsedNode implements ExpressionNo
     accept<T>(v: Visitor<T>): T {
         return v.visitReplicationGuideListNode(this);
     }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void) {
+        v.visitReplicationGuideListNode(this,c);
+    }
 }
 
 //
@@ -340,6 +402,10 @@ export class StatementNode extends ParsedNode implements Node {
     }
     
     accept<T>(v: Visitor<T>): T {
+        throw new Error("Not implemented!")
+    }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void) {
         throw new Error("Not implemented!")
     }
 }
@@ -369,6 +435,10 @@ export class AssociativeBlockNode extends LanguageBlockNode {
     accept<T>(v: Visitor<T>): T {
         return v.visitAssociativeBlockNode(this);
     }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void) {
+        v.visitAssociativeBlockNode(this,c);
+    }
 }
 
 export class ImperativeBlockNode extends LanguageBlockNode {
@@ -378,6 +448,10 @@ export class ImperativeBlockNode extends LanguageBlockNode {
 
     accept<T>(v: Visitor<T>): T {
         return v.visitImperativeBlockNode(this);
+    }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void) {
+        v.visitImperativeBlockNode(this,c);
     }
 }
 
@@ -404,6 +478,10 @@ export class StatementListNode extends StatementNode {
     accept<T>(v: Visitor<T>): T {
         return v.visitStatementListNode(this);
     }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, ret : (T) => any): T {
+        return v.visitStatementListNode(this, ret);
+    }
 }
 
 export class IfStatementNode extends StatementNode {
@@ -428,6 +506,10 @@ export class IfStatementNode extends StatementNode {
     accept<T>(v: Visitor<T>): T {
         return v.visitIfStatementNode(this);
     }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void) {
+        v.visitIfStatementNode(this,c);
+    }
 }
 
 export class FunctionDefinitionNode extends StatementNode {
@@ -451,6 +533,10 @@ export class FunctionDefinitionNode extends StatementNode {
     accept<T>(v: Visitor<T>): T {
         return v.visitFunctionDefinitionNode(this);
     }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void) {
+        v.visitFunctionDefinitionNode(this,c);
+    }
 }
 
 export class AssignmentNode extends StatementNode {
@@ -469,5 +555,9 @@ export class AssignmentNode extends StatementNode {
 
     accept<T>(v: Visitor<T>): T {
         return v.visitAssignmentNode(this);
+    }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, ret : (T) => any): T {
+        return v.visitAssignmentNode(this, ret);
     }
 }

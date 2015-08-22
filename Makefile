@@ -9,6 +9,7 @@ release: build
 	browserify src/release.js -o build/ds.js -s ds
 
 test: build
+	node src/CpsVisitorTest.js
 	node src/ParserTest.js
 	node src/ReplicatorTest.js 
 	node src/ImperativeInterpreterTest.js 
