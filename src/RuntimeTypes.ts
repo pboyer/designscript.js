@@ -10,6 +10,19 @@ export class TypedFunction {
         this.argumentTypes = al; 
         this.name = name;
     }
+    
+    static byFunction(f: (...any) => any, al: TypedArgument[], name: string){
+        return new TypedFunction(function() {
+            // we obtain the arguments
+            var args = Array.prototype.slice.call(arguments);
+            
+            // get the callback
+            var c = args.pop();
+            
+            // call the synchronous function
+            c(f.apply(undefined, args));
+        }, al, name);
+    }
 }
 
 export class TypedArgument {

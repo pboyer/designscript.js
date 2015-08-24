@@ -15,7 +15,7 @@ function run(p) {
 	// inject the debug function
 	var record = [];
 	var debug = new TypedFunction(function (x) { record.push(x); }, [new TypedArgument("arg")], "debug");
-	i.set("debug", debug);
+	i.env.set("debug", debug);
 
 	i.run(pp);
 

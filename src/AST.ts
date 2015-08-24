@@ -1,5 +1,4 @@
-import { Visitor } from './Visitor';
-import { CpsVisitor } from './CpsVisitor';
+import { Visitor, CpsVisitor } from './Visitor';
 
 export interface Node {
     parserState: ParserState;

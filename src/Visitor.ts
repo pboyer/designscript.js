@@ -24,3 +24,28 @@ export interface Visitor<T> {
     visitAssociativeBlockNode(node : AST.AssociativeBlockNode) : T;
     
 }
+
+export interface CpsVisitor<T> {
+    
+    visitIdentifierNode(node: AST.IdentifierNode, ret: (T) => void);
+    visitIdentifierListNode(node: AST.IdentifierListNode, ret: (T) => void);
+    visitNumberNode(node: AST.NumberNode, ret: (T) => void);
+    visitBooleanNode(node: AST.BooleanNode, ret: (T) => void);
+    visitStringNode(node: AST.StringNode, ret: (T) => void);
+    visitArrayNode(node: AST.ArrayNode, ret: (T) => void);
+    visitBinaryExpressionNode(node: AST.BinaryExpressionNode, ret: (T) => void);
+    visitRangeExpressionNode(node: AST.RangeExpressionNode, ret: (T) => void);
+    visitFunctionCallNode(node: AST.FunctionCallNode, ret: (T) => void);
+    visitArrayIndexNode(node: AST.ArrayIndexNode, ret: (T) => void);
+    visitExpressionListNode(node: AST.ExpressionListNode, ret: (T) => void);
+    visitStatementListNode(node: AST.StatementListNode, ret: (T) => void);
+    visitIfStatementNode(node: AST.IfStatementNode, ret: (T) => void);
+    visitFunctionDefinitionNode(node: AST.FunctionDefinitionNode, ret: (T) => void);
+    visitAssignmentNode(node: AST.AssignmentNode, ret: (T) => void);
+    visitReplicationExpressionNode(node: AST.ReplicationExpressionNode, ret: (T) => void);
+    visitReplicationGuideNode(node: AST.ReplicationGuideNode, ret: (T) => void);
+    visitReplicationGuideListNode(node: AST.ReplicationGuideListNode, ret: (T) => void);
+    visitImperativeBlockNode(node: AST.ImperativeBlockNode, ret: (T) => void);
+    visitAssociativeBlockNode(node: AST.AssociativeBlockNode, ret: (T) => void);
+    
+}
