@@ -10,7 +10,8 @@ export class DependencyNode {
     private static gid: number = 0;
 
     id: number = DependencyNode.gid++;
-    dirty: boolean = true;
+    
+    private dirty: boolean = true;
     inputs: DependencyNode[] = [];
     outputs: DependencyNode[] = [];
     value: any = null;
@@ -25,7 +26,10 @@ export class DependencyNode {
     static constant(val: any): DependencyNode {
         // the constant node function is passed a single argument, the callback
         // it simply invokes that function with the constant as the argument
-        return new DependencyNode((c) => c(val));
+        var n = new DependencyNode((c) => c(val));
+        n.dirty = false;
+        n.value = val;
+        return n;
     }
     
     // Make a DependencyNode from a function that is not in continuation passing style
@@ -151,7 +155,7 @@ export class AssociativeInterpreter implements CpsVisitor<DependencyNode> {
     }
 
     private literal<V>(node: AST.LiteralExpressionNode<V>, ret: (DependencyNode) => void) {
-        this.step(node, () => DependencyNode.constant(node.value).eval(ret));
+        this.step(node, () => ret( DependencyNode.constant(node.value) ));
     }
 
     visitBooleanNode(node: AST.BooleanNode, ret: (boolean) => void) {
@@ -295,10 +299,11 @@ export class AssociativeInterpreter implements CpsVisitor<DependencyNode> {
         var i = 0;
         var il = fd.arguments;
         while (il != null) {
+            // set the value without calling the function
             env.set(il.head.name, DependencyNode.constant(args[i++]));
             il = il.tail;
         };
-
+       
         var current = this.env;
         this.env = env;
 
@@ -306,7 +311,7 @@ export class AssociativeInterpreter implements CpsVisitor<DependencyNode> {
         fd.body.cpsAccept(this, (x) => {
             // return to the original environment
             this.env = current;
-            ret(x);
+            ret(x.value);
         });
     }
 
@@ -475,7 +480,7 @@ export class AssociativeInterpreter implements CpsVisitor<DependencyNode> {
                     // in a new interpreter
                     new ImperativeInterpreter(this.debug), 
                     // and turns the resultant value into a constant
-                    (n) => c(n));
+                    c );
             });
             // go...
             n.eval(ret);
