@@ -434,7 +434,6 @@ export class AssociativeInterpreter implements CpsVisitor<DependencyNode> {
 
     visitReplicationGuideListNode(node: AST.ReplicationGuideListNode, ret: (DependencyNode) => void) {
         this.step(node, () => {
-
             // simply collect the arguments and return as an array
             var n = DependencyNode.byFunction(function() { return Array.prototype.slice.call(arguments); })
             
