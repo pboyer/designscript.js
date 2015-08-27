@@ -111,7 +111,7 @@ export class AssociativeInterpreter implements CpsVisitor<DependencyNode> {
     // passes control to someone else
     private step(node: AST.Node, ret: () => void) {
         if (this.debug) {
-            this.debug(node, ret)
+            this.debug(node, ret);
         } else {
             ret();
         }

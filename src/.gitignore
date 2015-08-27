@@ -8,3 +8,6 @@ ImperativeInterpreter.js
 AssociativeInterpreter.js
 Range.js
 RuntimeTypes.js
+Frame.js
+legacy/AssociativeInterpreter.js
+legacy/ImperativeInterpreter.js

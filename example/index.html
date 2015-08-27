@@ -7,25 +7,55 @@
         <script src="lib/codemirror.js"></script>
         <script src="../build/ds.js"></script>
     
+        <style>
+            .highlight {
+                background-color: yellow;
+            }
+        </style>
+    
     </head>
     
     <body>
         <textarea id="codeInput">
-a = {1,2,3};
-def foo(b){
-  return = b;
+def foo(b : number){
+  return = b + 2;
 }
-foo(a);
+a = {1,2,3};
+w = foo(a);
+print(w);
         </textarea>
         <input id="run" type="button" value="Run">
         <script>
+            
+            var mark = function(n){
+                var s = n.parserState;
+                return cm.doc.markText(
+                    { line: s.firstLine-1, ch : s.firstCol}, 
+                    { line : s.lastLine-1, ch : s.lastCol}, 
+                    { className : "highlight", readOnly : true});
+            };
+            
+            var step = function(n, c){
+                var m = mark(n);
+               
+                setTimeout(function(){
+                    console.log(n);
+                    m.clear();
+                    c();
+
+                 }, 1000);
+            };
+            
             var ta = document.getElementById('codeInput');
             var cm = CodeMirror.fromTextArea( ta );
             
             var b = document.getElementById('run'); 
             b.addEventListener("click", function(){
-                ds.run( cm.getValue() );
+                var i = new ds.Interpreter(step);
+                i.run( ds.Parser.parse(cm.getValue()));
             });
+
+
         </script>
     </body>
 </html>
