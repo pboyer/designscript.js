@@ -465,7 +465,7 @@ export class AssociativeInterpreter implements CpsVisitor<DependencyNode> {
                     new AssociativeInterpreter(this.debug), 
                     // and extracts the resultant value from the evaluated DependencyNode
                     (n) => c(n.value) );
-            });
+            }.bind(this));
             // go...
             n.eval(ret);
         });
@@ -481,7 +481,7 @@ export class AssociativeInterpreter implements CpsVisitor<DependencyNode> {
                     new ImperativeInterpreter(this.debug), 
                     // and turns the resultant value into a constant
                     c );
-            });
+            }.bind(this));
             // go...
             n.eval(ret);
         });

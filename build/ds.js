@@ -883,6 +883,7 @@ var AssociativeInterpreter = (function () {
         });
     };
     AssociativeInterpreter.prototype.visitAssociativeBlockNode = function (node, ret) {
+        var _this = this;
         this.step(node, function () {
             // build a dependency node that when evaluated...
             var n = new DependencyNode(function (c) {
@@ -893,12 +894,13 @@ var AssociativeInterpreter = (function () {
                 // and extracts the resultant value from the evaluated DependencyNode
                 // and extracts the resultant value from the evaluated DependencyNode
                 function (n) { return c(n.value); });
-            });
+            }.bind(_this));
             // go...
             n.eval(ret);
         });
     };
     AssociativeInterpreter.prototype.visitImperativeBlockNode = function (node, ret) {
+        var _this = this;
         this.step(node, function () {
             // build a dependency node that when evaluated...
             var n = new DependencyNode(function (c) {
@@ -908,7 +910,7 @@ var AssociativeInterpreter = (function () {
                 new ImperativeInterpreter_1.ImperativeInterpreter(this.debug), 
                 // and turns the resultant value into a constant
                 c);
-            });
+            }.bind(_this));
             // go...
             n.eval(ret);
         });
@@ -968,6 +970,7 @@ var ImperativeInterpreter = (function () {
             ret();
         };
         if (debug) {
+            console.log("setting debug");
             this.debug = debug;
         }
         this.addBuiltins();
@@ -985,6 +988,8 @@ var ImperativeInterpreter = (function () {
     };
     // passes control to someone else
     ImperativeInterpreter.prototype.step = function (node, ret) {
+        console.log("imperative step!");
+        console.log(this);
         if (this.debug) {
             this.debug(node, ret);
         }

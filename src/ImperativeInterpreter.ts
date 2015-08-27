@@ -12,6 +12,7 @@ export class ImperativeInterpreter implements CpsVisitor<any> {
 
     constructor(debug?: (a: AST.Node, ret: () => void) => void) {
         if (debug) {
+            console.log("setting debug")
             this.debug = debug;
         }
         
@@ -38,6 +39,8 @@ export class ImperativeInterpreter implements CpsVisitor<any> {
 	
     // passes control to someone else
     private step(node: AST.Node, ret: () => void) {
+        console.log("imperative step!");
+        console.log(this);
         if (this.debug) {
             this.debug(node, ret)
         } else {
