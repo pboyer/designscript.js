@@ -35,11 +35,12 @@ print(w);
                     { className : "highlight", readOnly : true});
             };
             
-            var step = function(n, c){
+            var step = function(n, e, s, c){
                 var m = mark(n);
-               
+                console.log(n);
+                console.log(e);
+                
                 setTimeout(function(){
-                    console.log(n);
                     m.clear();
                     c();
 

@@ -5,7 +5,7 @@ class Symbol {
 
 // abstract name for an address that will 
 // definitely be known at runtime
-class Label {
+export class Label {
 	private static _count = 0;
 	name : string;
 	count : number;
@@ -29,7 +29,7 @@ class Label {
 }
 
 // abstract name for a local variable
-class Temp {
+export class Temp {
 	private static _count : number;
 	count : number;
 	
@@ -46,16 +46,16 @@ interface Access {
 }
 
 // variable stored in register
-class RegAccess implements Access {
+export class RegAccess implements Access {
 	temp : Temp;
 }
 
 // variable stored in a frame
-class FrameAccess implements Access {
+export class FrameAccess implements Access {
 	offset : number;
 }
 
-interface Frame {
+export interface Frame {
 	// new frame with code at label and a list of whether the
 	// parameter escapes or not
 	newFrame( label : Label, formals : Boolean[] ) : Frame;
@@ -68,4 +68,3 @@ interface Frame {
 	// nested function or when taking the address)
 	allocLocal(escape : boolean) : Access;
 }
-

@@ -552,7 +552,7 @@ var AssociativeInterpreter = (function () {
     function AssociativeInterpreter(debug) {
         this.env = new Environment_1.Environment();
         // default continuation
-        this.debug = function (a, ret) {
+        this.debug = function (a, e, s, ret) {
             // by default
             ret();
         };
@@ -575,7 +575,7 @@ var AssociativeInterpreter = (function () {
     // passes control to someone else
     AssociativeInterpreter.prototype.step = function (node, ret) {
         if (this.debug) {
-            this.debug(node, ret);
+            this.debug(node, this.env, [], ret);
         }
         else {
             ret();
@@ -965,12 +965,11 @@ var ImperativeInterpreter = (function () {
     function ImperativeInterpreter(debug) {
         this.env = new Environment_1.Environment();
         // default continuation
-        this.debug = function (a, ret) {
+        this.debug = function (a, e, s, ret) {
             // by default
             ret();
         };
         if (debug) {
-            console.log("setting debug");
             this.debug = debug;
         }
         this.addBuiltins();
@@ -988,10 +987,8 @@ var ImperativeInterpreter = (function () {
     };
     // passes control to someone else
     ImperativeInterpreter.prototype.step = function (node, ret) {
-        console.log("imperative step!");
-        console.log(this);
         if (this.debug) {
-            this.debug(node, ret);
+            this.debug(node, this.env, [], ret);
         }
         else {
             ret();

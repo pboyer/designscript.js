@@ -82,16 +82,16 @@ export class AssociativeInterpreter implements CpsVisitor<DependencyNode> {
 
     env: Environment = new Environment();
 
-    constructor(debug?: (a: AST.Node, ret: () => void) => void) {
+    constructor(debug?: (a: AST.Node, env : Environment, stack : string[], ret: () => void) => void) {
         if (debug) {
             this.debug = debug;
         }
-
+        
         this.addBuiltins();
     }
     
     // default continuation
-    debug: (a: AST.Node, ret: () => void) => void = (a, ret) => {
+    debug: (a: AST.Node, e : Environment, stack : string[], ret: () => void) => void = (a, e, s, ret) => {
         // by default
         ret();
     }
@@ -111,7 +111,7 @@ export class AssociativeInterpreter implements CpsVisitor<DependencyNode> {
     // passes control to someone else
     private step(node: AST.Node, ret: () => void) {
         if (this.debug) {
-            this.debug(node, ret);
+            this.debug(node, this.env, [], ret);
         } else {
             ret();
         }
