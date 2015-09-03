@@ -11,6 +11,13 @@
             .highlight {
                 background-color: yellow;
             }
+            input {
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                padding: 10px;
+                margin: 2px;
+            }
         </style>
     
     </head>
@@ -24,39 +31,9 @@ a = {1,2,3};
 w = foo(a);
 print(w);
         </textarea>
-        <input id="run" type="button" value="Run">
-        <script>
-            
-            var mark = function(n){
-                var s = n.parserState;
-                return cm.doc.markText(
-                    { line: s.firstLine-1, ch : s.firstCol}, 
-                    { line : s.lastLine-1, ch : s.lastCol}, 
-                    { className : "highlight", readOnly : true});
-            };
-            
-            var step = function(n, e, s, c){
-                var m = mark(n);
-                console.log(n);
-                console.log(e);
-                
-                setTimeout(function(){
-                    m.clear();
-                    c();
-
-                 }, 1000);
-            };
-            
-            var ta = document.getElementById('codeInput');
-            var cm = CodeMirror.fromTextArea( ta );
-            
-            var b = document.getElementById('run'); 
-            b.addEventListener("click", function(){
-                var i = new ds.Interpreter(step);
-                i.run( ds.Parser.parse(cm.getValue()));
-            });
-
-
-        </script>
+        <input id="run" type="button" value="&#9658;">
+        <input id="pause" type="button" value="&#10073;&#10073;">
+        <input id="reset" type="button" value="&#9724;">
+        <script src="lib/script.js"></script>
     </body>
 </html>

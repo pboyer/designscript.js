@@ -105,7 +105,23 @@ export class AssociativeInterpreter implements CpsVisitor<DependencyNode> {
     }
 
     private addBuiltins() {
-        this.env.set('print', TypedFunction.byFunction((x) => console.log(x), [new TypedArgument('a', 'var')], 'print'));
+        this.env.set('print', 
+            TypedFunction.byFunction((x) => console.log(x), 
+            [new TypedArgument('a', 'var')], 
+            'print'));
+            
+        this.addBinop('+', (a,b) => a+b);
+        this.addBinop('*', (a,b) => a*b);
+        this.addBinop('/', (a,b) => a/b);
+        this.addBinop('-', (a,b) => a-b);
+    }
+    
+    private addBinop(op : string, func : (a: any,b : any) => any){
+        this.env.set(op, 
+            TypedFunction.byFunction(func, 
+            [new TypedArgument('a', 'var'), 
+             new TypedArgument('b', 'var')], 
+            op));
     }
 	
     // passes control to someone else
@@ -183,14 +199,13 @@ export class AssociativeInterpreter implements CpsVisitor<DependencyNode> {
 
                     // evaluate
                     switch (node.operator) {
-                        case '+':
-                            n = DependencyNode.byFunction((a, b) => a + b);
-                            break;
-                        case '-':
-                            n = DependencyNode.byFunction((a, b) => a - b);
-                            break;
                         case '*':
-                            n = DependencyNode.byFunction((a, b) => a * b);
+                        case '+': 
+                        case '-': 
+                        case '/':
+                            var f = this.env.lookup(node.operator);
+                            n = new DependencyNode((a, b, c) => 
+                                Replicator.cpsreplicate( f, [a,b], c ));
                             break;
                         case '<':
                             n = DependencyNode.byFunction((a, b) => a < b);

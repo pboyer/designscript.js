@@ -42,7 +42,7 @@ export class Replicator {
                 args.push(ret);
                 return fd.func.apply(undefined, args);
             }
-            throw new Error("Type match failure: " + "Expected " + expectedTypes + args );
+            throw new Error("Type match failure: " + "Expected " + expectedTypes + ", but got " + args );
         } 
        
         var s = sortedRepGuides[curRepGuide];

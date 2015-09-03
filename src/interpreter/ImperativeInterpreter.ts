@@ -33,7 +33,23 @@ export class ImperativeInterpreter implements CpsVisitor<any> {
     }
     
     private addBuiltins() {
-        this.env.set('print', new TypedFunction((x) => console.log(x), [new TypedArgument('a', 'var')], 'print'));
+        this.env.set('print', new TypedFunction(
+            (x) => console.log(x), 
+            [new TypedArgument('a', 'var')], 
+            'print'));
+            
+        this.addBinop('+', (a,b) => a+b);
+        this.addBinop('*', (a,b) => a*b);
+        this.addBinop('/', (a,b) => a/b);
+        this.addBinop('-', (a,b) => a-b);
+    }
+    
+    private addBinop(op : string, func : (a: any,b : any) => any){
+        this.env.set(op, 
+            TypedFunction.byFunction(func, 
+            [new TypedArgument('a', 'var'), 
+             new TypedArgument('b', 'var')], 
+            op));
     }
 	
     // passes control to someone else
@@ -102,12 +118,12 @@ export class ImperativeInterpreter implements CpsVisitor<any> {
                 node.secondExpression.cpsAccept(this, (b) => {
                     // evaluate
                     switch (node.operator) {
-                        case '+':
-                            return ret(a + b);
-                        case '-':
-                            return ret(a - b);
                         case '*':
-                            return ret(a * b);
+                        case '+': 
+                        case '-': 
+                        case '/':
+                            return Replicator.cpsreplicate( 
+                                this.env.lookup(node.operator), [a,b], ret );
                         case '<':
                             return ret(a < b);
                         case '||':

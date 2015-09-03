@@ -1364,6 +1364,14 @@ var AssociativeInterpreter = (function () {
     };
     AssociativeInterpreter.prototype.addBuiltins = function () {
         this.env.set('print', RuntimeTypes_1.TypedFunction.byFunction(function (x) { return console.log(x); }, [new RuntimeTypes_1.TypedArgument('a', 'var')], 'print'));
+        this.addBinop('+', function (a, b) { return a + b; });
+        this.addBinop('*', function (a, b) { return a * b; });
+        this.addBinop('/', function (a, b) { return a / b; });
+        this.addBinop('-', function (a, b) { return a - b; });
+    };
+    AssociativeInterpreter.prototype.addBinop = function (op, func) {
+        this.env.set(op, RuntimeTypes_1.TypedFunction.byFunction(func, [new RuntimeTypes_1.TypedArgument('a', 'var'),
+            new RuntimeTypes_1.TypedArgument('b', 'var')], op));
     };
     // passes control to someone else
     AssociativeInterpreter.prototype.step = function (node, ret) {
@@ -1435,14 +1443,14 @@ var AssociativeInterpreter = (function () {
                     var n;
                     // evaluate
                     switch (node.operator) {
-                        case '+':
-                            n = DependencyNode.byFunction(function (a, b) { return a + b; });
-                            break;
-                        case '-':
-                            n = DependencyNode.byFunction(function (a, b) { return a - b; });
-                            break;
                         case '*':
-                            n = DependencyNode.byFunction(function (a, b) { return a * b; });
+                        case '+':
+                        case '-':
+                        case '/':
+                            var f = _this.env.lookup(node.operator);
+                            n = new DependencyNode(function (a, b, c) {
+                                return Replicator_1.Replicator.cpsreplicate(f, [a, b], c);
+                            });
                             break;
                         case '<':
                             n = DependencyNode.byFunction(function (a, b) { return a < b; });
@@ -1777,6 +1785,14 @@ var ImperativeInterpreter = (function () {
     };
     ImperativeInterpreter.prototype.addBuiltins = function () {
         this.env.set('print', new RuntimeTypes_1.TypedFunction(function (x) { return console.log(x); }, [new RuntimeTypes_1.TypedArgument('a', 'var')], 'print'));
+        this.addBinop('+', function (a, b) { return a + b; });
+        this.addBinop('*', function (a, b) { return a * b; });
+        this.addBinop('/', function (a, b) { return a / b; });
+        this.addBinop('-', function (a, b) { return a - b; });
+    };
+    ImperativeInterpreter.prototype.addBinop = function (op, func) {
+        this.env.set(op, RuntimeTypes_1.TypedFunction.byFunction(func, [new RuntimeTypes_1.TypedArgument('a', 'var'),
+            new RuntimeTypes_1.TypedArgument('b', 'var')], op));
     };
     // passes control to someone else
     ImperativeInterpreter.prototype.step = function (node, ret) {
@@ -1844,12 +1860,11 @@ var ImperativeInterpreter = (function () {
                 node.secondExpression.cpsAccept(_this, function (b) {
                     // evaluate
                     switch (node.operator) {
-                        case '+':
-                            return ret(a + b);
-                        case '-':
-                            return ret(a - b);
                         case '*':
-                            return ret(a * b);
+                        case '+':
+                        case '-':
+                        case '/':
+                            return Replicator_1.Replicator.cpsreplicate(_this.env.lookup(node.operator), [a, b], ret);
                         case '<':
                             return ret(a < b);
                         case '||':
@@ -2112,7 +2127,7 @@ var Replicator = (function () {
                 args.push(ret);
                 return fd.func.apply(undefined, args);
             }
-            throw new Error("Type match failure: " + "Expected " + expectedTypes + args);
+            throw new Error("Type match failure: " + "Expected " + expectedTypes + ", but got " + args);
         }
         var s = sortedRepGuides[curRepGuide];
         var minLen = s.reduce(function (a, x) { return (args[x] instanceof Array) ?
