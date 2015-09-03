@@ -121,7 +121,7 @@ export class LABEL implements Stm {
 	}
 }
 
-export interface ExpCore {
+export interface UnionExp {
 	unEx() : Exp;
 	unNx() : Stm;
 	unCx(t : Label, f : Label);
@@ -133,6 +133,7 @@ export class Ex {
 	constructor(exp : Exp){
 		this.exp = exp;
 	}
+	
 	unEx() : Exp{
 		return this.exp;
 	}

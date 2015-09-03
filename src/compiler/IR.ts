@@ -1,72 +1,73 @@
 import * as AST from '../AST';
 import { Label, Temp } from "./Frame";
 import { Visitor } from "../Visitor";
+import * as Tree from "./Tree";
 
-export class IR implements Visitor<any> {
+export class IR implements Visitor<Tree.UnionExp> {
     
-    visitIdentifierNode(node : AST.IdentifierNode) : any {
-        
-    }
-    
-    visitIdentifierListNode(node : AST.IdentifierListNode) : any {
-        
+    visitIdentifierNode(node : AST.IdentifierNode) : Tree.UnionExp {
+        throw new Error("Not implemeted");
     }
     
-    visitNumberNode(node : AST.NumberNode) : any {
-        
+    visitIdentifierListNode(node : AST.IdentifierListNode) : Tree.UnionExp {
+        throw new Error("Not implemeted");
     }
     
-    visitBooleanNode(node : AST.BooleanNode) : any {
-        
+    visitNumberNode(node : AST.NumberNode) : Tree.UnionExp {
+        return new Tree.Ex( new Tree.CONST(node.value) );
     }
     
-    visitStringNode(node : AST.StringNode) : any {
-        
+    visitBooleanNode(node : AST.BooleanNode) : Tree.UnionExp {
+        return new Tree.Ex( new Tree.CONST(node.value) );
     }
     
-    visitArrayNode(node : AST.ArrayNode) : any {
-        
+    visitStringNode(node : AST.StringNode) : Tree.UnionExp {
+        return new Tree.Ex( new Tree.CONST(node.value) );
     }
-    visitBinaryExpressionNode(node : AST.BinaryExpressionNode) : any {
-        
+    
+    visitArrayNode(node : AST.ArrayNode) : Tree.UnionExp {
+        throw new Error("Not implemeted");
     }
-    visitRangeExpressionNode(node : AST.RangeExpressionNode) : any {
-        
+    visitBinaryExpressionNode(node : AST.BinaryExpressionNode) : Tree.UnionExp {
+        throw new Error("Not implemeted");
     }
-    visitFunctionCallNode(node : AST.FunctionCallNode) : any {
-        
+    visitRangeExpressionNode(node : AST.RangeExpressionNode) : Tree.UnionExp {
+        throw new Error("Not implemeted");
     }
-    visitArrayIndexNode(node : AST.ArrayIndexNode) : any {
-        
+    visitFunctionCallNode(node : AST.FunctionCallNode) : Tree.UnionExp {
+        throw new Error("Not implemeted");
     }
-    visitExpressionListNode(node : AST.ExpressionListNode) : any {
-        
+    visitArrayIndexNode(node : AST.ArrayIndexNode) : Tree.UnionExp {
+        throw new Error("Not implemeted");
     }
-    visitStatementListNode(node : AST.StatementListNode) : any {
-        
+    visitExpressionListNode(node : AST.ExpressionListNode) : Tree.UnionExp {
+        throw new Error("Not implemeted");
     }
-    visitIfStatementNode(node : AST.IfStatementNode) : any {
-        
+    visitStatementListNode(node : AST.StatementListNode) : Tree.UnionExp {
+        throw new Error("Not implemeted");
     }
-    visitFunctionDefinitionNode(node : AST.FunctionDefinitionNode) : any {
-        
+    visitIfStatementNode(node : AST.IfStatementNode) : Tree.UnionExp {
+        throw new Error("Not implemeted");
     }
-    visitAssignmentNode(node : AST.AssignmentNode) : any {
-        
+    visitFunctionDefinitionNode(node : AST.FunctionDefinitionNode) : Tree.UnionExp {
+        throw new Error("Not implemeted");
     }
-    visitReplicationExpressionNode(node : AST.ReplicationExpressionNode) : any {
-        
+    visitAssignmentNode(node : AST.AssignmentNode) : Tree.UnionExp {
+        throw new Error("Not implemeted");
     }
-    visitReplicationGuideNode(node : AST.ReplicationGuideNode) : any {
-        
+    visitReplicationExpressionNode(node : AST.ReplicationExpressionNode) : Tree.UnionExp {
+        throw new Error("Not implemeted");
     }
-    visitReplicationGuideListNode(node : AST.ReplicationGuideListNode) : any {
-        
+    visitReplicationGuideNode(node : AST.ReplicationGuideNode) : Tree.UnionExp {
+        throw new Error("Not implemeted");
     }
-    visitImperativeBlockNode(node : AST.ImperativeBlockNode) : any {
-        
+    visitReplicationGuideListNode(node : AST.ReplicationGuideListNode) : Tree.UnionExp {
+        throw new Error("Not implemeted");
     }
-    visitAssociativeBlockNode(node : AST.AssociativeBlockNode) : any {
-        
+    visitImperativeBlockNode(node : AST.ImperativeBlockNode) : Tree.UnionExp {
+        throw new Error("Not implemeted");
+    }
+    visitAssociativeBlockNode(node : AST.AssociativeBlockNode) : Tree.UnionExp {
+        throw new Error("Not implemeted");
     }
 }
