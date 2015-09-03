@@ -1,13 +1,3 @@
 Parser.js
 AST.js
-Environment.js
 Visitor.js
-Replicator.js
-RuntimeTypes.js
-ImperativeInterpreter.js
-AssociativeInterpreter.js
-Range.js
-RuntimeTypes.js
-Frame.js
-legacy/AssociativeInterpreter.js
-legacy/ImperativeInterpreter.js

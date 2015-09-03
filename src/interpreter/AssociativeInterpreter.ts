@@ -1,9 +1,9 @@
-import * as AST from './AST';
+import * as AST from '../AST';
 import { Environment } from './Environment';
 import { TypedFunction, TypedArgument, ReplicatedExpression, DesignScriptError } from './RuntimeTypes';
 import { Replicator } from './Replicator';
 import { Range } from './Range';
-import { CpsVisitor } from './Visitor';
+import { CpsVisitor } from '../Visitor';
 import { ImperativeInterpreter } from './ImperativeInterpreter';
 
 export class DependencyNode {
@@ -155,7 +155,9 @@ export class AssociativeInterpreter implements CpsVisitor<DependencyNode> {
     }
 
     private literal<V>(node: AST.LiteralExpressionNode<V>, ret: (DependencyNode) => void) {
-        this.step(node, () => ret( DependencyNode.constant(node.value) ));
+        this.step(node, () => ret( 
+            DependencyNode.constant(node.value) 
+        ));
     }
 
     visitBooleanNode(node: AST.BooleanNode, ret: (boolean) => void) {

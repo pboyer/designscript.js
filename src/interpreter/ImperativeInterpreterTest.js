@@ -1,10 +1,10 @@
-var Parser = require('./Parser')
+var Parser = require('../Parser')
 	, assert = require('assert')
 	, Interpreter = require('./ImperativeInterpreter').ImperativeInterpreter
 	, TypedFunction = require('./RuntimeTypes').TypedFunction
-	, TypedArgument = require('./RuntimeTypes').TypedArgument;
-
-var ast = require('./AST');
+	, TypedArgument = require('./RuntimeTypes').TypedArgument
+	, ast = require('../AST');
+	
 Parser.parser.yy = ast;
 
 function run(p) {

@@ -1,4 +1,4 @@
-import { ParserState } from "./AST";
+import { ParserState } from "../AST";
 
 export class TypedFunction {
     name: string;

@@ -1,9 +1,9 @@
-import * as AST from './AST';
+import * as AST from '../AST';
 import { Environment } from './Environment';
 import { TypedFunction, TypedArgument, ReplicatedExpression, DesignScriptError } from './RuntimeTypes';
 import { Replicator } from './Replicator';
 import { Range } from './Range';
-import { CpsVisitor } from './Visitor';
+import { CpsVisitor } from '../Visitor';
 import { AssociativeInterpreter } from './AssociativeInterpreter';
 
 export class ImperativeInterpreter implements CpsVisitor<any> {

@@ -1,5 +1,5 @@
-import * as AST from '../AST';
-import { Visitor } from '../Visitor';
+import * as AST from '../../AST';
+import { Visitor } from '../../Visitor';
 import { Environment } from '../Environment';
 import { ImperativeInterpreter } from './ImperativeInterpreter';
 import { Replicator } from '../Replicator';

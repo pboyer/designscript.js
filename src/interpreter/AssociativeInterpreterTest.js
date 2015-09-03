@@ -1,9 +1,9 @@
-var Parser = require('./Parser')
+var Parser = require('../Parser')
 	, assert = require('assert')
 	, types = require('./RuntimeTypes')
-	, Interpreter = require('./AssociativeInterpreter').AssociativeInterpreter;
-
-var ast = require('./ast');
+	, Interpreter = require('./AssociativeInterpreter').AssociativeInterpreter
+	, ast = require('../AST');
+	
 Parser.parser.yy = ast;
 
 function run(p, fds){
