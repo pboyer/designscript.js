@@ -27,7 +27,10 @@ var step = function(n, e, s, c){
 };
 
 var ta = document.getElementById('codeInput');
-var cm = CodeMirror.fromTextArea( ta );
+var cm = CodeMirror.fromTextArea( ta, {
+        matchBrackets: true,
+        mode: "text/x-designscript"
+      });
 
 var runButton = document.getElementById('run'); 
 var pauseButton = document.getElementById('pause'); 
