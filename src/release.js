@@ -13,6 +13,7 @@ function run(p){
 
 module.exports = 
 {
+    AST : ast,
     Parser : Parser.parser,
     Interpreter : Interpreter,
     TypedFunction : TypedFunction,

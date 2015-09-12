@@ -111,6 +111,7 @@ export class ImperativeInterpreter implements CpsVisitor<any> {
     }
 
     visitBinaryExpressionNode(node: AST.BinaryExpressionNode, ret: (any) => any) {
+      
         this.step(node, () => {
             // evaluate first expression
             node.firstExpression.cpsAccept(this, (a) => {

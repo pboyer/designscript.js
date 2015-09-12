@@ -125,6 +125,7 @@ export class NumberNode extends ParsedNode implements LiteralExpressionNode<numb
     }
 }
 
+
 export class BooleanNode extends ParsedNode implements LiteralExpressionNode<boolean> {
     value: boolean;
 
