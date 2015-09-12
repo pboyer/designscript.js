@@ -51,9 +51,9 @@ var ds = require('./ds');
 var ast = ds.Parser.parse('w = [Imperative]{ return = 4; }'); 
 ```
 
-#### Parser and Interpreter
+#### Interpreter
 
-From the Parser example:
+Continuing from the Parser example:
 
 ```
 var i = new ds.Interpreter();
@@ -75,6 +75,8 @@ var interpreter = new ds.Interpreter(
 interpreter.run( ast ); 
  
 ```
+
+See `example/debugger.html` for a more complete example.
 
 ### Install
 
