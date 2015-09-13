@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/pboyer/verb.svg?branch=master)](https://travis-ci.org/pboyer/verb)
+[![Build Status](https://travis-ci.org/pboyer/designscript.js.svg?branch=master)](https://travis-ci.org/pboyer/designscript.js)
 
 ### Installing from npm
 
