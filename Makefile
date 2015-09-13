@@ -22,7 +22,6 @@ src/Parser.js: src/Parser.jison src/Lexer.jisonlex
 	jison src/Parser.jison src/Lexer.jisonlex -o src/Parser.js
 
 release: build
-	mkdir -p build
 	browserify release/release.js -o $(RELEASE_OUTPUT) -s $(RELEASE_NAME)
 
 test: build
@@ -33,5 +32,4 @@ test: build
 	node src/interpreter/RangeTest.js
 
 clean:
-	rm -rf build
 	rm -f src/*.js src/*/*.js
