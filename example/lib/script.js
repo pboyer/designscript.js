@@ -8,10 +8,18 @@ var mark = function(n){
 
 var cont, marking;
 
+function print(x){
+	console.log(x);
+}
+
+function update(x){
+	console.log(x);
+}
+
 var step = function(n, e, s, c){
 	marking = mark(n);
-	console.log(n);
-	console.log(e);
+	print(n);
+	update(e);
 	
 	cont = function(){ 
 		if (!running) {
@@ -49,8 +57,8 @@ runButton.addEventListener("click", function(){
 		cont();
 	} else {
 		running = true;	
-		interpreter = new ds.Interpreter(step);
-		interpreter.run( ds.Parser.parse(cm.getValue()));
+		interpreter = new designscript.Interpreter(step);
+		interpreter.run( designscript.Parser.parse(cm.getValue()));
 	}
 	
 	runButton.disabled = true;

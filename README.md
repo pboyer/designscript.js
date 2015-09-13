@@ -2,7 +2,7 @@
 
 ## designscript.js
 
-A DesignScript parser and interpreter that runs in the browser. You can use it to parse, generate, and run DesignScript code.
+An attempt at writing a DesignScript parser and interpreter that runs in the browser. You can use it to parse, generate, and run DesignScript code. Because there is no spec for the DesignScript language, it probably has semantic issues. :)
 
 Most of the project is written in TypeScript.
 

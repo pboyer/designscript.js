@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+    <head>
+        <title>designscript.js</title>
+        <link rel="stylesheet" href="lib/codemirror.css">
+        <link rel="stylesheet" href="lib/style.css">
+        
+        <script src="lib/codemirror.js"></script>
+        <script src="lib/clike.js"></script>
+        <script src="../build/designscript.js"></script>
+    
+        <style>
+            .highlight {
+                background-color: yellow;
+            }
+            input {
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                padding: 10px;
+                margin: 2px;
+            }
+        </style>
+    
+    </head>
+    
+    <body>
+        <h1>designscript.js</h1>
+        <h4><a href="http://github.com/pboyer/designscript.js">pboyer/designscript.js</a></h4>
+        
+        Use the buttons below to control execution. The part of the code being executed will be highlighted. Show the console <span style="font-weight:bold">Ctrl (Command) + Shift + J</span> to see more detailed info.
+        <br/>
+        <br/>
+        <input id="run" type="button" value="&#9658;">
+        <input id="pause" type="button" value="&#10073;&#10073;">
+        <input id="reset" type="button" value="&#9724;">
+        <textarea id="codeInput">
+// A simple function definition
+def addTwo(b : number){
+  return = b + 2;
+}
+
+// Replicate the function with a range expression
+w = addTwo(1..3);
+
+// An imperative language block
+r = [Imperative]{
+  if (true){
+    return = "Cool result";
+  } else {
+    return = "Not cool result";
+  }
+}
+
+// print to the javascript console
+print(w);  
+        </textarea>
+        <script src="lib/script.js"></script>
+    </body>
+</html>
