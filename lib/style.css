@@ -1,0 +1,56 @@
+body {
+	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	width:  100%;
+	height: 100%;
+	-webkit-backface-visibility: hidden;
+}
+
+.row, .col { overflow: hidden; position: absolute; }
+.row { left: 0; right: 0; }
+.col { top: 0; bottom: 0; }
+.scroll-x { overflow-x: auto; }
+.scroll-y { overflow-y: auto; }
+
+#left {
+	padding: 20px;
+	left: 0;
+	right: 620px;
+}
+
+#right {
+	background-color: #eee;
+	color: #222;
+	font-size: 14px;
+	padding: 20px;
+	width: 600px;
+	right: 0;
+}
+
+.CodeMirror {
+ border: 1px solid #eee;
+  height: auto;
+}
+
+.highlight {
+	background-color: yellow;
+}
+
+input {
+    background-color: #ddd;
+    color: #444;
+    font-size: 20px;
+    cursor: pointer;
+    border:none;
+	padding: 5px 30px;
+	margin: 0;
+	height: 35px;
+}
+
+input:hover {
+    border: none;
+    background: #888;
+}
+
+#controls {
+	padding: 5px;
+}

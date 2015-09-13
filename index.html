@@ -1,40 +1,86 @@
 <!doctype html>
 <html>
     <head>
+        <title>designscript.js</title>
         <link rel="stylesheet" href="lib/codemirror.css">
         <link rel="stylesheet" href="lib/style.css">
         
         <script src="lib/codemirror.js"></script>
         <script src="lib/clike.js"></script>
-        <script src="lib/designscript.js"></script>
-    
-        <style>
-            .highlight {
-                background-color: yellow;
-            }
-            input {
-                -webkit-appearance: none;
-                -moz-appearance: none;
-                appearance: none;
-                padding: 10px;
-                margin: 2px;
-            }
-        </style>
-    
+        <script src="../build/designscript.js"></script>
+
     </head>
     
     <body>
-        <textarea id="codeInput">
-def foo(b : number){
-  return = b + 2;
+        <div id="left" class="col">
+            <h1>designscript.js</h1>
+            <h4><a href="http://github.com/pboyer/designscript.js">pboyer/designscript.js</a></h4>
+           
+            <p>An attempt at writing a DesignScript parser and interpreter that runs in the browser. You can use it to parse, generate, and run DesignScript code. Because there is no spec for the DesignScript language, it probably has semantic issues. :)</p>
+            
+            <p>Most of the project is written in TypeScript.</p>
+            
+            <h3><a id="user-content-this-project-currently-includes" class="anchor" href="#this-project-currently-includes" aria-hidden="true"><span class="octicon octicon-link"></span></a>This project currently includes:</h3>
+            
+            <ul>
+            <li>AST</li>
+            <li>Parser</li>
+            <li>Interpreter (with debugging support)</li>
+            </ul>
+            
+            <h3><a id="user-content-language-features" class="anchor" href="#language-features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Language features:</h3>
+            
+            <ul>
+            <li>Language blocks (Imperative and Associative)</li>
+            <li>Replication</li>
+            <li>Replication guides</li>
+            <li>Type declaration for variables, function arguments</li>
+            <li>Range expressions</li>
+            </ul>
+            
+            <p>See <code>src/AST.ts</code> for a complete list.</p>
+            
+            <h3><a id="user-content-not-yet-implemented" class="anchor" href="#not-yet-implemented" aria-hidden="true"><span class="octicon octicon-link"></span></a>Not yet implemented</h3>
+            
+            <ul>
+            <li>For, while loops in imperative blocks</li>
+            <li>Classes</li>
+            </ul>
+
+       
+        </div>
+        
+        <div id="right" class="col">      
+            Use the buttons below to control execution. The part of the code being executed will be highlighted. Show the console <span style="font-weight:bold">Ctrl (Command) + Shift + J</span> to see more detailed info.
+            <br/>
+            <br/>
+            <div id="controls">
+                <input id="run" type="button" value="&#9658;">
+                <input id="pause" type="button" value="&#10073;&#10073;">
+                <input id="reset" type="button" value="&#9724;">
+            </div>
+            <textarea id="codeInput" class="row">
+// A simple function definition
+def addTwo(b : number){
+    return = b + 2;
 }
-a = {1,2,3};
-w = foo(a);
-print(w);
-        </textarea>
-        <input id="run" type="button" value="&#9658;">
-        <input id="pause" type="button" value="&#10073;&#10073;">
-        <input id="reset" type="button" value="&#9724;">
+
+// Replicate the function with a range expression
+w = addTwo(1..3);
+
+// An imperative language block
+r = [Imperative]{
+    if (true){
+        return = "Cool result";
+    } else {
+        return = "Not cool result";
+    }
+}
+
+// print to the javascript console
+print(w);  
+            </textarea>
+        </div>
         <script src="lib/script.js"></script>
     </body>
 </html>
