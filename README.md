@@ -1,13 +1,6 @@
 [![Build Status](https://travis-ci.org/pboyer/designscript.js.svg?branch=master)](https://travis-ci.org/pboyer/designscript.js)
 
-## Installing from npm
-
-```
-# npm install designscript.js
-```
-DesignScript.js is generated with browserify, so you can use it with a variety of module systems (see below).
-
-## About
+## designscript.js
 
 A DesignScript parser and interpreter that runs in the browser. You can use it to parse, generate, and run DesignScript code.
 
@@ -33,6 +26,13 @@ See `src/AST.ts` for a complete list.
 
 * For, while loops in imperative blocks
 * Classes
+
+## Installing from npm
+
+```
+# npm install designscript.js
+```
+DesignScript.js is generated with browserify, so you can use it with a variety of module systems (see below).
 
 ## Usage
 
