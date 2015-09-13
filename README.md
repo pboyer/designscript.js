@@ -30,7 +30,7 @@ See `src/AST.ts` for a complete list.
 #### Code generation
 
 ```
-var AST = require('./ds').AST;
+var AST = require('./designscript').AST;
 
 var sl = 
 	new AST.StatementListNode(
@@ -45,10 +45,10 @@ console.log( sl.toString() ); // prints "a : number = 3.14159;"
 #### Parser
 
 ```
-var ds = require('./ds');
+var designscript = require('./designscript');
 
 // parse some DesignScript
-var ast = ds.Parser.parse('w = [Imperative]{ return = 4; }'); 
+var ast = designscript.Parser.parse('w = [Imperative]{ return = 4; }'); 
 ```
 
 #### Interpreter
@@ -56,7 +56,7 @@ var ast = ds.Parser.parse('w = [Imperative]{ return = 4; }');
 Continuing from the Parser example:
 
 ```
-var i = new ds.Interpreter();
+var i = new designscript.Interpreter();
 i.run( ast ); 
 
 console.log( i.env.lookup("w") ); // prints "4"
@@ -67,7 +67,7 @@ console.log( i.env.lookup("w") ); // prints "4"
 Pass a function to an Interpreter that will be invoked upon consuming every part of the AST. When invoked, the Interpreter passes along a callback that must be invoked in order to continue execution.
 
 ```
-var interpreter = new ds.Interpreter(
+var interpreter = new designscript.Interpreter(
 	function(node, env, stack, callback){
 		// do stuff with node, env, stack
 		callback();
@@ -99,7 +99,7 @@ Install [node.js](http://www.nodejs.org)
 ```
 # make release
 ```
-Produces ds.js in the build directory
+Produces designscript.js in the build directory
 
 ### Test
 

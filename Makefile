@@ -6,7 +6,7 @@ build:
 
 release: build
 	mkdir -p build
-	browserify src/release.js -o build/ds.js -s ds
+	browserify src/release.js -o build/designscript.js -s designscript
 
 test: build
 	node src/ParserTest.js

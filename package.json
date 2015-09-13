@@ -1,15 +1,12 @@
 {
-  "name": "ds",
+  "name": "designscript.js",
   "version": "0.0.1",
-  "description": "",
+  "description": "DesignScript in the browser",
   "repository": {
     "type": "git",
-    "url": "git://github.com/pboyer/ds.git"
+    "url": "git://github.com/pboyer/DesignScript.git"
   },
   "license": "MIT",
-  "dependencies": {
-	  "es6-promise": "3.0.2"
-  },
   "devDependencies": {
   },
   "engines": {
