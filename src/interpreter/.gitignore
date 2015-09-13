@@ -1,7 +1,1 @@
-AssociativeInterpreter.js
-Environment.js
-ImperativeInterpreter.js
-Range.js
-RuntimeTypes.js
-Replicator.js
-RuntimeTypes.js
+*.js
