@@ -5,13 +5,13 @@ export class TypedFunction {
     func: (...any) => any;
     argumentTypes: TypedArgument[];
 
-    constructor(f: (...any) => any, al: TypedArgument[], name: string ) {
+    constructor(f: (...any) => any, al: TypedArgument[], name?: string ) {
         this.func = f;
         this.argumentTypes = al; 
         this.name = name;
     }
     
-    static byFunction(f: (...any) => any, al: TypedArgument[], name: string){
+    static byFunction(f: (...any) => any, al: TypedArgument[], name?: string){
         return new TypedFunction(function() {
             // we obtain the arguments
             var args = Array.prototype.slice.call(arguments);

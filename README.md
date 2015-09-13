@@ -1,26 +1,25 @@
 [![Build Status](https://travis-ci.org/pboyer/designscript.js.svg?branch=master)](https://travis-ci.org/pboyer/designscript.js)
 
-### Installing from npm
+## Installing from npm
 
 ```
 # npm install designscript.js
 ```
 DesignScript.js is generated with browserify, so you can use it with a variety of module systems (see below).
 
-
-### About
+## About
 
 A DesignScript parser and interpreter that runs in the browser. You can use it to parse, generate, and run DesignScript code.
 
 Most of the project is written in TypeScript.
 
-#### This project currently includes:
+### This project currently includes:
 
 * AST
 * Parser
 * Interpreter (with debugging support)
 
-#### Language features:
+### Language features:
 
 * Language blocks (Imperative and Associative)
 * Replication
@@ -30,14 +29,14 @@ Most of the project is written in TypeScript.
 
 See `src/AST.ts` for a complete list.
 
-#### Not yet implemented
+### Not yet implemented
 
 * For, while loops in imperative blocks
 * Classes
 
-### Usage
+## Usage
 
-#### Code generation
+### Code generation
 
 ```
 var AST = require('./build/designscript').AST;
@@ -52,7 +51,7 @@ console.log( sl.toString() ); // prints "a : number = 3.14159;"
 
 ```
 
-#### Parser
+### Parser
 
 ```
 var designscript = require('./build/designscript');
@@ -61,7 +60,7 @@ var designscript = require('./build/designscript');
 var ast = designscript.Parser.parse('w = [Imperative]{ return = 4; }'); 
 ```
 
-#### Interpreter
+### Interpreter
 
 Continuing from the Parser example:
 
@@ -72,7 +71,7 @@ i.run( ast );
 console.log( i.env.lookup("w") ); // prints "4"
 ```
 
-#### Debugging
+### Debugging
 
 Pass a function to an Interpreter that will be invoked upon consuming every part of the AST. When invoked, the Interpreter passes along a callback that must be invoked in order to continue execution.
 
@@ -88,7 +87,7 @@ interpreter.run( ast );
 
 See `example/debugger.html` for a more complete example.
 
-### Install
+## Install
 
 Install [node.js](http://www.nodejs.org)
 
@@ -98,7 +97,7 @@ Install [node.js](http://www.nodejs.org)
 # npm install -g typescript
 ```
 
-### Build
+## Build
 
 ```
 # make build
@@ -111,7 +110,7 @@ Install [node.js](http://www.nodejs.org)
 ```
 Produces designscript.js in the build directory
 
-### Test
+## Test
 
 ```
 # make test
