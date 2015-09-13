@@ -1,1 +1,40 @@
-My Page
+<!doctype html>
+<html>
+    <head>
+        <link rel="stylesheet" href="lib/codemirror.css">
+        <link rel="stylesheet" href="lib/style.css">
+        
+        <script src="lib/codemirror.js"></script>
+        <script src="lib/clike.js"></script>
+        <script src="../build/DesignScript.js"></script>
+    
+        <style>
+            .highlight {
+                background-color: yellow;
+            }
+            input {
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                padding: 10px;
+                margin: 2px;
+            }
+        </style>
+    
+    </head>
+    
+    <body>
+        <textarea id="codeInput">
+def foo(b : number){
+  return = b + 2;
+}
+a = {1,2,3};
+w = foo(a);
+print(w);
+        </textarea>
+        <input id="run" type="button" value="&#9658;">
+        <input id="pause" type="button" value="&#10073;&#10073;">
+        <input id="reset" type="button" value="&#9724;">
+        <script src="lib/script.js"></script>
+    </body>
+</html>
