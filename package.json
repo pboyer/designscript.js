@@ -7,7 +7,7 @@
     "url": "git://github.com/pboyer/designscript.js.git"
   },
   "scripts": {
-    "test": "make test"
+    "test": "make build && make test"
   },
   "license": "MIT",
   "devDependencies": {
