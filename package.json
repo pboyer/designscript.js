@@ -1,10 +1,13 @@
 {
   "name": "designscript.js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "DesignScript in the browser",
   "repository": {
     "type": "git",
-    "url": "git://github.com/pboyer/DesignScript.git"
+    "url": "git://github.com/pboyer/designscript.js.git"
+  },
+  "scripts": {
+    "test": "make test"
   },
   "license": "MIT",
   "devDependencies": {

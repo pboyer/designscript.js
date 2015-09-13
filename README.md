@@ -1,3 +1,13 @@
+[![Build Status](https://travis-ci.org/pboyer/verb.svg?branch=master)](https://travis-ci.org/pboyer/verb)
+
+### Installing from npm
+
+```
+# npm install designscript.js
+```
+DesignScript.js is generated with browserify, so you can use it with a variety of module systems (see below).
+
+
 ### About
 
 A DesignScript parser and interpreter that runs in the browser. You can use it to parse, generate, and run DesignScript code.
@@ -30,7 +40,7 @@ See `src/AST.ts` for a complete list.
 #### Code generation
 
 ```
-var AST = require('./designscript').AST;
+var AST = require('./build/designscript').AST;
 
 var sl = 
 	new AST.StatementListNode(
@@ -45,7 +55,7 @@ console.log( sl.toString() ); // prints "a : number = 3.14159;"
 #### Parser
 
 ```
-var designscript = require('./designscript');
+var designscript = require('./build/designscript');
 
 // parse some DesignScript
 var ast = designscript.Parser.parse('w = [Imperative]{ return = 4; }'); 
