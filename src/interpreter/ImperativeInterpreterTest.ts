@@ -46,6 +46,11 @@ function interpret(p) {
 })();
 
 (function () {
+	var r = run('b = 0; for (a = 0; 5 > a; a = a + 1){ b = b + 1; } debug(b);');
+	assert.equal(5, r[0]);
+})();
+
+(function () {
 	var r = run('a = 0; b = 0; while (5 > a){ a = a + 1; continue; b = b + 1; } debug(b);');
 	assert.equal(0, r[0]);
 })();

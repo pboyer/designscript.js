@@ -248,23 +248,6 @@ export class AssociativeInterpreter implements CpsVisitor<DependencyNode> {
             node.assignment.cpsAccept(this, ret);
         });
     }
-     
-    visitForLoopNode(node: AST.ForLoopNode, ret: (T) => void){
-        throw new Error("Not implemented!");
-    }
-    
-    visitWhileLoopNode(node: AST.WhileLoopNode, ret: (T) => void){
-         throw new Error("Not implemented!");
-    }
-    
-    visitContinueStatementNode(node: AST.ContinueStatementNode, ret: (T) => void){
-         throw new Error("Not implemented!");
-    }
-    
-    visitBreakStatementNode(node: AST.BreakStatementNode, ret: (T) => void){
-         throw new Error("Not implemented!");
-    }
-
 
     visitFunctionCallNode(node: AST.FunctionCallNode, ret: (DependencyNode) => void) {
         this.step(node, () => {
@@ -530,5 +513,21 @@ export class AssociativeInterpreter implements CpsVisitor<DependencyNode> {
 
     error(message: string, state: AST.ParserState): DesignScriptError {
         return new DesignScriptError(message, state);
+    }
+    
+    visitForLoopNode(node: AST.ForLoopNode, ret: (T) => void){
+        throw new Error("For Loops are not supported in Associative language blocks. Try using an Imperative code block.");
+    }
+    
+    visitWhileLoopNode(node: AST.WhileLoopNode, ret: (T) => void){
+         throw new Error("While Loops are not supported in Associative language blocks. Try using an Imperative code block.");
+    }
+    
+    visitContinueStatementNode(node: AST.ContinueStatementNode, ret: (T) => void){
+         throw new Error("continue statements are not supported in Associative language blocks. Try using an Imperative code block.");
+    }
+    
+    visitBreakStatementNode(node: AST.BreakStatementNode, ret: (T) => void){
+         throw new Error("break statements are not supported in Associative language blocks. Try using an Imperative code block.");
     }
 }

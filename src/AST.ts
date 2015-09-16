@@ -418,14 +418,14 @@ export class ForLoopNode extends StatementNode {
     
     init: StatementListNode;
     test: ExpressionNode;
-    iterator: StatementNode;
+    post: StatementNode;
     block: StatementListNode;
 
     constructor(init: StatementListNode, rangeCheckExpression: ExpressionNode, iterator: StatementNode, block : StatementListNode) {
         super();
         this.init = init;
         this.test = rangeCheckExpression;
-        this.iterator = iterator;
+        this.post = iterator;
         this.block = block;
     }
 
@@ -433,7 +433,7 @@ export class ForLoopNode extends StatementNode {
         
         var inits = this.init ? this.init.toLines("").join(',') : "";
         var rangeCheck = this.test ? this.test.toString() : "";
-        var iterator = this.iterator ? this.iterator.toString() : "";
+        var iterator = this.post ? this.post.toString() : "";
         
         return [indent + 'for(' + inits + ';' + rangeCheck + ';' + iterator +'){']
             .concat(this.block.toLines(indent + '\t'))

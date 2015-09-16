@@ -194,7 +194,7 @@ export class ImperativeInterpreter implements CpsVisitor<any> {
     visitWhileLoopNode(node: AST.WhileLoopNode, ret: (T) => void){
         
          var loop = () => {
-             // evaluate test expression
+            // evaluate test expression
             node.test.cpsAccept(this, (r) => {
                 // if the test expression is true
                 if (r === true){
@@ -211,7 +211,36 @@ export class ImperativeInterpreter implements CpsVisitor<any> {
     }
     
     visitForLoopNode(node: AST.ForLoopNode, ret: (T) => void){
-        throw new Error("Not implemented!");
+
+        var loop = () => {
+            // evaluate test expression
+            node.test.cpsAccept(this, (r) => {
+                // if the test expression is true
+                if (r === true){
+                    // execute the block, post, and repeat
+                    this.evalLoopBlock( node.block, post, ret );
+                } else {
+                    // exit loop
+                    ret(undefined);
+                }
+            });
+        };
+            
+        var post = () => {
+            node.post.cpsAccept(this, (_) => {
+                loop();
+            });
+        };
+        
+        // 0 evaluate init expressions
+        // 1 check value
+        // 2 eval block
+        // 3 do increment
+        // goto 1
+            
+        this.step(node, () => {
+            node.init.cpsAccept(this, (_) => loop())
+        });
     }
     
     visitContinueStatementNode(node: AST.ContinueStatementNode, ret: (T) => void){
