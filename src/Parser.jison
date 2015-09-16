@@ -77,12 +77,12 @@ OptionalExpression
 
 ContinueStatement
 	: CONTINUE SEMICOLON
-	{ $$ = recordState( new yy.ContinueStatement(), @$);  }
+	{ $$ = recordState( new yy.ContinueStatementNode(), @$);  }
 	;
 	
 BreakStatement
 	: BREAK SEMICOLON
-	{ $$ = recordState( new yy.BreakStatement(), @$);  }
+	{ $$ = recordState( new yy.BreakStatementNode(), @$);  }
 	;
 	
 Block 	

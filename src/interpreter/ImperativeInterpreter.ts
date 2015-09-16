@@ -215,11 +215,11 @@ export class ImperativeInterpreter implements CpsVisitor<any> {
     }
     
     visitContinueStatementNode(node: AST.ContinueStatementNode, ret: (T) => void){
-         throw new Error("Not implemented!");
+         this.step(node, () => ret(undefined));
     }
     
     visitBreakStatementNode(node: AST.BreakStatementNode, ret: (T) => void){
-         throw new Error("Not implemented!");
+         this.step(node, () => ret(undefined));
     }
 
     visitExpressionListNode(node: AST.ExpressionListNode, ret: (T) => void) {

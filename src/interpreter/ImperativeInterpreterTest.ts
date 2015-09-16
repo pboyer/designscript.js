@@ -41,6 +41,16 @@ function interpret(p) {
 })();
 
 (function () {
+	var r = run('a = 0; while (true){ if (a == 5){ break; } else { a = a + 1; } } debug(a);');
+	assert.equal(5, r[0]);
+})();
+
+(function () {
+	var r = run('a = 0; b = 0; while (5 > a){ a = a + 1; continue; b = b + 1; } debug(b);');
+	assert.equal(0, r[0]);
+})();
+
+(function () {
 	var r = run('a = 4; debug( a );');
 	assert.equal(4, r[0]);
 })();
