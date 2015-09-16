@@ -168,12 +168,50 @@ export class ImperativeInterpreter implements CpsVisitor<any> {
         });
     }
      
-    visitForLoopNode(node: AST.ForLoopNode, ret: (T) => void){
-        throw new Error("Not implemented!");
+    evalLoopBlock(block : AST.StatementListNode, loop : () => void, breakLoop : (any) => void ) {
+
+        var innerCheck = this.debug;
+        var cleanup = () => this.debug = innerCheck;
+        var check = (a,e,s,r) => {
+            innerCheck(a,e,s,() => {
+                if (a instanceof AST.ContinueStatementNode){
+                    cleanup();
+                    loop();
+                } else if (a instanceof AST.BreakStatementNode){
+                    cleanup();
+                    breakLoop(undefined);
+                    return;
+                } else {
+                    r(); // continue execution of the block
+                }
+            });
+        };
+        
+        this.debug = check;
+        block.cpsAccept(this, loop);
     }
     
     visitWhileLoopNode(node: AST.WhileLoopNode, ret: (T) => void){
-         throw new Error("Not implemented!");
+        
+         var loop = () => {
+             // evaluate test expression
+            node.test.cpsAccept(this, (r) => {
+                // if the test expression is true
+                if (r === true){
+                    // execute the block
+                    this.evalLoopBlock( node.block, loop, ret );
+                } else {
+                    // exit loop
+                    ret(undefined);
+                }
+            });
+         };
+         
+         this.step(node, loop);
+    }
+    
+    visitForLoopNode(node: AST.ForLoopNode, ret: (T) => void){
+        throw new Error("Not implemented!");
     }
     
     visitContinueStatementNode(node: AST.ContinueStatementNode, ret: (T) => void){

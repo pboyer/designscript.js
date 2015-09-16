@@ -36,6 +36,11 @@ function interpret(p) {
 })();
 
 (function () {
+	var r = run('a = 0; while (20 > a){ a = a + 1; } debug(a);');
+	assert.equal(20, r[0]);
+})();
+
+(function () {
 	var r = run('a = 4; debug( a );');
 	assert.equal(4, r[0]);
 })();

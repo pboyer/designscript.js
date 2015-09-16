@@ -416,49 +416,65 @@ export class StatementNode extends ParsedNode implements Node {
 
 export class ForLoopNode extends StatementNode {
     
-    initializerStatements: StatementListNode;
-    rangeCheckExpression: ExpressionNode;
+    init: StatementListNode;
+    test: ExpressionNode;
     iterator: StatementNode;
     block: StatementListNode;
 
     constructor(init: StatementListNode, rangeCheckExpression: ExpressionNode, iterator: StatementNode, block : StatementListNode) {
         super();
-        this.initializerStatements = init;
-        this.rangeCheckExpression = rangeCheckExpression;
+        this.init = init;
+        this.test = rangeCheckExpression;
         this.iterator = iterator;
         this.block = block;
     }
 
     toLines(indent: string): string[] {
         
-        var inits = this.initializerStatements ? this.initializerStatements.toLines("").join(',') : "";
-        var rangeCheck = this.rangeCheckExpression ? this.rangeCheckExpression.toString() : "";
+        var inits = this.init ? this.init.toLines("").join(',') : "";
+        var rangeCheck = this.test ? this.test.toString() : "";
         var iterator = this.iterator ? this.iterator.toString() : "";
         
         return [indent + 'for(' + inits + ';' + rangeCheck + ';' + iterator +'){']
             .concat(this.block.toLines(indent + '\t'))
             .concat([indent + '}']);
     }
+       
+    accept<T>(v: Visitor<T>): T {
+        return v.visitForLoopNode(this);
+    }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void) {
+        v.visitForLoopNode(this,c);
+    }
 }
 
 export class WhileLoopNode extends StatementNode {
     
-    rangeCheckExpression: ExpressionNode;
+    test: ExpressionNode;
     block: StatementListNode;
 
     constructor(rangeCheckExpression: StatementListNode, block: StatementListNode) {
         super();
-        this.rangeCheckExpression = rangeCheckExpression;
+        this.test = rangeCheckExpression;
         this.block = block;
     }
 
     toLines(indent: string): string[] {
         
-        var rangeCheck = this.rangeCheckExpression ? this.rangeCheckExpression.toString() : "";
+        var rangeCheck = this.test ? this.test.toString() : "";
         
         return [indent + 'while(' + rangeCheck + '){']
             .concat(this.block.toLines(indent + '\t'))
             .concat([indent + '}']);
+    }
+    
+    accept<T>(v: Visitor<T>): T {
+        return v.visitWhileLoopNode(this);
+    }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, c : (T) => void) {
+        v.visitWhileLoopNode(this,c);
     }
 }
 
