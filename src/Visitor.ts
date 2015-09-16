@@ -23,6 +23,12 @@ export interface Visitor<T> {
     visitImperativeBlockNode(node : AST.ImperativeBlockNode) : T;
     visitAssociativeBlockNode(node : AST.AssociativeBlockNode) : T;
     
+    visitForLoopNode(node: AST.ForLoopNode);
+    visitWhileLoopNode(node: AST.WhileLoopNode);
+    visitAssignmentStatementNode(node: AST.AssignmentStatementNode);
+    visitContinueStatementNode(node: AST.ContinueStatementNode);
+    visitBreakStatementNode(node: AST.BreakStatementNode);
+    
 }
 
 export interface CpsVisitor<T> {
@@ -41,11 +47,17 @@ export interface CpsVisitor<T> {
     visitStatementListNode(node: AST.StatementListNode, ret: (T) => void);
     visitIfStatementNode(node: AST.IfStatementNode, ret: (T) => void);
     visitFunctionDefinitionNode(node: AST.FunctionDefinitionNode, ret: (T) => void);
-    visitAssignmentNode(node: AST.AssignmentNode, ret: (T) => void);
     visitReplicationExpressionNode(node: AST.ReplicationExpressionNode, ret: (T) => void);
     visitReplicationGuideNode(node: AST.ReplicationGuideNode, ret: (T) => void);
     visitReplicationGuideListNode(node: AST.ReplicationGuideListNode, ret: (T) => void);
     visitImperativeBlockNode(node: AST.ImperativeBlockNode, ret: (T) => void);
     visitAssociativeBlockNode(node: AST.AssociativeBlockNode, ret: (T) => void);
+    visitAssignmentStatementNode(node: AST.AssignmentStatementNode, ret: (T) => void);
+    visitAssignmentNode(node: AST.AssignmentNode, ret: (T) => void);
+    
+    visitForLoopNode(node: AST.ForLoopNode, ret: (T) => void);
+    visitWhileLoopNode(node: AST.WhileLoopNode, ret: (T) => void);
+    visitContinueStatementNode(node: AST.ContinueStatementNode, ret: (T) => void);
+    visitBreakStatementNode(node: AST.BreakStatementNode, ret: (T) => void);
     
 }

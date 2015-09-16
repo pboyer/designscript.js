@@ -414,6 +414,54 @@ export class StatementNode extends ParsedNode implements Node {
     }
 }
 
+export class ForLoopNode extends StatementNode {
+    
+    initializerStatements: StatementListNode;
+    rangeCheckExpression: ExpressionNode;
+    iterator: StatementNode;
+    block: StatementListNode;
+
+    constructor(init: StatementListNode, rangeCheckExpression: ExpressionNode, iterator: StatementNode, block : StatementListNode) {
+        super();
+        this.initializerStatements = init;
+        this.rangeCheckExpression = rangeCheckExpression;
+        this.iterator = iterator;
+        this.block = block;
+    }
+
+    toLines(indent: string): string[] {
+        
+        var inits = this.initializerStatements ? this.initializerStatements.toLines("").join(',') : "";
+        var rangeCheck = this.rangeCheckExpression ? this.rangeCheckExpression.toString() : "";
+        var iterator = this.iterator ? this.iterator.toString() : "";
+        
+        return [indent + 'for(' + inits + ';' + rangeCheck + ';' + iterator +'){']
+            .concat(this.block.toLines(indent + '\t'))
+            .concat([indent + '}']);
+    }
+}
+
+export class WhileLoopNode extends StatementNode {
+    
+    rangeCheckExpression: ExpressionNode;
+    block: StatementListNode;
+
+    constructor(rangeCheckExpression: StatementListNode, block: StatementListNode) {
+        super();
+        this.rangeCheckExpression = rangeCheckExpression;
+        this.block = block;
+    }
+
+    toLines(indent: string): string[] {
+        
+        var rangeCheck = this.rangeCheckExpression ? this.rangeCheckExpression.toString() : "";
+        
+        return [indent + 'while(' + rangeCheck + '){']
+            .concat(this.block.toLines(indent + '\t'))
+            .concat([indent + '}']);
+    }
+}
+
 export class LanguageBlockNode extends StatementNode {
     name: string;
     statementList: StatementListNode;
@@ -469,7 +517,7 @@ export class StatementListNode extends StatementNode {
         this.tail = sl;
     }
 
-    toLines(indent: string) {
+    toLines(indent: string) : string[] {
         var s = this.head.toLines(indent);
         var sl = this.tail;
         while (sl != null) {
@@ -543,7 +591,7 @@ export class FunctionDefinitionNode extends StatementNode {
     }
 }
 
-export class AssignmentNode extends StatementNode {
+export class AssignmentNode extends ParsedNode implements ExpressionNode {
     identifier: IdentifierNode;
     expression: ExpressionNode;
 
@@ -553,8 +601,8 @@ export class AssignmentNode extends StatementNode {
         this.expression = e;
     }
 
-    toLines(indent) {
-        return [indent + this.identifier.toString() + ' = ' + this.expression.toString() + ';'];
+    toString() {
+        return this.identifier.toString() + ' = ' + this.expression.toString();
     }
 
     accept<T>(v: Visitor<T>): T {
@@ -563,5 +611,63 @@ export class AssignmentNode extends StatementNode {
     
     cpsAccept<T>(v: CpsVisitor<T>, ret : (T) => any): T {
         return v.visitAssignmentNode(this, ret);
+    }
+}
+
+export class AssignmentStatementNode extends StatementNode {
+    assignment: AssignmentNode;
+
+    constructor(assignment: AssignmentNode) {
+        super();
+        this.assignment = assignment;
+    }
+
+    toLines(indent) {
+        return [indent + this.assignment.toString() + ';'];
+    }
+
+    accept<T>(v: Visitor<T>): T {
+        return v.visitAssignmentStatementNode(this);
+    }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, ret : (T) => any): T {
+        return v.visitAssignmentStatementNode(this, ret);
+    }
+}
+
+export class ContinueStatementNode extends StatementNode {
+    constructor() {
+        super();
+    }
+
+    toLines(indent) {
+        return [indent + "continue;"];
+    }
+
+    accept<T>(v: Visitor<T>): T {
+        return v.visitContinueStatementNode(this);
+    }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, ret : (T) => any): T {
+        return v.visitContinueStatementNode(this, ret);
+    }
+}
+
+
+export class BreakStatementNode extends StatementNode {
+    constructor() {
+        super();
+    }
+
+    toLines(indent) {
+        return [indent + "break;"];
+    }
+
+    accept<T>(v: Visitor<T>): T {
+        return v.visitBreakStatementNode(this);
+    }
+    
+    cpsAccept<T>(v: CpsVisitor<T>, ret : (T) => any): T {
+        return v.visitBreakStatementNode(this, ret);
     }
 }

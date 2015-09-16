@@ -12,6 +12,10 @@ number                      [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?
 "null"                      return 'NUL';
 "true"                      return 'TRUE';
 "false"                     return 'FALSE';
+"for"                     	return 'FOR';
+"while"                     return 'WHILE';
+"break"                     return 'BREAK';
+"continue"                  return 'CONTINUE';
 "Imperative"                return 'IMPERATIVE';
 "Associative"               return 'ASSOCIATIVE';
 "return"                    return 'RETURN';

@@ -242,6 +242,29 @@ export class AssociativeInterpreter implements CpsVisitor<DependencyNode> {
             });
         });
     }
+    
+    visitAssignmentStatementNode(node: AST.AssignmentStatementNode, ret: (any) => any) {
+        this.step(node, () => {
+            node.assignment.cpsAccept(this, ret);
+        });
+    }
+     
+    visitForLoopNode(node: AST.ForLoopNode, ret: (T) => void){
+        throw new Error("Not implemented!");
+    }
+    
+    visitWhileLoopNode(node: AST.WhileLoopNode, ret: (T) => void){
+         throw new Error("Not implemented!");
+    }
+    
+    visitContinueStatementNode(node: AST.ContinueStatementNode, ret: (T) => void){
+         throw new Error("Not implemented!");
+    }
+    
+    visitBreakStatementNode(node: AST.BreakStatementNode, ret: (T) => void){
+         throw new Error("Not implemented!");
+    }
+
 
     visitFunctionCallNode(node: AST.FunctionCallNode, ret: (DependencyNode) => void) {
         this.step(node, () => {

@@ -37,16 +37,20 @@ StatementList
 Statement 
 	: FunctionDefinition 
 	| Block
-	| Assignment
+	| AssignmentStatement
 	| LanguageBlockAssignment
 	| FunctionCall SEMICOLON
     | IfStatement
 	| ReturnStatement
+	| BreakStatement
+	| ContinueStatement
+	| ForLoop
+	| WhileLoop
     ;
 	
 LanguageBlockAssignment	
-	: TypedIdentifier ASSIGN LanguageBlock
-	{ $$ = recordState( new yy.AssignmentNode( $1, $3 ), @$); }
+	: Identifier ASSIGN LanguageBlock
+	{ $$ = recordState( new yy.AssignmentStatementNode( new yy.AssignmentNode( $1, $3 ) ), @$); }
     ;
 
 LanguageBlock 	
@@ -55,6 +59,31 @@ LanguageBlock
     | LBRACKET IMPERATIVE RBRACKET Block
 	{ $$ = recordState( new yy.ImperativeBlockNode( $4 ), @$);  }
     ;
+
+ForLoop 	
+    : FOR LPAREN ExpressionList SEMICOLON OptionalExpression SEMICOLON OptionalExpression RPAREN Block
+	{ $$ = recordState( new yy.ForLoopNode( $3, $5, $7, $9 ), @$);  }
+    ;
+
+WhileLoop
+    : WHILE LPAREN OptionalExpression RPAREN Block
+	{ $$ = recordState( new yy.WhileLoopNode( $3, $5 ), @$);  }
+    ;
+
+OptionalExpression
+	: Expression
+	|
+	;
+
+ContinueStatement
+	: CONTINUE SEMICOLON
+	{ $$ = recordState( new yy.ContinueStatement(), @$);  }
+	;
+	
+BreakStatement
+	: BREAK SEMICOLON
+	{ $$ = recordState( new yy.BreakStatement(), @$);  }
+	;
 	
 Block 	
     : LBRACE StatementList RBRACE
@@ -63,9 +92,9 @@ Block
 
 ReturnStatement
     : RETURN ASSIGN Expression SEMICOLON
-	{ $$ = recordState( new yy.AssignmentNode( new yy.IdentifierNode( $1 ), $3 ), @$); }
+	{ $$ = recordState( new yy.AssignmentStatementNode( new yy.AssignmentNode( new yy.IdentifierNode( $1 ), $3 ) ), @$); }
 	| RETURN ASSIGN LanguageBlock
-	{ $$ = recordState( new yy.AssignmentNode( new yy.IdentifierNode( $1 ), $3 ), @$); }
+	{ $$ = recordState( new yy.AssignmentStatementNode( new yy.AssignmentNode( new yy.IdentifierNode( $1 ), $3 ) ), @$); }
 	;
 
 FunctionDefinition
@@ -73,8 +102,13 @@ FunctionDefinition
 	{ $$ = recordState( new yy.FunctionDefinitionNode( $2, $4, $7), @$); }
 	;
 
-Assignment	
-	: TypedIdentifier ASSIGN Expression SEMICOLON
+AssignmentStatement
+	: Assignment SEMICOLON
+	{ $$ = recordState( new yy.AssignmentStatementNode( $1 ), @$); }
+    ;
+	
+Assignment
+	: Identifier ASSIGN Expression
 	{ $$ = recordState( new yy.AssignmentNode( $1, $3 ), @$); }
     ;
 
@@ -124,6 +158,7 @@ Expression
     | FunctionCall
     | BinaryExpression
 	| RangeExpression
+	| Assignment
     | Identifier ReplicationGuideList
 	{ $$ = recordState( new yy.ReplicationExpressionNode($1, $2), @$); }
 	| LPAREN Expression RPAREN

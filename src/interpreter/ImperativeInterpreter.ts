@@ -151,6 +151,12 @@ export class ImperativeInterpreter implements CpsVisitor<any> {
             });
         });
     }
+    
+    visitAssignmentStatementNode(node: AST.AssignmentStatementNode, ret: (any) => any) {
+        this.step(node, () => {
+            node.assignment.cpsAccept(this, ret);
+        });
+    }
 
     visitFunctionCallNode(node: AST.FunctionCallNode, ret: (T) => void) {
         this.step(node, () => {
@@ -160,6 +166,22 @@ export class ImperativeInterpreter implements CpsVisitor<any> {
                 Replicator.cpsreplicate(f, args, ret)
             });
         });
+    }
+     
+    visitForLoopNode(node: AST.ForLoopNode, ret: (T) => void){
+        throw new Error("Not implemented!");
+    }
+    
+    visitWhileLoopNode(node: AST.WhileLoopNode, ret: (T) => void){
+         throw new Error("Not implemented!");
+    }
+    
+    visitContinueStatementNode(node: AST.ContinueStatementNode, ret: (T) => void){
+         throw new Error("Not implemented!");
+    }
+    
+    visitBreakStatementNode(node: AST.BreakStatementNode, ret: (T) => void){
+         throw new Error("Not implemented!");
     }
 
     visitExpressionListNode(node: AST.ExpressionListNode, ret: (T) => void) {

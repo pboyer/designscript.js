@@ -19,7 +19,7 @@ src/compiler/%.js: src/compiler/%.ts
 	tsc $(TSCOPTIONS) $^
 
 src/Parser.js: src/Parser.jison src/Lexer.jisonlex
-	jison src/Parser.jison src/Lexer.jisonlex -o src/Parser.js
+	jison src/Parser.jison src/Lexer.jisonlex -o src/Parser.js -p lalr 
 
 release: build
 	browserify release/release.js -o $(RELEASE_OUTPUT) -s $(RELEASE_NAME)
