@@ -92,7 +92,9 @@ Block
 
 ReturnStatement
     : RETURN ASSIGN Expression SEMICOLON
-	{ $$ = recordState( new yy.AssignmentStatementNode( new yy.AssignmentNode( new yy.IdentifierNode( $1 ), $3 ) ), @$); }
+	{ $$ = recordState( 
+		new yy.AssignmentStatementNode( new yy.AssignmentNode( new yy.IdentifierNode( $1 ), $3 ) ), 
+		@$); }
 	| RETURN ASSIGN LanguageBlock
 	{ $$ = recordState( new yy.AssignmentStatementNode( new yy.AssignmentNode( new yy.IdentifierNode( $1 ), $3 ) ), @$); }
 	;

@@ -1,102 +1,103 @@
 import { Label, Temp } from "./Frame";
+import * as AST from '../AST';
 
-export interface  Exp {
-	
+export interface Exp {
+
 }
 
-export class CONST implements Exp { 
-	value : any;
-	constructor(value : any){
+export class CONST implements Exp {
+	value: any;
+	constructor(value: any) {
 		this.value = value;
 	}
 }
 
-export class NAME implements Exp { 
-	label : Label;
-	constructor(label : Label){
+export class NAME implements Exp {
+	label: Label;
+	constructor(label: Label) {
 		this.label = label;
 	}
 }
 
-export class TEMP implements Exp { 
-	temp : Temp;
-	constructor(temp : Temp){
+export class TEMP implements Exp {
+	temp: Temp;
+	constructor(temp: Temp) {
 		this.temp = temp;
 	}
 }
 
-export class BINOP implements Exp { 
-	op : string;
-	left : Exp;
-	right : Exp;
-	constructor(op : string, left : Exp, right : Exp){
+export class BINOP implements Exp {
+	op: string;
+	left: Exp;
+	right: Exp;
+	constructor(op: string, left: Exp, right: Exp) {
 		this.op = op;
 		this.left = left;
 		this.right = right;
 	}
 }
 
-export class MEM implements Exp { 
-	exp : Exp;
-	constructor(exp : Exp){
+export class MEM implements Exp {
+	exp: Exp;
+	constructor(exp: Exp) {
 		this.exp = exp;
 	}
 }
 
 export class CALL implements Exp {
-	func : Exp;
-	args : Exp[];
-	constructor(func : Exp, args : Exp[] ){
+	func: Exp;
+	args: Exp[];
+	constructor(func: Exp, args: Exp[]) {
 		this.func = func;
 		this.args = args;
 	}
 }
 
-export class ESEQ implements Exp { 
-	stm : Stm;
-	exp : Exp;
-	constructor(stm : Stm, exp : Exp){
+export class ESEQ implements Exp {
+	stm: Stm;
+	exp: Exp;
+	constructor(stm: Stm, exp: Exp) {
 		this.stm = stm;
 		this.exp = exp;
 	}
 }
 
 export interface Stm {
-	
+
 }
 
-export class MOVE implements Stm { 
-	dst : Exp;
-	src : Exp;
-	constructor(dst : Exp, src : Exp){
+export class MOVE implements Stm {
+	dst: Exp;
+	src: Exp;
+	constructor(dst: Exp, src: Exp) {
 		this.dst = dst;
 		this.src = src;
 	}
 }
 
-export class EXP implements Stm { 
-	exp : Exp;
-	constructor(exp : Exp){
+export class EXP implements Stm {
+	exp: Exp;
+	constructor(exp: Exp) {
 		this.exp = exp;
 	}
 }
 
-export class JUMP implements Stm { 
-	exp : Exp;
-	targets : Label[];
-	constructor(exp : Exp, targets : Label[]){
+export class JUMP implements Stm {
+	exp: Exp;
+	targets: Label[];
+	constructor(exp: Exp, targets: Label[]) {
 		this.exp = exp;
 		this.targets = targets;
 	}
 }
 
-export class CJUMP implements Stm { 
-	op : string;
-	left : Exp;
-	right : Exp;
-	trueStm : Stm;
-	falseStm : Stm;
-	constructor(op : string, left : Exp, right : Exp, trueStm : Stm, falseStm : Stm){
+export class CJUMP implements Stm {
+	op: string;
+	left: Exp;
+	right: Exp;
+	trueStm: Stm;
+	falseStm: Stm;
+	constructor(op: string, left: Exp, right: Exp, trueStm: Stm, falseStm: Stm) {
 		this.op = op;
 		this.left = left;
 		this.right = right;
@@ -105,86 +106,109 @@ export class CJUMP implements Stm {
 	}
 }
 
-export class SEQ implements Stm { 
-	left : Stm;
-	right : Stm;
-	constructor(left: Stm, right : Stm){
+export class SEQ implements Stm {
+	left: Stm;
+	right: Stm;
+	constructor(left?: Stm, right?: Stm) {
 		this.left = left;
 		this.right = right;
 	}
 }
 
-export class LABEL implements Stm { 
-	label : Label;
-	constructor(label : Label){
+export class LABEL implements Stm {
+	label: Label;
+	constructor(label: Label) {
 		this.label = label;
 	}
 }
 
-export interface UnionExp {
-	unEx() : Exp;
-	unNx() : Stm;
-	unCx(t : Label, f : Label);
+interface TranslateEx {
+	unEx(): Exp;
+	unNx(): Stm;
+	unCx(t: Label, f: Label);
 }
 
-export class Ex {
+export class Ex implements TranslateEx {
 	exp: Exp;
-	
-	constructor(exp : Exp){
+
+	constructor(exp: Exp) {
 		this.exp = exp;
 	}
-	
-	unEx() : Exp{
+
+	unEx(): Exp {
 		return this.exp;
 	}
-	
-	unNx() : Stm {
-		throw new Error("Not implemented");
+
+	unNx(): Stm {
+		return new EXP(this.exp);
 	}
-	
-	unCx(t : Label, f : Label) {
+
+	unCx(t: Label, f: Label) {
 		throw new Error("Not implemented");
 	}
 }
 
-export class Nx {
-	stm : Stm;
-	
-	constructor(stm : Stm){
+export class Nx implements TranslateEx {
+	stm: Stm;
+
+	constructor(stm: Stm) {
 		this.stm = stm;
 	}
-	
-	unEx() : Exp {
+
+	unEx(): Exp {
 		throw new Error("Not implemented");
 	}
-	
-	unNx() : Stm {
+
+	unNx(): Stm {
 		return this.stm;
 	}
-	
-	unCx(t : Label, f : Label) {
+
+	unCx(t: Label, f: Label) : Stm {
 		throw new Error("Not implemented");
 	}
 }
 
-export class Cx {
-	t : Label;
-	f : Label;
-	
-	constructor(t : Label, f : Label){
+export class AssignmentEx implements TranslateEx {
+
+	constructor( e : AST.AssignmentNode ) {
+	}
+
+	unEx(): Exp {
+		
+		var loc = new MEM()
+		// assign it, return rhs
+		throw new Error("Not implemented");
+	}
+
+	unNx(): Stm {
+		// simply assign
+		throw new Error("Not implemented");
+	}
+
+	unCx(t: Label, f: Label) : Stm {
+		// not allowed
+		throw new Error("Not implemented");
+	}
+}
+
+export class Cx implements TranslateEx {
+	t: Label;
+	f: Label;
+
+	constructor(t: Label, f: Label) {
 		this.t = t;
 		this.f = f;
 	}
-	
-	unEx() : Exp{
+
+	unEx(): Exp {
 		throw new Error("Not implemented");
 	}
-	
-	unNx() : Stm {
+
+	unNx(): Stm {
 		throw new Error("Not implemented");
 	}
-	
-	unCx(t : Label, f : Label) {
+
+	unCx(t: Label, f: Label) : Stm {
 		throw new Error("Not implemented");
 	}
 }

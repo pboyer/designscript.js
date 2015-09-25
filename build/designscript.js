@@ -25,8 +25,7 @@ module.exports =
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var ParserState = (function () {
     function ParserState() {
@@ -369,6 +368,54 @@ var StatementNode = (function (_super) {
     return StatementNode;
 })(ParsedNode);
 exports.StatementNode = StatementNode;
+var ForLoopNode = (function (_super) {
+    __extends(ForLoopNode, _super);
+    function ForLoopNode(init, rangeCheckExpression, iterator, block) {
+        _super.call(this);
+        this.init = init;
+        this.test = rangeCheckExpression;
+        this.post = iterator;
+        this.block = block;
+    }
+    ForLoopNode.prototype.toLines = function (indent) {
+        var inits = this.init ? this.init.toLines("").join(',') : "";
+        var rangeCheck = this.test ? this.test.toString() : "";
+        var iterator = this.post ? this.post.toString() : "";
+        return [indent + 'for(' + inits + ';' + rangeCheck + ';' + iterator + '){']
+            .concat(this.block.toLines(indent + '\t'))
+            .concat([indent + '}']);
+    };
+    ForLoopNode.prototype.accept = function (v) {
+        return v.visitForLoopNode(this);
+    };
+    ForLoopNode.prototype.cpsAccept = function (v, c) {
+        v.visitForLoopNode(this, c);
+    };
+    return ForLoopNode;
+})(StatementNode);
+exports.ForLoopNode = ForLoopNode;
+var WhileLoopNode = (function (_super) {
+    __extends(WhileLoopNode, _super);
+    function WhileLoopNode(rangeCheckExpression, block) {
+        _super.call(this);
+        this.test = rangeCheckExpression;
+        this.block = block;
+    }
+    WhileLoopNode.prototype.toLines = function (indent) {
+        var rangeCheck = this.test ? this.test.toString() : "";
+        return [indent + 'while(' + rangeCheck + '){']
+            .concat(this.block.toLines(indent + '\t'))
+            .concat([indent + '}']);
+    };
+    WhileLoopNode.prototype.accept = function (v) {
+        return v.visitWhileLoopNode(this);
+    };
+    WhileLoopNode.prototype.cpsAccept = function (v, c) {
+        v.visitWhileLoopNode(this, c);
+    };
+    return WhileLoopNode;
+})(StatementNode);
+exports.WhileLoopNode = WhileLoopNode;
 var LanguageBlockNode = (function (_super) {
     __extends(LanguageBlockNode, _super);
     function LanguageBlockNode(name, sl) {
@@ -491,8 +538,8 @@ var AssignmentNode = (function (_super) {
         this.identifier = id;
         this.expression = e;
     }
-    AssignmentNode.prototype.toLines = function (indent) {
-        return [indent + this.identifier.toString() + ' = ' + this.expression.toString() + ';'];
+    AssignmentNode.prototype.toString = function () {
+        return this.identifier.toString() + ' = ' + this.expression.toString();
     };
     AssignmentNode.prototype.accept = function (v) {
         return v.visitAssignmentNode(this);
@@ -501,8 +548,60 @@ var AssignmentNode = (function (_super) {
         return v.visitAssignmentNode(this, ret);
     };
     return AssignmentNode;
-})(StatementNode);
+})(ParsedNode);
 exports.AssignmentNode = AssignmentNode;
+var AssignmentStatementNode = (function (_super) {
+    __extends(AssignmentStatementNode, _super);
+    function AssignmentStatementNode(assignment) {
+        _super.call(this);
+        this.assignment = assignment;
+    }
+    AssignmentStatementNode.prototype.toLines = function (indent) {
+        return [indent + this.assignment.toString() + ';'];
+    };
+    AssignmentStatementNode.prototype.accept = function (v) {
+        return v.visitAssignmentStatementNode(this);
+    };
+    AssignmentStatementNode.prototype.cpsAccept = function (v, ret) {
+        return v.visitAssignmentStatementNode(this, ret);
+    };
+    return AssignmentStatementNode;
+})(StatementNode);
+exports.AssignmentStatementNode = AssignmentStatementNode;
+var ContinueStatementNode = (function (_super) {
+    __extends(ContinueStatementNode, _super);
+    function ContinueStatementNode() {
+        _super.call(this);
+    }
+    ContinueStatementNode.prototype.toLines = function (indent) {
+        return [indent + "continue;"];
+    };
+    ContinueStatementNode.prototype.accept = function (v) {
+        return v.visitContinueStatementNode(this);
+    };
+    ContinueStatementNode.prototype.cpsAccept = function (v, ret) {
+        return v.visitContinueStatementNode(this, ret);
+    };
+    return ContinueStatementNode;
+})(StatementNode);
+exports.ContinueStatementNode = ContinueStatementNode;
+var BreakStatementNode = (function (_super) {
+    __extends(BreakStatementNode, _super);
+    function BreakStatementNode() {
+        _super.call(this);
+    }
+    BreakStatementNode.prototype.toLines = function (indent) {
+        return [indent + "break;"];
+    };
+    BreakStatementNode.prototype.accept = function (v) {
+        return v.visitBreakStatementNode(this);
+    };
+    BreakStatementNode.prototype.cpsAccept = function (v, ret) {
+        return v.visitBreakStatementNode(this, ret);
+    };
+    return BreakStatementNode;
+})(StatementNode);
+exports.BreakStatementNode = BreakStatementNode;
 
 },{}],3:[function(require,module,exports){
 (function (process){
@@ -580,12 +679,12 @@ exports.AssignmentNode = AssignmentNode;
   }
 */
 var parser = (function(){
-var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[2,3],$V1=[1,12],$V2=[1,16],$V3=[1,11],$V4=[1,15],$V5=[1,17],$V6=[5,23],$V7=[5,22,23,24,26,31,34],$V8=[1,22],$V9=[2,25],$Va=[1,25],$Vb=[2,24],$Vc=[1,39],$Vd=[1,44],$Ve=[1,38],$Vf=[1,40],$Vg=[1,41],$Vh=[1,42],$Vi=[1,43],$Vj=[2,30],$Vk=[2,23],$Vl=[1,62],$Vm=[1,56],$Vn=[1,57],$Vo=[1,58],$Vp=[1,59],$Vq=[1,60],$Vr=[1,61],$Vs=[12,20,23,30,33,42,45,46,47,48,49,50],$Vt=[1,66],$Vu=[23,30],$Vv=[16,30,33],$Vw=[1,87],$Vx=[12,20,23,30,33,45,46,48,49,50],$Vy=[12,20,23,30,33,45,46,47,48,49,50],$Vz=[12,20,23,30,33,50];
+var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[2,3],$V1=[1,23],$V2=[1,24],$V3=[1,22],$V4=[1,21],$V5=[1,16],$V6=[1,20],$V7=[1,15],$V8=[1,19],$V9=[1,25],$Va=[5,36],$Vb=[5,26,31,33,34,35,36,37,38,41,45],$Vc=[1,33],$Vd=[2,35],$Ve=[1,44],$Vf=[1,51],$Vg=[1,56],$Vh=[1,52],$Vi=[1,53],$Vj=[1,54],$Vk=[1,55],$Vl=[2,41],$Vm=[2,21],$Vn=[2,34],$Vo=[1,68],$Vp=[1,75],$Vq=[1,69],$Vr=[1,70],$Vs=[1,71],$Vt=[1,72],$Vu=[1,73],$Vv=[1,74],$Vw=[12,24,30,36,44,52,55,56,57,58,59,60],$Vx=[1,82],$Vy=[12,30,36],$Vz=[30,44],$VA=[1,104],$VB=[12,24,30,36,44,55,56,58,59,60],$VC=[12,24,30,36,44,55,56,57,58,59,60],$VD=[12,24,30,36,44,60];
 var parser = {trace: function trace() { },
 yy: {},
-symbols_: {"error":2,"Program":3,"StatementList":4,"ENDOFFILE":5,"Statement":6,"FunctionDefinition":7,"Block":8,"Assignment":9,"LanguageBlockAssignment":10,"FunctionCall":11,"SEMICOLON":12,"IfStatement":13,"ReturnStatement":14,"TypedIdentifier":15,"ASSIGN":16,"LanguageBlock":17,"LBRACKET":18,"ASSOCIATIVE":19,"RBRACKET":20,"IMPERATIVE":21,"LBRACE":22,"RBRACE":23,"RETURN":24,"Expression":25,"DEF":26,"Identifier":27,"LPAREN":28,"IdentifierList":29,"RPAREN":30,"IF":31,"ELSE":32,"COMMA":33,"ID":34,"COLON":35,"Type":36,"ExpressionList":37,"Literal":38,"BinaryExpression":39,"RangeExpression":40,"ReplicationGuideList":41,"DOTDOT":42,"CountExpression":43,"POUND":44,"PLUS":45,"MINUS":46,"TIMES":47,"EQUALITY":48,"RCARET":49,"OR":50,"ReplicationGuide":51,"LCARET":52,"NUMBER":53,"TRUE":54,"FALSE":55,"STRING":56,"$accept":0,"$end":1},
-terminals_: {2:"error",5:"ENDOFFILE",12:"SEMICOLON",16:"ASSIGN",18:"LBRACKET",19:"ASSOCIATIVE",20:"RBRACKET",21:"IMPERATIVE",22:"LBRACE",23:"RBRACE",24:"RETURN",26:"DEF",28:"LPAREN",30:"RPAREN",31:"IF",32:"ELSE",33:"COMMA",34:"ID",35:"COLON",42:"DOTDOT",44:"POUND",45:"PLUS",46:"MINUS",47:"TIMES",48:"EQUALITY",49:"RCARET",50:"OR",52:"LCARET",53:"NUMBER",54:"TRUE",55:"FALSE",56:"STRING"},
-productions_: [0,[3,2],[4,2],[4,0],[6,1],[6,1],[6,1],[6,1],[6,2],[6,1],[6,1],[10,3],[17,4],[17,4],[8,3],[14,4],[14,3],[7,8],[9,4],[13,5],[13,7],[29,3],[29,1],[29,0],[27,1],[15,1],[15,3],[36,1],[37,3],[37,1],[37,0],[25,1],[25,1],[25,1],[25,1],[25,1],[25,2],[25,3],[25,4],[40,3],[40,5],[40,6],[43,1],[43,1],[43,1],[43,3],[43,4],[39,3],[39,3],[39,3],[39,3],[39,3],[39,3],[51,3],[41,1],[41,2],[11,4],[38,1],[38,1],[38,1],[38,1],[38,3]],
+symbols_: {"error":2,"Program":3,"StatementList":4,"ENDOFFILE":5,"Statement":6,"FunctionDefinition":7,"Block":8,"AssignmentStatement":9,"LanguageBlockAssignment":10,"FunctionCall":11,"SEMICOLON":12,"IfStatement":13,"ReturnStatement":14,"BreakStatement":15,"ContinueStatement":16,"ForLoop":17,"WhileLoop":18,"Identifier":19,"ASSIGN":20,"LanguageBlock":21,"LBRACKET":22,"ASSOCIATIVE":23,"RBRACKET":24,"IMPERATIVE":25,"FOR":26,"LPAREN":27,"ExpressionList":28,"OptionalExpression":29,"RPAREN":30,"WHILE":31,"Expression":32,"CONTINUE":33,"BREAK":34,"LBRACE":35,"RBRACE":36,"RETURN":37,"DEF":38,"IdentifierList":39,"Assignment":40,"IF":41,"ELSE":42,"TypedIdentifier":43,"COMMA":44,"ID":45,"COLON":46,"Type":47,"Literal":48,"BinaryExpression":49,"RangeExpression":50,"ReplicationGuideList":51,"DOTDOT":52,"CountExpression":53,"POUND":54,"PLUS":55,"MINUS":56,"TIMES":57,"EQUALITY":58,"RCARET":59,"OR":60,"ReplicationGuide":61,"LCARET":62,"NUMBER":63,"TRUE":64,"FALSE":65,"STRING":66,"$accept":0,"$end":1},
+terminals_: {2:"error",5:"ENDOFFILE",12:"SEMICOLON",20:"ASSIGN",22:"LBRACKET",23:"ASSOCIATIVE",24:"RBRACKET",25:"IMPERATIVE",26:"FOR",27:"LPAREN",30:"RPAREN",31:"WHILE",33:"CONTINUE",34:"BREAK",35:"LBRACE",36:"RBRACE",37:"RETURN",38:"DEF",41:"IF",42:"ELSE",44:"COMMA",45:"ID",46:"COLON",52:"DOTDOT",54:"POUND",55:"PLUS",56:"MINUS",57:"TIMES",58:"EQUALITY",59:"RCARET",60:"OR",62:"LCARET",63:"NUMBER",64:"TRUE",65:"FALSE",66:"STRING"},
+productions_: [0,[3,2],[4,2],[4,0],[6,1],[6,1],[6,1],[6,1],[6,2],[6,1],[6,1],[6,1],[6,1],[6,1],[6,1],[10,3],[21,4],[21,4],[17,9],[18,5],[29,1],[29,0],[16,2],[15,2],[8,3],[14,4],[14,3],[7,8],[9,2],[40,3],[13,5],[13,7],[39,3],[39,1],[39,0],[19,1],[43,1],[43,3],[47,1],[28,3],[28,1],[28,0],[32,1],[32,1],[32,1],[32,1],[32,1],[32,1],[32,2],[32,3],[32,4],[50,3],[50,5],[50,6],[53,1],[53,1],[53,1],[53,3],[53,4],[49,3],[49,3],[49,3],[49,3],[49,3],[49,3],[61,3],[51,1],[51,2],[11,4],[48,1],[48,1],[48,1],[48,1],[48,3]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
 /* this == yyval */
 
@@ -600,109 +699,124 @@ break;
 case 3:
  this.$ = recordState( new yy.StatementListNode(), this._$); 
 break;
-case 11:
- this.$ = recordState( new yy.AssignmentNode( $$[$0-2], $$[$0] ), this._$); 
-break;
-case 12:
- this.$ = recordState( new yy.AssociativeBlockNode( $$[$0] ), this._$);  
-break;
-case 13:
- this.$ = recordState( new yy.ImperativeBlockNode( $$[$0] ), this._$);  
-break;
-case 14: case 37: case 45:
- this.$ = $$[$0-1]; 
-break;
 case 15:
- this.$ = recordState( new yy.AssignmentNode( new yy.IdentifierNode( $$[$0-3] ), $$[$0-1] ), this._$); 
+ this.$ = recordState( new yy.AssignmentStatementNode( new yy.AssignmentNode( $$[$0-2], $$[$0] ) ), this._$); 
 break;
 case 16:
- this.$ = recordState( new yy.AssignmentNode( new yy.IdentifierNode( $$[$0-2] ), $$[$0] ), this._$); 
+ this.$ = recordState( new yy.AssociativeBlockNode( $$[$0] ), this._$);  
 break;
 case 17:
- this.$ = recordState( new yy.FunctionDefinitionNode( $$[$0-6], $$[$0-4], $$[$0-1]), this._$); 
+ this.$ = recordState( new yy.ImperativeBlockNode( $$[$0] ), this._$);  
 break;
 case 18:
- this.$ = recordState( new yy.AssignmentNode( $$[$0-3], $$[$0-1] ), this._$); 
+ this.$ = recordState( new yy.ForLoopNode( $$[$0-6], $$[$0-4], $$[$0-2], $$[$0] ), this._$);  
 break;
 case 19:
- this.$ = recordState( new yy.IfStatementNode( $$[$0-2], $$[$0] ), this._$); 
-break;
-case 20:
- this.$ = recordState( new yy.IfStatementNode( $$[$0-4], $$[$0-2], $$[$0] ), this._$); 
-break;
-case 21:
- this.$ = recordState( new yy.IdentifierListNode( $$[$0-2], $$[$0] ), this._$); 
+ this.$ = recordState( new yy.WhileLoopNode( $$[$0-2], $$[$0] ), this._$);  
 break;
 case 22:
- this.$ = recordState( new yy.IdentifierListNode( $$[$0] ), this._$); 
+ this.$ = recordState( new yy.ContinueStatementNode(), this._$);  
 break;
-case 24:
- this.$ = recordState( new yy.IdentifierNode($$[$0]), this._$); 
+case 23:
+ this.$ = recordState( new yy.BreakStatementNode(), this._$);  
+break;
+case 24: case 49: case 57:
+ this.$ = $$[$0-1]; 
+break;
+case 25:
+ this.$ = recordState( new yy.AssignmentStatementNode( new yy.AssignmentNode( new yy.IdentifierNode( $$[$0-3] ), $$[$0-1] ) ), this._$); 
 break;
 case 26:
- this.$ = recordState( new yy.IdentifierNode( $$[$0-2], $$[$0] ), this._$); 
+ this.$ = recordState( new yy.AssignmentStatementNode( new yy.AssignmentNode( new yy.IdentifierNode( $$[$0-2] ), $$[$0] ) ), this._$); 
 break;
 case 27:
- this.$ = recordState( new yy.Type( $$[$0] ), this._$); 
+ this.$ = recordState( new yy.FunctionDefinitionNode( $$[$0-6], $$[$0-4], $$[$0-1]), this._$); 
 break;
 case 28:
- this.$ = recordState( new yy.ExpressionListNode($$[$0-2], $$[$0]), this._$); 
+ this.$ = recordState( new yy.AssignmentStatementNode( $$[$0-1] ), this._$); 
 break;
 case 29:
- this.$ = recordState( new yy.ExpressionListNode($$[$0]), this._$); 
+ this.$ = recordState( new yy.AssignmentNode( $$[$0-2], $$[$0] ), this._$); 
 break;
 case 30:
- this.$ = recordState( new yy.ExpressionListNode(), this._$); 
+ this.$ = recordState( new yy.IfStatementNode( $$[$0-2], $$[$0] ), this._$); 
 break;
-case 36:
- this.$ = recordState( new yy.ReplicationExpressionNode($$[$0-1], $$[$0]), this._$); 
+case 31:
+ this.$ = recordState( new yy.IfStatementNode( $$[$0-4], $$[$0-2], $$[$0] ), this._$); 
 break;
-case 38: case 46:
- this.$ = recordState( new yy.ArrayIndexNode( $$[$0-3], $$[$0-1] ), this._$); 
+case 32:
+ this.$ = recordState( new yy.IdentifierListNode( $$[$0-2], $$[$0] ), this._$); 
+break;
+case 33:
+ this.$ = recordState( new yy.IdentifierListNode( $$[$0] ), this._$); 
+break;
+case 35:
+ this.$ = recordState( new yy.IdentifierNode($$[$0]), this._$); 
+break;
+case 37:
+ this.$ = recordState( new yy.IdentifierNode( $$[$0-2], $$[$0] ), this._$); 
+break;
+case 38:
+ this.$ = recordState( new yy.Type( $$[$0] ), this._$); 
 break;
 case 39:
- this.$ = recordState( new yy.RangeExpressionNode($$[$0-2], $$[$0]), this._$); 
+ this.$ = recordState( new yy.ExpressionListNode($$[$0-2], $$[$0]), this._$); 
 break;
 case 40:
- this.$ = recordState( new yy.RangeExpressionNode($$[$0-4], $$[$0-2], $$[$0]), this._$); 
+ this.$ = recordState( new yy.ExpressionListNode($$[$0]), this._$); 
 break;
 case 41:
- this.$ = recordState( new yy.RangeExpressionNode($$[$0-5], $$[$0-3], $$[$0], true), this._$); 
+ this.$ = recordState( new yy.ExpressionListNode(), this._$); 
 break;
-case 47: case 48:
- this.$ = recordState( new yy.BinaryExpressionNode($$[$0-1] ,$$[$0-2], $$[$0]), this._$); 
+case 48:
+ this.$ = recordState( new yy.ReplicationExpressionNode($$[$0-1], $$[$0]), this._$); 
 break;
-case 49: case 50: case 51: case 52:
- this.$ = recordState( new yy.BinaryExpressionNode($$[$0-1], $$[$0-2], $$[$0]), this._$); 
+case 50: case 58:
+ this.$ = recordState( new yy.ArrayIndexNode( $$[$0-3], $$[$0-1] ), this._$); 
+break;
+case 51:
+ this.$ = recordState( new yy.RangeExpressionNode($$[$0-2], $$[$0]), this._$); 
+break;
+case 52:
+ this.$ = recordState( new yy.RangeExpressionNode($$[$0-4], $$[$0-2], $$[$0]), this._$); 
 break;
 case 53:
+ this.$ = recordState( new yy.RangeExpressionNode($$[$0-5], $$[$0-3], $$[$0], true), this._$); 
+break;
+case 59: case 60:
+ this.$ = recordState( new yy.BinaryExpressionNode($$[$0-1] ,$$[$0-2], $$[$0]), this._$); 
+break;
+case 61: case 62: case 63: case 64:
+ this.$ = recordState( new yy.BinaryExpressionNode($$[$0-1], $$[$0-2], $$[$0]), this._$); 
+break;
+case 65:
  this.$ = recordState( new yy.ReplicationGuideNode( $$[$0-1] ), this._$); 
 break;
-case 54:
+case 66:
  this.$ = recordState( new yy.ReplicationGuideListNode( $$[$0] ), this._$); 
 break;
-case 55:
+case 67:
  this.$ = recordState( new yy.ReplicationGuideListNode( $$[$0-1], $$[$0] ), this._$); 
 break;
-case 56:
+case 68:
  this.$ = recordState( new yy.FunctionCallNode($$[$0-3], $$[$0-1]), this._$); 
 break;
-case 57:
+case 69:
  this.$ = recordState( new yy.NumberNode( $$[$0] ), this._$); 
 break;
-case 58: case 59:
+case 70: case 71:
  this.$ = recordState( new yy.BooleanNode( $$[$0] ), this._$); 
 break;
-case 60:
+case 72:
  this.$ = recordState( new yy.StringNode( $$[$0] ), this._$); 
 break;
-case 61:
+case 73:
  this.$ = recordState( new yy.ArrayNode( $$[$0-1] ), this._$); 
 break;
 }
 },
-table: [{3:1,4:2,5:$V0,6:3,7:4,8:5,9:6,10:7,11:8,13:9,14:10,15:13,22:$V1,24:$V2,26:$V3,27:14,31:$V4,34:$V5},{1:[3]},{5:[1,18]},o($V6,$V0,{6:3,7:4,8:5,9:6,10:7,11:8,13:9,14:10,15:13,27:14,4:19,22:$V1,24:$V2,26:$V3,31:$V4,34:$V5}),o($V7,[2,4]),o($V7,[2,5]),o($V7,[2,6]),o($V7,[2,7]),{12:[1,20]},o($V7,[2,9]),o($V7,[2,10]),{27:21,34:$V8},{4:23,6:3,7:4,8:5,9:6,10:7,11:8,13:9,14:10,15:13,22:$V1,23:$V0,24:$V2,26:$V3,27:14,31:$V4,34:$V5},{16:[1,24]},{16:$V9,28:$Va},{28:[1,26]},{16:[1,27]},o([16,28,30,33],$Vb,{35:[1,28]}),{1:[2,1]},o($V6,[2,2]),o($V7,[2,8]),{28:[1,29]},o([12,18,20,23,28,30,33,42,45,46,47,48,49,50,52],$Vb),{23:[1,30]},{11:35,17:32,18:$Vc,22:$Vd,25:31,27:34,28:$Ve,34:$V8,38:33,39:36,40:37,53:$Vf,54:$Vg,55:$Vh,56:$Vi},{11:35,22:$Vd,25:46,27:34,28:$Ve,30:$Vj,34:$V8,37:45,38:33,39:36,40:37,53:$Vf,54:$Vg,55:$Vh,56:$Vi},{11:35,22:$Vd,25:47,27:34,28:$Ve,34:$V8,38:33,39:36,40:37,53:$Vf,54:$Vg,55:$Vh,56:$Vi},{11:35,17:49,18:$Vc,22:$Vd,25:48,27:34,28:$Ve,34:$V8,38:33,39:36,40:37,53:$Vf,54:$Vg,55:$Vh,56:$Vi},{34:[1,51],36:50},{15:53,27:54,29:52,30:$Vk,34:$V5},o([5,22,23,24,26,31,32,34],[2,14]),{12:[1,55],42:$Vl,45:$Vm,46:$Vn,47:$Vo,48:$Vp,49:$Vq,50:$Vr},o($V7,[2,11]),o($Vs,[2,31]),o($Vs,[2,32],{41:63,51:65,18:[1,64],28:$Va,52:$Vt}),o($Vs,[2,33]),o($Vs,[2,34]),o($Vs,[2,35]),{11:35,22:$Vd,25:67,27:34,28:$Ve,34:$V8,38:33,39:36,40:37,53:$Vf,54:$Vg,55:$Vh,56:$Vi},{19:[1,68],21:[1,69]},o($Vs,[2,57]),o($Vs,[2,58]),o($Vs,[2,59]),o($Vs,[2,60]),{11:35,22:$Vd,23:$Vj,25:46,27:34,28:$Ve,34:$V8,37:70,38:33,39:36,40:37,53:$Vf,54:$Vg,55:$Vh,56:$Vi},{30:[1,71]},o($Vu,[2,29],{33:[1,72],42:$Vl,45:$Vm,46:$Vn,47:$Vo,48:$Vp,49:$Vq,50:$Vr}),{30:[1,73],42:$Vl,45:$Vm,46:$Vn,47:$Vo,48:$Vp,49:$Vq,50:$Vr},{12:[1,74],42:$Vl,45:$Vm,46:$Vn,47:$Vo,48:$Vp,49:$Vq,50:$Vr},o($V7,[2,16]),o($Vv,[2,26]),o($Vv,[2,27]),{30:[1,75]},{30:[2,22],33:[1,76]},o([30,33],$V9),o($V7,[2,18]),{11:35,22:$Vd,25:77,27:34,28:$Ve,34:$V8,38:33,39:36,40:37,53:$Vf,54:$Vg,55:$Vh,56:$Vi},{11:35,22:$Vd,25:78,27:34,28:$Ve,34:$V8,38:33,39:36,40:37,53:$Vf,54:$Vg,55:$Vh,56:$Vi},{11:35,22:$Vd,25:79,27:34,28:$Ve,34:$V8,38:33,39:36,40:37,53:$Vf,54:$Vg,55:$Vh,56:$Vi},{11:35,22:$Vd,25:80,27:34,28:$Ve,34:$V8,38:33,39:36,40:37,53:$Vf,54:$Vg,55:$Vh,56:$Vi},{11:35,22:$Vd,25:81,27:34,28:$Ve,34:$V8,38:33,39:36,40:37,53:$Vf,54:$Vg,55:$Vh,56:$Vi},{11:35,22:$Vd,25:82,27:34,28:$Ve,34:$V8,38:33,39:36,40:37,53:$Vf,54:$Vg,55:$Vh,56:$Vi},{11:86,22:$Vd,27:85,28:$Vw,34:$V8,38:84,43:83,53:$Vf,54:$Vg,55:$Vh,56:$Vi},o($Vs,[2,36]),{11:35,22:$Vd,25:88,27:34,28:$Ve,34:$V8,38:33,39:36,40:37,53:$Vf,54:$Vg,55:$Vh,56:$Vi},o($Vs,[2,54],{51:65,41:89,52:$Vt}),{11:35,22:$Vd,25:90,27:34,28:$Ve,34:$V8,38:33,39:36,40:37,53:$Vf,54:$Vg,55:$Vh,56:$Vi},{30:[1,91],42:$Vl,45:$Vm,46:$Vn,47:$Vo,48:$Vp,49:$Vq,50:$Vr},{20:[1,92]},{20:[1,93]},{23:[1,94]},o($Vs,[2,56]),o($Vu,$Vj,{38:33,27:34,11:35,39:36,40:37,25:46,37:95,22:$Vd,28:$Ve,34:$V8,53:$Vf,54:$Vg,55:$Vh,56:$Vi}),{8:96,22:$V1},o($V7,[2,15]),{22:[1,97]},{15:53,27:54,29:98,30:$Vk,34:$V5},o($Vx,[2,47],{42:$Vl,47:$Vo}),o($Vx,[2,48],{42:$Vl,47:$Vo}),o($Vy,[2,49],{42:$Vl}),o($Vz,[2,50],{42:$Vl,45:$Vm,46:$Vn,47:$Vo}),o($Vz,[2,51],{42:$Vl,45:$Vm,46:$Vn,47:$Vo}),o($Vz,[2,52],{42:$Vl,45:$Vm,46:$Vn,47:$Vo,48:$Vp,49:$Vq}),o($Vy,[2,39],{42:[1,99]}),o($Vs,[2,42]),o($Vs,[2,43],{18:[1,100],28:$Va}),o($Vs,[2,44]),{11:35,22:$Vd,25:101,27:34,28:$Ve,34:$V8,38:33,39:36,40:37,53:$Vf,54:$Vg,55:$Vh,56:$Vi},{20:[1,102],42:$Vl,45:$Vm,46:$Vn,47:$Vo,48:$Vp,49:$Vq,50:$Vr},o($Vs,[2,55]),{42:$Vl,45:$Vm,46:$Vn,47:$Vo,48:$Vp,49:[1,103],50:$Vr},o($Vs,[2,37]),{8:104,22:$V1},{8:105,22:$V1},o($Vs,[2,61]),o($Vu,[2,28]),o($V7,[2,19],{32:[1,106]}),{4:107,6:3,7:4,8:5,9:6,10:7,11:8,13:9,14:10,15:13,22:$V1,23:$V0,24:$V2,26:$V3,27:14,31:$V4,34:$V5},{30:[2,21]},{11:86,22:$Vd,27:85,28:$Vw,34:$V8,38:84,43:108,44:[1,109],53:$Vf,54:$Vg,55:$Vh,56:$Vi},{11:35,22:$Vd,25:110,27:34,28:$Ve,34:$V8,38:33,39:36,40:37,53:$Vf,54:$Vg,55:$Vh,56:$Vi},{30:[1,111],42:$Vl,45:$Vm,46:$Vn,47:$Vo,48:$Vp,49:$Vq,50:$Vr},o($Vs,[2,38]),o([12,20,23,30,33,42,45,46,47,48,49,50,52],[2,53],{38:33,27:34,11:35,39:36,40:37,25:81,22:$Vd,28:$Ve,34:$V8,53:$Vf,54:$Vg,55:$Vh,56:$Vi}),o($V7,[2,12]),o($V7,[2,13]),{6:112,7:4,8:5,9:6,10:7,11:8,13:9,14:10,15:13,22:$V1,24:$V2,26:$V3,27:14,31:$V4,34:$V5},{23:[1,113]},o($Vs,[2,40]),{11:86,22:$Vd,27:85,28:$Vw,34:$V8,38:84,43:114,53:$Vf,54:$Vg,55:$Vh,56:$Vi},{20:[1,115],42:$Vl,45:$Vm,46:$Vn,47:$Vo,48:$Vp,49:$Vq,50:$Vr},o($Vs,[2,45]),o($V7,[2,20]),o($V7,[2,17]),o($Vs,[2,41]),o($Vs,[2,46])],
-defaultActions: {18:[2,1],98:[2,21]},
+table: [{3:1,4:2,5:$V0,6:3,7:4,8:5,9:6,10:7,11:8,13:9,14:10,15:11,16:12,17:13,18:14,19:18,26:$V1,31:$V2,33:$V3,34:$V4,35:$V5,37:$V6,38:$V7,40:17,41:$V8,45:$V9},{1:[3]},{5:[1,26]},o($Va,$V0,{6:3,7:4,8:5,9:6,10:7,11:8,13:9,14:10,15:11,16:12,17:13,18:14,40:17,19:18,4:27,26:$V1,31:$V2,33:$V3,34:$V4,35:$V5,37:$V6,38:$V7,41:$V8,45:$V9}),o($Vb,[2,4]),o($Vb,[2,5]),o($Vb,[2,6]),o($Vb,[2,7]),{12:[1,28]},o($Vb,[2,9]),o($Vb,[2,10]),o($Vb,[2,11]),o($Vb,[2,12]),o($Vb,[2,13]),o($Vb,[2,14]),{19:29,45:$V9},{4:30,6:3,7:4,8:5,9:6,10:7,11:8,13:9,14:10,15:11,16:12,17:13,18:14,19:18,26:$V1,31:$V2,33:$V3,34:$V4,35:$V5,36:$V0,37:$V6,38:$V7,40:17,41:$V8,45:$V9},{12:[1,31]},{20:[1,32],27:$Vc},{27:[1,34]},{20:[1,35]},{12:[1,36]},{12:[1,37]},{27:[1,38]},{27:[1,39]},o([12,20,22,24,27,30,36,44,52,55,56,57,58,59,60,62],$Vd),{1:[2,1]},o($Va,[2,2]),o($Vb,[2,8]),{27:[1,40]},{36:[1,41]},o($Vb,[2,28]),{11:47,19:46,21:42,22:$Ve,27:$Vf,32:43,35:$Vg,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},{11:47,19:46,27:$Vf,28:57,30:$Vl,32:58,35:$Vg,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},{11:47,19:46,27:$Vf,32:59,35:$Vg,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},{11:47,19:46,21:61,22:$Ve,27:$Vf,32:60,35:$Vg,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},o($Vb,[2,23]),o($Vb,[2,22]),{11:47,12:$Vl,19:46,27:$Vf,28:62,32:58,35:$Vg,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},{11:47,19:46,27:$Vf,29:63,30:$Vm,32:64,35:$Vg,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},{19:67,30:$Vn,39:65,43:66,45:$Vo},o([5,26,31,33,34,35,36,37,38,41,42,45],[2,24]),o($Vb,[2,15]),o([12,24,30,36,44],[2,29],{52:$Vp,55:$Vq,56:$Vr,57:$Vs,58:$Vt,59:$Vu,60:$Vv}),{23:[1,76],25:[1,77]},o($Vw,[2,42]),o($Vw,[2,43],{51:78,61:81,20:[1,80],22:[1,79],27:$Vc,62:$Vx}),o($Vw,[2,44]),o($Vw,[2,45]),o($Vw,[2,46]),o($Vw,[2,47]),{11:47,19:46,27:$Vf,32:83,35:$Vg,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},o($Vw,[2,69]),o($Vw,[2,70]),o($Vw,[2,71]),o($Vw,[2,72]),{11:47,19:46,27:$Vf,28:84,32:58,35:$Vg,36:$Vl,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},{30:[1,85]},o($Vy,[2,40],{44:[1,86],52:$Vp,55:$Vq,56:$Vr,57:$Vs,58:$Vt,59:$Vu,60:$Vv}),{30:[1,87],52:$Vp,55:$Vq,56:$Vr,57:$Vs,58:$Vt,59:$Vu,60:$Vv},{12:[1,88],52:$Vp,55:$Vq,56:$Vr,57:$Vs,58:$Vt,59:$Vu,60:$Vv},o($Vb,[2,26]),{12:[1,89]},{30:[1,90]},o([12,30],[2,20],{52:$Vp,55:$Vq,56:$Vr,57:$Vs,58:$Vt,59:$Vu,60:$Vv}),{30:[1,91]},{30:[2,33],44:[1,92]},o($Vz,[2,36]),o($Vz,$Vd,{46:[1,93]}),{11:47,19:46,27:$Vf,32:94,35:$Vg,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},{11:47,19:46,27:$Vf,32:95,35:$Vg,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},{11:47,19:46,27:$Vf,32:96,35:$Vg,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},{11:47,19:46,27:$Vf,32:97,35:$Vg,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},{11:47,19:46,27:$Vf,32:98,35:$Vg,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},{11:47,19:46,27:$Vf,32:99,35:$Vg,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},{11:103,19:102,27:$VA,35:$Vg,45:$V9,48:101,53:100,63:$Vh,64:$Vi,65:$Vj,66:$Vk},{24:[1,105]},{24:[1,106]},o($Vw,[2,48]),{11:47,19:46,27:$Vf,32:107,35:$Vg,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},{11:47,19:46,27:$Vf,32:43,35:$Vg,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},o($Vw,[2,66],{61:81,51:108,62:$Vx}),{11:47,19:46,27:$Vf,32:109,35:$Vg,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},{30:[1,110],52:$Vp,55:$Vq,56:$Vr,57:$Vs,58:$Vt,59:$Vu,60:$Vv},{36:[1,111]},o($Vw,[2,68]),o($Vy,$Vl,{48:45,19:46,11:47,49:48,50:49,40:50,32:58,28:112,27:$Vf,35:$Vg,45:$V9,63:$Vh,64:$Vi,65:$Vj,66:$Vk}),{8:113,35:$V5},o($Vb,[2,25]),{11:47,12:$Vm,19:46,27:$Vf,29:114,32:64,35:$Vg,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},{8:115,35:$V5},{35:[1,116]},{19:67,30:$Vn,39:117,43:66,45:$Vo},{45:[1,119],47:118},o($VB,[2,59],{52:$Vp,57:$Vs}),o($VB,[2,60],{52:$Vp,57:$Vs}),o($VC,[2,61],{52:$Vp}),o($VD,[2,62],{52:$Vp,55:$Vq,56:$Vr,57:$Vs}),o($VD,[2,63],{52:$Vp,55:$Vq,56:$Vr,57:$Vs}),o($VD,[2,64],{52:$Vp,55:$Vq,56:$Vr,57:$Vs,58:$Vt,59:$Vu}),o($VC,[2,51],{52:[1,120]}),o($Vw,[2,54]),o($Vw,[2,55],{22:[1,121],27:$Vc}),o($Vw,[2,56]),{11:47,19:46,27:$Vf,32:122,35:$Vg,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},{8:123,35:$V5},{8:124,35:$V5},{24:[1,125],52:$Vp,55:$Vq,56:$Vr,57:$Vs,58:$Vt,59:$Vu,60:$Vv},o($Vw,[2,67]),{52:$Vp,55:$Vq,56:$Vr,57:$Vs,58:$Vt,59:[1,126],60:$Vv},o($Vw,[2,49]),o($Vw,[2,73]),o($Vy,[2,39]),o($Vb,[2,30],{42:[1,127]}),{12:[1,128]},o($Vb,[2,19]),{4:129,6:3,7:4,8:5,9:6,10:7,11:8,13:9,14:10,15:11,16:12,17:13,18:14,19:18,26:$V1,31:$V2,33:$V3,34:$V4,35:$V5,36:$V0,37:$V6,38:$V7,40:17,41:$V8,45:$V9},{30:[2,32]},o($Vz,[2,37]),o($Vz,[2,38]),{11:103,19:102,27:$VA,35:$Vg,45:$V9,48:101,53:130,54:[1,131],63:$Vh,64:$Vi,65:$Vj,66:$Vk},{11:47,19:46,27:$Vf,32:132,35:$Vg,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},{30:[1,133],52:$Vp,55:$Vq,56:$Vr,57:$Vs,58:$Vt,59:$Vu,60:$Vv},o($Vb,[2,16]),o($Vb,[2,17]),o($Vw,[2,50]),o([12,24,30,36,44,52,55,56,57,58,59,60,62],[2,65],{48:45,19:46,11:47,49:48,50:49,40:50,32:98,27:$Vf,35:$Vg,45:$V9,63:$Vh,64:$Vi,65:$Vj,66:$Vk}),{6:134,7:4,8:5,9:6,10:7,11:8,13:9,14:10,15:11,16:12,17:13,18:14,19:18,26:$V1,31:$V2,33:$V3,34:$V4,35:$V5,37:$V6,38:$V7,40:17,41:$V8,45:$V9},{11:47,19:46,27:$Vf,29:135,30:$Vm,32:64,35:$Vg,40:50,45:$V9,48:45,49:48,50:49,63:$Vh,64:$Vi,65:$Vj,66:$Vk},{36:[1,136]},o($Vw,[2,52]),{11:103,19:102,27:$VA,35:$Vg,45:$V9,48:101,53:137,63:$Vh,64:$Vi,65:$Vj,66:$Vk},{24:[1,138],52:$Vp,55:$Vq,56:$Vr,57:$Vs,58:$Vt,59:$Vu,60:$Vv},o($Vw,[2,57]),o($Vb,[2,31]),{30:[1,139]},o($Vb,[2,27]),o($Vw,[2,53]),o($Vw,[2,58]),{8:140,35:$V5},o($Vb,[2,18])],
+defaultActions: {26:[2,1],117:[2,32]},
 parseError: function parseError(str, hash) {
     if (hash.recoverable) {
         this.trace(str);
@@ -1188,11 +1302,11 @@ var YYSTATE=YY_START;
 switch($avoiding_name_collisions) {
 case 0:/* ignore comment */
 break;
-case 1:return 31;
+case 1:return 41;
 break;
-case 2:return 32;
+case 2:return 42;
 break;
-case 3:return 26;
+case 3:return 38;
 break;
 case 4:return 'VAR';
 break;
@@ -1200,74 +1314,82 @@ case 5:return 'VARRANGE';
 break;
 case 6:return 'NUL';
 break;
-case 7:return 54;
+case 7:return 64;
 break;
-case 8:return 55;
+case 8:return 65;
 break;
-case 9:return 21;
+case 9:return 26;
 break;
-case 10:return 19;
+case 10:return 31;
 break;
-case 11:return 24;
+case 11:return 34;
 break;
-case 12:return 53;
+case 12:return 33;
 break;
-case 13:return 34;
+case 13:return 25;
 break;
-case 14:return 56;
+case 14:return 23;
 break;
-case 15:return 48;
+case 15:return 37;
 break;
-case 16:return 16;
+case 16:return 63;
 break;
 case 17:return 45;
 break;
-case 18:return 46;
+case 18:return 66;
 break;
-case 19:return 47;
+case 19:return 58;
 break;
-case 20:return 35;
+case 20:return 20;
 break;
-case 21:return 42;
+case 21:return 55;
 break;
-case 22:return 44;
+case 22:return 56;
 break;
-case 23:return 33;
+case 23:return 57;
 break;
-case 24:return 52;
+case 24:return 46;
 break;
-case 25:return 49;
+case 25:return 52;
 break;
-case 26:return 50;
+case 26:return 54;
 break;
-case 27:return 'NOT';
+case 27:return 44;
 break;
-case 28:return 'DOT';
+case 28:return 62;
 break;
-case 29:return 22;
+case 29:return 59;
 break;
-case 30:return 23;
+case 30:return 60;
 break;
-case 31:return 28;
+case 31:return 'NOT';
 break;
-case 32:return 30;
+case 32:return 'DOT';
 break;
-case 33:return 18;
+case 33:return 35;
 break;
-case 34:return 20;
+case 34:return 36;
 break;
-case 35:return 12;
+case 35:return 27;
 break;
-case 36:/* skip whitespace */
+case 36:return 30;
 break;
-case 37:throw 'Illegal character';
+case 37:return 22;
 break;
-case 38:return 5;
+case 38:return 24;
+break;
+case 39:return 12;
+break;
+case 40:/* skip whitespace */
+break;
+case 41:throw 'Illegal character';
+break;
+case 42:return 5;
 break;
 }
 },
-rules: [/^(?:\/\/.*)/,/^(?:if\b)/,/^(?:else\b)/,/^(?:def\b)/,/^(?:var\b)/,/^(?:var\[\]\.\.\[\])/,/^(?:null\b)/,/^(?:true\b)/,/^(?:false\b)/,/^(?:Imperative\b)/,/^(?:Associative\b)/,/^(?:return\b)/,/^(?:([-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?))/,/^(?:([a-zA-Z][a-zA-Z0-9]*(\[\])*))/,/^(?:"([a-zA-Z0-9\s]*)")/,/^(?:==)/,/^(?:=)/,/^(?:\+)/,/^(?:-)/,/^(?:\*)/,/^(?::)/,/^(?:\.\.)/,/^(?:#)/,/^(?:,)/,/^(?:<)/,/^(?:>)/,/^(?:\|\|)/,/^(?:!)/,/^(?:\.)/,/^(?:\{)/,/^(?:\})/,/^(?:\()/,/^(?:\))/,/^(?:\[)/,/^(?:\])/,/^(?:;)/,/^(?:\s+)/,/^(?:\.)/,/^(?:$)/],
-conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38],"inclusive":true}}
+rules: [/^(?:\/\/.*)/,/^(?:if\b)/,/^(?:else\b)/,/^(?:def\b)/,/^(?:var\b)/,/^(?:var\[\]\.\.\[\])/,/^(?:null\b)/,/^(?:true\b)/,/^(?:false\b)/,/^(?:for\b)/,/^(?:while\b)/,/^(?:break\b)/,/^(?:continue\b)/,/^(?:Imperative\b)/,/^(?:Associative\b)/,/^(?:return\b)/,/^(?:([-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?))/,/^(?:([a-zA-Z][a-zA-Z0-9]*(\[\])*))/,/^(?:"([a-zA-Z0-9\s]*)")/,/^(?:==)/,/^(?:=)/,/^(?:\+)/,/^(?:-)/,/^(?:\*)/,/^(?::)/,/^(?:\.\.)/,/^(?:#)/,/^(?:,)/,/^(?:<)/,/^(?:>)/,/^(?:\|\|)/,/^(?:!)/,/^(?:\.)/,/^(?:\{)/,/^(?:\})/,/^(?:\()/,/^(?:\))/,/^(?:\[)/,/^(?:\])/,/^(?:;)/,/^(?:\s+)/,/^(?:\.)/,/^(?:$)/],
+conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42],"inclusive":true}}
 });
 return lexer;
 })();
@@ -1508,6 +1630,12 @@ var AssociativeInterpreter = (function () {
             });
         });
     };
+    AssociativeInterpreter.prototype.visitAssignmentStatementNode = function (node, ret) {
+        var _this = this;
+        this.step(node, function () {
+            node.assignment.cpsAccept(_this, ret);
+        });
+    };
     AssociativeInterpreter.prototype.visitFunctionCallNode = function (node, ret) {
         var _this = this;
         this.step(node, function () {
@@ -1716,7 +1844,6 @@ var AssociativeInterpreter = (function () {
                 // in a new interpreter
                 new AssociativeInterpreter(this.debug), 
                 // and extracts the resultant value from the evaluated DependencyNode
-                // and extracts the resultant value from the evaluated DependencyNode
                 function (n) { return c(n.value); });
             }.bind(_this));
             // go...
@@ -1742,6 +1869,18 @@ var AssociativeInterpreter = (function () {
     AssociativeInterpreter.prototype.visitIdentifierListNode = function (node, ret) { throw new Error("Not implemented"); };
     AssociativeInterpreter.prototype.error = function (message, state) {
         return new RuntimeTypes_1.DesignScriptError(message, state);
+    };
+    AssociativeInterpreter.prototype.visitForLoopNode = function (node, ret) {
+        throw new Error("For Loops are not supported in Associative language blocks. Try using an Imperative code block.");
+    };
+    AssociativeInterpreter.prototype.visitWhileLoopNode = function (node, ret) {
+        throw new Error("While Loops are not supported in Associative language blocks. Try using an Imperative code block.");
+    };
+    AssociativeInterpreter.prototype.visitContinueStatementNode = function (node, ret) {
+        throw new Error("continue statements are not supported in Associative language blocks. Try using an Imperative code block.");
+    };
+    AssociativeInterpreter.prototype.visitBreakStatementNode = function (node, ret) {
+        throw new Error("break statements are not supported in Associative language blocks. Try using an Imperative code block.");
     };
     return AssociativeInterpreter;
 })();
@@ -1913,6 +2052,12 @@ var ImperativeInterpreter = (function () {
             });
         });
     };
+    ImperativeInterpreter.prototype.visitAssignmentStatementNode = function (node, ret) {
+        var _this = this;
+        this.step(node, function () {
+            node.assignment.cpsAccept(_this, ret);
+        });
+    };
     ImperativeInterpreter.prototype.visitFunctionCallNode = function (node, ret) {
         var _this = this;
         this.step(node, function () {
@@ -1921,6 +2066,83 @@ var ImperativeInterpreter = (function () {
                 Replicator_1.Replicator.cpsreplicate(f, args, ret);
             });
         });
+    };
+    ImperativeInterpreter.prototype.evalLoopBlock = function (block, loop, breakLoop) {
+        var _this = this;
+        var innerCheck = this.debug;
+        var cleanup = function () { return _this.debug = innerCheck; };
+        var check = function (a, e, s, r) {
+            innerCheck(a, e, s, function () {
+                if (a instanceof AST.ContinueStatementNode) {
+                    cleanup();
+                    loop();
+                }
+                else if (a instanceof AST.BreakStatementNode) {
+                    cleanup();
+                    breakLoop(undefined);
+                    return;
+                }
+                else {
+                    r(); // continue execution of the block
+                }
+            });
+        };
+        this.debug = check;
+        block.cpsAccept(this, loop);
+    };
+    ImperativeInterpreter.prototype.visitWhileLoopNode = function (node, ret) {
+        var _this = this;
+        var loop = function () {
+            // evaluate test expression
+            node.test.cpsAccept(_this, function (r) {
+                // if the test expression is true
+                if (r === true) {
+                    // execute the block
+                    _this.evalLoopBlock(node.block, loop, ret);
+                }
+                else {
+                    // exit loop
+                    ret(undefined);
+                }
+            });
+        };
+        this.step(node, loop);
+    };
+    ImperativeInterpreter.prototype.visitForLoopNode = function (node, ret) {
+        var _this = this;
+        var loop = function () {
+            // evaluate test expression
+            node.test.cpsAccept(_this, function (r) {
+                // if the test expression is true
+                if (r === true) {
+                    // execute the block, post, and repeat
+                    _this.evalLoopBlock(node.block, post, ret);
+                }
+                else {
+                    // exit loop
+                    ret(undefined);
+                }
+            });
+        };
+        var post = function () {
+            node.post.cpsAccept(_this, function (_) {
+                loop();
+            });
+        };
+        // 0 evaluate init expressions
+        // 1 check value
+        // 2 eval block
+        // 3 do increment
+        // goto 1
+        this.step(node, function () {
+            node.init.cpsAccept(_this, function (_) { return loop(); });
+        });
+    };
+    ImperativeInterpreter.prototype.visitContinueStatementNode = function (node, ret) {
+        this.step(node, function () { return ret(undefined); });
+    };
+    ImperativeInterpreter.prototype.visitBreakStatementNode = function (node, ret) {
+        this.step(node, function () { return ret(undefined); });
     };
     ImperativeInterpreter.prototype.visitExpressionListNode = function (node, ret) {
         var _this = this;
