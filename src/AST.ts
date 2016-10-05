@@ -233,11 +233,7 @@ export class RangeExpressionNode extends ParsedNode implements ExpressionNode {
     }
 
     toString() {
-        return
-        this.start.toString() + '..' + this.end.toString() +
-        (this.step == null ? '' :
-            '..' + (this.isStepCount ? '#' : '') + this.step.toString());
-
+        return this.start.toString() + '..' + this.end.toString() + (this.step == null ? '' : '..' + (this.isStepCount ? '#' : '') + this.step.toString());
     }
 
     accept<T>(v: Visitor<T>): T {
