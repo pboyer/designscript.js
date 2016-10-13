@@ -4,7 +4,9 @@ RELEASE_OUTPUT=build/designscript.js
 
 all: build release
 
-build: src/AST.js src/ParserTest.js src/compiler/*.js src/interpreter/*.js src/Parser.js
+build: src/AST.js src/ParserTest.js src/interpreter/*.js src/Parser.js
+
+compiler: src/compiler/*.js 
 
 src/AST.js: src/AST.ts
 	tsc $(TSCOPTIONS) $^
